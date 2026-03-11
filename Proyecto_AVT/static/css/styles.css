@@ -1,0 +1,77 @@
+:root {
+    --red1: #A8181B;
+    --red2: #df1d1d;
+    --navy: #860404;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.main-header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.header-logo {
+    width: 120px;
+}
+
+.background {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, var(--red1), var(--red2));
+}
+
+.card {
+    width: 400px;
+    background: #faf7f7;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.card-logos {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.card-logos img {
+    height: 70px;
+}
+
+h2 {
+    text-align: center;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 2px solid var(--navy);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    background: var(--red1);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--red2);
+}

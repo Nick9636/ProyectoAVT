@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Consultar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+         :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Filtros -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Filtros de Búsqueda</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
+                    <input type="date" id="fechaFin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Liga</label>
+                    <select id="ligaFiltro" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="">Todas las ligas</option>
+                        <option value="municipal">Liga Municipal</option>
+                        <option value="juvenil">Liga Juvenil</option>
+                        <option value="femenil">Liga Femenil</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                    <select id="estadoFiltro" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="">Todos</option>
+                        <option value="pagado">Pagado</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="verificado">Verificado</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex space-x-4">
+                <button onclick="aplicarFiltros()" class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition-colors">
+                    <i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>
+                    Aplicar Filtros
+                </button>
+                <button onclick="limpiarFiltros()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                    Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Resumen de ingresos -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">$0</div>
+                <div class="text-gray-600">Ingresos Totales</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">$0</div>
+                <div class="text-gray-600">Pagos Verificados</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-600 mb-2">$0</div>
+                <div class="text-gray-600">Pagos Pendientes</div>
+            </div>
+        </div>
+
+        <!-- Gráfica de ingresos por liga
+        <div class="bg-white rounded-xl shadow-md p-8 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Ingresos por Liga</h3>
+                <button onclick="descargarGrafica()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                    <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+                    Descargar Gráfica
+                </button>
+            </div>
+            
+            <div class="h-64 flex items-end justify-center space-x-2">
+                <h2 class="font-bold text-gray-900 mb-2">Sin elementos</h2>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-red-700 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 180px;">
+                        $45k
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Liga Municipal</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-blue-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 120px;">
+                        $32k
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Liga Juvenil</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-green-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 150px;">
+                        $38k
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Liga Femenil</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-purple-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 90px;">
+                        $22k
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Liga Veteranos</span>
+                </div>-->
+            </div>
+        </div>
+
+        <!-- Tabla de ingresos detallada -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-semibold text-gray-900">Detalle de Ingresos</h3>
+                <div class="flex space-x-3">
+                    <button onclick="descargarPDF()" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition-colors text-sm">
+                        <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
+                        Descargar PDF
+                    </button>
+                    <button onclick="descargarExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 inline mr-2"></i>
+                        Descargar Excel
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jugador</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Liga</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-900">--/--/----</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">------ --------</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">------- </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Inscripción</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$150.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">-------</span>
+                            </td>
+                        </tr>
+                        <!--<tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-900">14/12/2024</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">María González</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Liga Femenil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Mensualidad</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$100.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Pagado</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-900">13/12/2024</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Carlos López</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Liga Juvenil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Inscripción</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$150.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendiente</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-900">12/12/2024</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Ana Martínez</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Liga Municipal</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Renovación</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$120.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Verificado</span>
+                            </td>
+                        </tr>-->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            <div class="bg-gray-50 px-6 py-3 flex justify-between items-center">
+                <div class="text-sm text-gray-700">
+                    Mostrando 1-1 de 0 registros
+                </div>
+                <div class="flex space-x-2">
+                    <!--<button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">Anterior</button>-->
+                    <button class="px-3 py-1 text-sm bg-red-700 text-white rounded">1</button>
+                    <!--<button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">3</button>
+                    <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">Siguiente</button>-->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function aplicarFiltros() {
+            alert('Filtros aplicados correctamente');
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('ligaFiltro').value = '';
+            document.getElementById('estadoFiltro').value = '';
+        }
+
+        function descargarPDF() {
+            alert('Descargando reporte en PDF...');
+        }
+
+        function descargarExcel() {
+            alert('Descargando reporte en Excel...');
+        }
+
+        function descargarGrafica() {
+            alert('Descargando gráfica...');
+        }
+    </script>
+</body>
+</html>

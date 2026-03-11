@@ -1,0 +1,89 @@
+<header class="bg-white shadow-md fixed w-full top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                    <img class="w-8 h-8 object-contain"
+                         src="{{ url_for('static', filename='img/avt_logo2.png') }}"
+                         alt="Logo AVT">
+                </div>
+            </div>
+
+            <!-- Menú escritorio -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="{{ url_for('home') }}"
+                   class="text-gray-600 hover:text-red-700 transition-colors">
+                   Home
+                </a>
+
+                <a href="{{ url_for('registro') }}"
+                   class="text-gray-600 hover:text-red-700 transition-colors">
+                   Registro
+                </a>
+
+                <a href="{{ url_for('consultar') }}"
+                   class="text-gray-600 hover:text-red-700 transition-colors">
+                   Consultar
+                </a>
+
+                <a href="{{ url_for('reportes') }}"
+                   class="text-gray-600 hover:text-red-700 transition-colors">
+                   Reportes
+                </a>
+
+                <a href="#"
+                   class="text-gray-600 hover:text-red-700 transition-colors">
+                   Configuración
+                </a>
+            </nav>
+
+            <!-- Usuario + botón móvil -->
+            <div class="flex items-center space-x-3 relative">
+
+                <span class="text-gray-700 hidden sm:block">
+                    Hola, <span class="font-semibold">
+                        {{ session.get('usuario', 'Usuario') }}
+                    </span>
+                </span>
+
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                </div>
+
+                <!-- Botón hamburguesa -->
+                <button onclick="toggleMenu()" class="md:hidden">
+                    <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                </button>
+
+                <!-- Menú móvil -->
+                <div id="mobileMenu"
+                     class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                    <a href="{{ url_for('home') }}"
+                       class="block px-4 py-2 hover:bg-red-50">
+                       Home
+                    </a>
+
+                    <a href="{{ url_for('registro') }}"
+                       class="block px-4 py-2 hover:bg-red-50">
+                       Registro
+                    </a>
+
+                    <a href="{{ url_for('consultar') }}"
+                       class="block px-4 py-2 hover:bg-red-50">
+                       Consultar
+                    </a>
+
+                    <a href="{{ url_for('reportes') }}"
+                       class="block px-4 py-2 hover:bg-red-50">
+                       Reportes
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</header>

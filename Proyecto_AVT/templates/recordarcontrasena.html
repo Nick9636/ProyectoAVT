@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Recordar contraseña{% endblock %}
+
+{% block content %}
+
+<div class="background">
+    <div class="card">
+
+        <div class="card-logos">
+            <img src="{{ url_for('static', filename='img/avt_logo.png') }}">
+            <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}">
+        </div>
+
+        <h2>Recordar contraseña</h2>
+
+        <form method="POST" action="{{ url_for('recordar_contrasena') }}">
+
+            <label>Correo electrónico</label>
+            <input type="email" name="email" required>
+
+            <label>Nueva contraseña</label>
+            <input type="password" name="password" required>
+
+            <button type="submit">Guardar</button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

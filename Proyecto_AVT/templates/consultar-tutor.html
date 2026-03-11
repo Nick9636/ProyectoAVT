@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Consultar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+         :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+
+
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Búsqueda -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Tutor</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Tutor</label>
+                    <input type="text" id="nombreTutor" placeholder="Ingrese nombre" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Menor</label>
+                    <input type="text" id="nombreMenor" placeholder="Nombre del jugador menor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                    <input type="text" id="telefono" placeholder="Número de teléfono" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                </div>
+            </div>
+            
+            <button onclick="buscarTutores()" class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
+                <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
+                Buscar Tutores
+            </button>
+        </div>
+
+        <!-- Resumen -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
+                <div class="text-gray-600">Tutores Registrados</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Menores Asociados</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
+                <div class="text-gray-600">Menores Sin Tutor</div>
+            </div>
+        </div>
+
+        <!-- Lista de tutores -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-semibold text-gray-900">Tutores Registrados</h3>
+            </div>
+            
+            <div class="divide-y divide-gray-200">
+                <!-- Tutor 1 -->
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900">------ ------ ------</h4>
+                                    <p class="text-gray-600">Padre de familia</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="text-gray-600">Teléfono:</span>
+                                    <span class="font-medium ml-2">--- ---- ----</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Email:</span>
+                                    <span class="font-medium ml-2">------@email.com</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Parentesco:</span>
+                                    <span class="font-medium ml-2">-----</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Fecha Registro:</span>
+                                    <span class="font-medium ml-2">--/--/----</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Menores asociados -->
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">Menores Asociados:</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                                        ------(-- años)
+                                    </span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                                        -----(-- años)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col space-y-2">
+                            <button onclick="verDetalleTutor('roberto')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
+                                Ver Detalles
+                            </button>
+                            <button onclick="editarTutor('roberto')" class="text-green-600 hover:text-green-800 text-sm">
+                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
+                                Editar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tutor 2 
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                                    <i data-lucide="user" class="w-6 h-6 text-pink-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900">Carmen López Hernández</h4>
+                                    <p class="text-gray-600">Madre de familia</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="text-gray-600">Teléfono:</span>
+                                    <span class="font-medium ml-2">555-987-6543</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Email:</span>
+                                    <span class="font-medium ml-2">carmen.lopez@email.com</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Parentesco:</span>
+                                    <span class="font-medium ml-2">Madre</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Fecha Registro:</span>
+                                    <span class="font-medium ml-2">20/01/2024</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Menores asociados 
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">Menores Asociados:</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                                        Carlos López Martínez (16 años)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col space-y-2">
+                            <button onclick="verDetalleTutor('carmen')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
+                                Ver Detalles
+                            </button>
+                            <button onclick="editarTutor('carmen')" class="text-green-600 hover:text-green-800 text-sm">
+                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
+                                Editar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tutor 3 
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i data-lucide="user" class="w-6 h-6 text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900">Miguel González Torres</h4>
+                                    <p class="text-gray-600">Tutor legal</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="text-gray-600">Teléfono:</span>
+                                    <span class="font-medium ml-2">555-456-7890</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Email:</span>
+                                    <span class="font-medium ml-2">miguel.gonzalez@email.com</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Parentesco:</span>
+                                    <span class="font-medium ml-2">Tío</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Fecha Registro:</span>
+                                    <span class="font-medium ml-2">25/01/2024</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Menores asociados 
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">Menores Asociados:</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                                        Ana González Silva (14 años)
+                                    </span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                                        Luis González Silva (12 años)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col space-y-2">
+                            <button onclick="verDetalleTutor('miguel')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
+                                Ver Detalles
+                            </button>
+                            <button onclick="editarTutor('miguel')" class="text-green-600 hover:text-green-800 text-sm">
+                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
+                                Editar
+                            </button>
+                        </div>
+                    </div>
+                </div>-->
+            </div>
+        </div>
+
+        <!-- Botón para registrar nuevo tutor -->
+        <div class="mt-8 text-center">
+            <button onclick="window.location.href='registro-tutor.html'" class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
+                <i data-lucide="user-plus" class="w-5 h-5 inline mr-2"></i>
+                Registrar Nuevo Tutor
+            </button>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function buscarTutores() {
+            const nombre = document.getElementById('nombreTutor').value;
+            const menor = document.getElementById('nombreMenor').value;
+            const telefono = document.getElementById('telefono').value;
+
+            console.log('Buscando tutores:', { nombre, menor, telefono });
+            alert('Búsqueda de tutores realizada');
+        }
+
+        function verDetalleTutor(tutorId) {
+            alert(`Ver detalles completos del tutor: ${tutorId}`);
+        }
+
+        function editarTutor(tutorId) {
+            if (confirm('¿Desea editar la información de este tutor?')) {
+                alert(`Editando tutor: ${tutorId}`);
+            }
+        }
+
+        // Permitir búsqueda con Enter
+        document.getElementById('nombreTutor').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') buscarTutores();
+        });
+
+        document.getElementById('nombreMenor').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') buscarTutores();
+        });
+
+        document.getElementById('telefono').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') buscarTutores();
+        });
+    </script>
+</body>
+</html>

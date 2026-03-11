@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="text-center mb-12">
+
+        </div>
+
+        <!-- Grid de opciones de registro -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <!-- Registrar Persona -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                onclick="window.location.href='registro-persona.html'">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="user-plus" class="w-8 h-8 text-red-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Registrar Persona</h3>
+                    <p class="text-gray-600">Registrar jugadores, árbitros y entrenadores</p>
+                </div>
+            </div>
+
+            <!-- Registrar Liga -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                onclick="window.location.href='registrarliga.html'">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="trophy" class="w-8 h-8 text-red-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Registrar Liga</h3>
+                    <p class="text-gray-600">Crear y gestionar ligas deportivas</p>
+                </div>
+            </div>
+
+            <!-- Registrar Equipo -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                onclick="window.location.href='registrarEquipo.html'">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="users" class="w-8 h-8 text-red-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Registrar Equipo</h3>
+                    <p class="text-gray-600">Registrar equipos y asignar entrenadores</p>
+                </div>
+            </div>
+
+            <!-- Registrar Pago -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                onclick="window.location.href='registrarPago.html'">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="credit-card" class="w-8 h-8 text-red-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Registrar Pago</h3>
+                    <p class="text-gray-600">Gestionar pagos de inscripciones</p>
+                </div>
+            </div>
+
+            <!-- Autorizar Registro -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                onclick="window.location.href='autorizar-registro.html'">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check-circle" class="w-8 h-8 text-red-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Autorizar Registro</h3>
+                    <p class="text-gray-600">Aprobar o rechazar solicitudes</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

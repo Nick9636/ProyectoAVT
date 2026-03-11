@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Consultar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+         :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Botón descargar reporte general -->
+        <div class="text-right mb-8">
+            <button onclick="descargarReporteGeneral()" class="bg-white text-red-700 px-6 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
+                <i data-lucide="download" class="w-5 h-5 inline mr-2"></i>
+                Descargar Reporte General
+            </button>
+        </div>
+
+        <!-- Resumen general -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
+                <div class="text-gray-600">Total de Usuarios</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="trophy" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Total de Ligas</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="users" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
+                <div class="text-gray-600">Total de Equipos</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="user-check" class="w-6 h-6 text-orange-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-orange-600 mb-2">0</div>
+                <div class="text-gray-600">Total de Afiliaciones</div>
+            </div>
+        </div>
+
+        <!-- Gráficas -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Gráfica de usuarios por rol -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">Usuarios por Rol</h3>
+                
+                <div class="relative">
+                    <!-- Gráfica de pie simulada -->
+                    <div class="w-36 h-36 mx-auto mb-6 relative">
+                        <div class="w-full h-full rounded-full" style="background: conic-gradient(#5a4e4e);"></div><!--(#3b82f6 0deg 180deg, #10b981 180deg 270deg, #f59e0b 270deg 315deg, #ef4444 315deg 360deg)-->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="bg-white rounded-full w-20 h-20 flex items-center justify-center">
+                                <span class="text-lg font-bold text-gray-900">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Leyenda -->
+                    <!--<div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-blue-600 rounded"></div>
+                            <span class="text-sm text-gray-700">Jugadores (280)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-green-600 rounded"></div>
+                            <span class="text-sm text-gray-700">Entrenadores (45)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-yellow-600 rounded"></div>
+                            <span class="text-sm text-gray-700">Árbitros (28)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-red-600 rounded"></div>
+                            <span class="text-sm text-gray-700">Administradores (3)</span>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+
+            <!-- Gráfica de afiliaciones por mes -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">Afiliaciones por Mes (2024)</h3>
+                
+                <!--<div class="h-64 flex items-end justify-center space-x-3">
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 80px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Ene</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 120px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Feb</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 100px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Mar</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 140px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Abr</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 110px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">May</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 90px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Jun</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 70px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Jul</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 85px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Ago</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 130px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Sep</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 115px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Oct</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 95px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Nov</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-red-700 rounded-t" style="height: 105px;"></div>
+                        <span class="text-xs text-gray-600 mt-2">Dic</span>
+                    </div>
+                </div>-->
+            </div>
+        </div>
+
+        <!-- Estadísticas detalladas -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Estado de pagos -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">Estado de Pagos</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Pagos al día</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: 0%;"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">0%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Pagos pendientes</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-600 h-2 rounded-full" style="width: 0%;"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">0%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Pagos vencidos</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-600 h-2 rounded-full" style="width: 0%;"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actividad del sistema -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">Actividad del Sistema</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="user-plus" class="w-5 h-5 text-blue-600"></i>
+                            <span class="text-gray-700">Nuevos registros hoy</span>
+                        </div>
+                        <span class="font-semibold text-blue-600">0</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+                            <span class="text-gray-700">Registros autorizados</span>
+                        </div>
+                        <span class="font-semibold text-green-600">0</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="upload" class="w-5 h-5 text-purple-600"></i>
+                            <span class="text-gray-700">Documentos subidos</span>
+                        </div>
+                        <span class="font-semibold text-purple-600">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de ligas más activas -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-semibold text-gray-900">Ligas Más Activas</h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Liga</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Equipos</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Jugadores</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Partidos</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Ingresos</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">------ -------</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">--</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">--</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">--</td>
+                            <td class="px-6 py-4 text-sm font-medium text-green-600">$--</td>
+                        </tr>
+                        <!--<tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Juvenil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">8</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">96</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">32</td>
+                            <td class="px-6 py-4 text-sm font-medium text-green-600">$14,400</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Femenil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">6</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">72</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">24</td>
+                            <td class="px-6 py-4 text-sm font-medium text-green-600">$10,800</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Veteranos</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">4</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">48</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">16</td>
+                            <td class="px-6 py-4 text-sm font-medium text-green-600">$7,200</td>
+                        </tr>-->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function descargarReporteGeneral() {
+            alert('Generando reporte general del sistema...');
+            
+            // Simular proceso de generación
+            setTimeout(() => {
+                alert('Reporte general descargado exitosamente');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

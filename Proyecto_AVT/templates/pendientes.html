@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Pendientes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #ffffff 0%, #fecaca 50%, #b91c1c 100%); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Encabezado -->
+    <header class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.location.href='dashboard.html'" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="clock" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Pendientes del Sistema</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-700">Hola, <span class="font-semibold">Usuario</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tarjeta resumen -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Resumen de Pendientes</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-red-50 rounded-lg">
+                    <div class="text-2xl font-bold text-red-600">8</div>
+                    <div class="text-sm text-red-700">Urgentes</div>
+                </div>
+                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="text-2xl font-bold text-yellow-600">12</div>
+                    <div class="text-sm text-yellow-700">En Proceso</div>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">5</div>
+                    <div class="text-sm text-green-700">Resueltos Hoy</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-600">25</div>
+                    <div class="text-sm text-gray-700">Total</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div class="flex flex-wrap gap-4 items-center">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por tipo:</label>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option value="">Todos</option>
+                        <option value="registro">Registro</option>
+                        <option value="pago">Pago</option>
+                        <option value="documento">Documento</option>
+                        <option value="tutor">Tutor</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option value="">Todos</option>
+                        <option value="urgente">Urgente</option>
+                        <option value="proceso">En Proceso</option>
+                        <option value="resuelto">Resuelto</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="text" placeholder="Buscar pendientes..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de pendientes -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-600 text-white">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Tipo</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Descripción</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Responsable</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Fecha Límite</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Estado</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <!-- Pendiente urgente -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="user-plus" class="w-5 h-5 text-red-600"></i>
+                                    <span class="text-sm font-medium">Registro</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Autorizar registro de Juan Pérez</p>
+                                    <p class="text-sm text-gray-500">Jugador categoría juvenil</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Admin Principal</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">25/12/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    Urgente
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick="resolverPendiente(this)" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                    Resolver
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Pendiente en proceso -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="credit-card" class="w-5 h-5 text-yellow-600"></i>
+                                    <span class="text-sm font-medium">Pago</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Verificar pago de inscripción</p>
+                                    <p class="text-sm text-gray-500">Equipo Tigres FC - $2,500</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Contador</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">28/12/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    En Proceso
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick="resolverPendiente(this)" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                    Resolver
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Pendiente de documento -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+                                    <span class="text-sm font-medium">Documento</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Revisar documentos de María González</p>
+                                    <p class="text-sm text-gray-500">Faltan 2 documentos por validar</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Secretario</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">30/12/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    En Proceso
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick="resolverPendiente(this)" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                    Resolver
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Pendiente de tutor -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="users" class="w-5 h-5 text-purple-600"></i>
+                                    <span class="text-sm font-medium">Tutor</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Registrar tutor de Carlos López</p>
+                                    <p class="text-sm text-gray-500">Menor de edad sin tutor asignado</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Admin Principal</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">26/12/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    Urgente
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick="resolverPendiente(this)" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                    Resolver
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Pendiente resuelto -->
+                        <tr class="hover:bg-gray-50 opacity-75">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
+                                    <span class="text-sm font-medium">Registro</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Autorizar registro de Ana Martínez</p>
+                                    <p class="text-sm text-gray-500">Entrenadora categoría femenil</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Admin Principal</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">24/12/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Resuelto
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm text-gray-500">Completado</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex justify-center mt-6">
+            <nav class="flex items-center space-x-2">
+                <button class="px-3 py-2 text-gray-500 hover:text-red-600 transition-colors">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+                <button class="px-4 py-2 bg-red-600 text-white rounded-lg">1</button>
+                <button class="px-4 py-2 text-gray-600 hover:text-red-600 transition-colors">2</button>
+                <button class="px-4 py-2 text-gray-600 hover:text-red-600 transition-colors">3</button>
+                <button class="px-3 py-2 text-gray-500 hover:text-red-600 transition-colors">
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+            </nav>
+        </div>
+    </main>
+
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        function resolverPendiente(boton) {
+            const fila = boton.closest('tr');
+            const estadoSpan = fila.querySelector('span[class*="bg-"]');
+            
+            // Cambiar estado a resuelto
+            estadoSpan.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+            estadoSpan.textContent = 'Resuelto';
+            
+            // Cambiar botón
+            boton.outerHTML = '<span class="text-sm text-gray-500">Completado</span>';
+            
+            // Agregar opacidad a la fila
+            fila.classList.add('opacity-75');
+            
+            alert('Pendiente marcado como resuelto');
+        }
+    </script>
+</body>
+</html>

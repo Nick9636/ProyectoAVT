@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Persona</title>
+  <style>
+    :root {
+      --primary-color: #C94C4C;
+      --primary-dark: #8C2F2F;
+      --text-dark: #3b0a0a;
+      --text-light: #f8f7f7;
+      --background-light: #f8f7f7;
+      --card-border: #6e2424;
+      --card-hover: #f4e5e5;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-light);
+      margin: 0;
+      padding: 0;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Encabezado */
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-top: 0;
+    }
+
+    .logo {
+      position: absolute;
+      top: 12px;
+      left: 20px;
+      font-weight: bold;
+      background-color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--primary-color);
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    /* Contenedor principal - SIN CAMBIOS */
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 40px 50px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      color: #333;
+    }
+
+    /* Botones tipo registro - MEJOR DISEÑO */
+    .selection {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .card {
+      display: inline-block;
+      background-color: #fff;
+      border-radius: 15px;
+      text-align: center;
+      text-decoration: none;
+      color: black;
+      transition: transform 0.2s ease;
+      background-color: #f9f9f9;
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      width: 200px;
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+      background-color: var(--card-hover);
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card img {
+      width: 70px;
+      margin-bottom: 15px;
+      filter: brightness(0.9);
+    }
+
+    .card span {
+      font-weight: bold;
+      color: var(--text-dark);
+      font-size: 1.1rem;
+    }
+
+    /* Sección desplegable */
+    details {
+      margin-top: 40px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid var(--text-dark);
+    }
+
+    summary {
+      font-weight: bold;
+      color: var(--text-dark);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 5px 0;
+    }
+
+    details p, li {
+      color: #333;
+      margin-left: 15px;
+    }
+
+    /* Botón inferior */
+    .btn-regresar {
+      display: block;
+      margin-top: 30px;
+      text-align: center;
+      font-size: 1rem;
+      text-decoration: none;
+      color: var(--text-dark);
+      font-weight: 500;
+      padding: 10px 15px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      transition: all 0.2s;
+    }
+
+    .btn-regresar:hover {
+      background-color: var(--card-hover);
+      text-decoration: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #555;
+      font-size: 0.9rem;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-top: 1px solid #ddd;
+      margin-top: auto;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1024px) {
+      .container {
+        max-width: 85%;
+        padding: 35px 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        max-width: 90%;
+        padding: 30px 25px;
+      }
+      
+      .selection {
+        gap: 20px;
+      }
+      
+      .card {
+        width: 160px;
+        height: 150px;
+      }
+      
+      .card img {
+        width: 60px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px 15px;
+        padding: 25px 20px;
+      }
+      
+      .selection {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+      
+      .card {
+        width: 100%;
+        max-width: 280px;
+        height: 140px;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding-left: 30px;
+        gap: 20px;
+      }
+      
+      .card img {
+        margin-bottom: 0;
+        width: 50px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 15px 10px;
+        padding: 20px 15px;
+        border-radius: 8px;
+      }
+      
+      header h1 {
+        font-size: 1.4rem;
+      }
+      
+      h2 {
+        font-size: 1.3rem;
+      }
+      
+      .card {
+        height: 120px;
+        padding-left: 20px;
+      }
+      
+      .card img {
+        width: 45px;
+      }
+      
+      .card span {
+        font-size: 1rem;
+      }
+      
+      footer {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">AVT</div>
+    <h1>Registrar Persona</h1>
+  </header>
+
+  <div class="container">
+    <h2>Seleccione el tipo de registro</h2>
+    <p>Elija el rol que desea registrar en el sistema:</p>
+
+    <div class="selection">
+      <a href="RegistrarJugador.html" class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/219/219986.png" alt="Jugador">
+        <span>Jugador</span>
+      </a>
+
+      <a href="RegistrarEntrenador.html" class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2922/2922561.png" alt="Entrenador">
+        <span>Entrenador</span>
+      </a>
+
+      <a href="RegistrarArbitro.html" class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2817/2817804.png" alt="Árbitro">
+        <span>Árbitro</span>
+      </a>
+    </div>
+
+    <details>
+      <summary>Información del Proceso</summary>
+      <p><strong>Objetivo:</strong> Registrar personas con datos básicos y asignarles roles.</p>
+      <p><strong>Precondiciones:</strong> Usuario autenticado con rol secretario.</p>
+      <p><strong>Post-condiciones:</strong></p>
+      <ul>
+        <li><strong>Éxito:</strong> Persona queda registrada.</li>
+        <li><strong>Fracaso:</strong> Si faltan datos, el sistema rechaza el registro.</li>
+      </ul>
+    </details>
+
+    <a href="Registro.html" class="btn-regresar">↩ Regresar a Registro</a>
+  </div>
+
+  <footer>
+    © 2025 Sistema AVT — Todos los derechos reservados
+  </footer>
+
+</body>
+</html>

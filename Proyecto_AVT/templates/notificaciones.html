@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Notificaciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #ffffff 0%, #fecaca 50%, #b91c1c 100%); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Encabezado -->
+    <header class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.location.href='home.html'">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="bell" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Centro de Notificaciones</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-700">Hola, <span class="font-semibold">Usuario</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Controles superiores -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <!-- Buscador -->
+                <div class="relative flex-1 max-w-md">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                    <input type="text" placeholder="Buscar notificaciones..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                
+                <!-- Botón marcar todas como leídas -->
+                <button onclick="marcarTodasLeidas()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2">
+                    <i data-lucide="check-check" class="w-5 h-5"></i>
+                    <span>Marcar todas como leídas</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lista de notificaciones -->
+        <div class="space-y-4">
+            <!-- Notificación no leída -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h3 class="font-semibold text-gray-900">Registro Aprobado</h3>
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No leída</span>
+                            </div>
+                            <p class="text-gray-600 mb-2">El registro del jugador Juan Pérez ha sido aprobado exitosamente.</p>
+                            <div class="flex items-center text-sm text-gray-500 space-x-4">
+                                <span>Sistema AVT</span>
+                                <span>•</span>
+                                <span>Hace 2 horas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notificación leída -->
+            <div class="bg-gray-50 rounded-xl shadow-md p-6 border-l-4 border-gray-300">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h3 class="font-semibold text-gray-700">Afiliación Rechazada</h3>
+                                <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">Leída</span>
+                            </div>
+                            <p class="text-gray-500 mb-2">La afiliación de María González fue rechazada por documentos incompletos.</p>
+                            <div class="flex items-center text-sm text-gray-400 space-x-4">
+                                <span>Sistema AVT</span>
+                                <span>•</span>
+                                <span>Ayer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notificación informativa -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="info" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h3 class="font-semibold text-gray-900">Pago Verificado</h3>
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No leída</span>
+                            </div>
+                            <p class="text-gray-600 mb-2">Se ha verificado el pago de inscripción del equipo "Tigres FC".</p>
+                            <div class="flex items-center text-sm text-gray-500 space-x-4">
+                                <span>Sistema AVT</span>
+                                <span>•</span>
+                                <span>Hace 1 día</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Más notificaciones -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h3 class="font-semibold text-gray-900">Documentos Pendientes</h3>
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No leída</span>
+                            </div>
+                            <p class="text-gray-600 mb-2">El entrenador Carlos López tiene documentos pendientes por subir.</p>
+                            <div class="flex items-center text-sm text-gray-500 space-x-4">
+                                <span>Sistema AVT</span>
+                                <span>•</span>
+                                <span>Hace 3 días</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex justify-center mt-8">
+            <nav class="flex items-center space-x-2">
+                <button class="px-3 py-2 text-gray-500 hover:text-red-600 transition-colors">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+                <button class="px-4 py-2 bg-red-600 text-white rounded-lg">1</button>
+                <button class="px-4 py-2 text-gray-600 hover:text-red-600 transition-colors">2</button>
+                <button class="px-4 py-2 text-gray-600 hover:text-red-600 transition-colors">3</button>
+                <button class="px-3 py-2 text-gray-500 hover:text-red-600 transition-colors">
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+            </nav>
+        </div>
+    </main>
+
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Función para marcar todas como leídas
+        function marcarTodasLeidas() {
+            const notificaciones = document.querySelectorAll('.border-red-500, .border-blue-500, .border-yellow-500');
+            notificaciones.forEach(notif => {
+                notif.classList.remove('bg-white', 'border-red-500', 'border-blue-500', 'border-yellow-500');
+                notif.classList.add('bg-gray-50', 'border-gray-300');
+                
+                const badge = notif.querySelector('.bg-red-100');
+                if (badge) {
+                    badge.classList.remove('bg-red-100', 'text-red-800');
+                    badge.classList.add('bg-gray-200', 'text-gray-600');
+                    badge.textContent = 'Leída';
+                }
+            });
+            
+            alert('Todas las notificaciones han sido marcadas como leídas');
+        }
+    </script>
+</body>
+</html>

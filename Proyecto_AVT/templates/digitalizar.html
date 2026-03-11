@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Digitalizar Documentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #ffffff 0%, #fecaca 50%, #b91c1c 100%); }
+        .progress-bar { transition: width 0.3s ease; }
+        .file-drop-zone {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .file-drop-zone:hover {
+            border-color: #b91c1c;
+            background-color: #fef2f2;
+        }
+        .file-drop-zone.dragover {
+            border-color: #b91c1c;
+            background-color: #fef2f2;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Encabezado -->
+    <header class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.location.href='dashboard.html'" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="upload" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Digitalizar Documentos</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-700">Hola, <span class="font-semibold">Usuario</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Formulario de subida -->
+        <div class="bg-white rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Subir Nuevo Documento</h2>
+            
+            <!-- Selector de tipo de documento -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Documento</label>
+                <select id="tipoDocumento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <option value="">Seleccione el tipo de documento</option>
+                    <option value="comprobante">Comprobante de Domicilio</option>
+                    <option value="ine">Identificación Oficial (INE)</option>
+                    <option value="formato">Formato de Registro</option>
+                    <option value="acta">Acta de Nacimiento</option>
+                </select>
+            </div>
+
+            <!-- Zona de arrastrar y soltar -->
+            <div id="dropZone" class="file-drop-zone rounded-lg p-8 text-center mb-4">
+                <div class="flex flex-col items-center">
+                    <i data-lucide="upload-cloud" class="w-12 h-12 text-gray-400 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-700 mb-2">Arrastra tu archivo aquí</p>
+                    <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar</p>
+                    <input type="file" id="fileInput" accept=".png,.pdf" class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                        Seleccionar Archivo
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Información de formatos válidos -->
+            <p class="text-sm text-gray-500 text-center mb-6">Formatos válidos: PNG, PDF (máx 5 MB)</p>
+
+            <!-- Archivo seleccionado -->
+            <div id="archivoSeleccionado" class="hidden bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="file" class="w-6 h-6 text-gray-600"></i>
+                        <div>
+                            <p id="nombreArchivo" class="font-medium text-gray-900"></p>
+                            <p id="tamanoArchivo" class="text-sm text-gray-500"></p>
+                        </div>
+                    </div>
+                    <button onclick="removerArchivo()" class="text-red-600 hover:text-red-700">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botón subir -->
+            <div class="text-center">
+                <button id="btnSubir" onclick="subirDocumento()" disabled class="bg-gray-400 text-white px-8 py-3 rounded-lg cursor-not-allowed transition-colors">
+                    <i data-lucide="upload" class="w-5 h-5 inline mr-2"></i>
+                    Subir Documento
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de progreso (oculta inicialmente) -->
+        <div id="progreso" class="bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Subiendo Documento</h3>
+            <div class="mb-4">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progreso</span>
+                    <span id="porcentaje">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="barraProgreso" class="progress-bar bg-red-600 h-3 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+            <p id="estadoProgreso" class="text-gray-600 text-center">Iniciando subida...</p>
+        </div>
+
+        <!-- Alertas de validación -->
+        <div id="alertas" class="space-y-4 mb-6"></div>
+
+        <!-- Lista de documentos subidos -->
+        <div class="bg-white rounded-xl shadow-md p-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Documentos Almacenados</h2>
+            
+            <div class="space-y-4" id="listaDocumentos">
+                <!-- Documento ejemplo 1 -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">INE_Juan_Perez.pdf</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>Identificación Oficial</span>
+                                <span>•</span>
+                                <span>2.3 MB</span>
+                                <span>•</span>
+                                <span>23/12/2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Verificado</span>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Documento ejemplo 2 -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="image" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Comprobante_Domicilio.png</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>Comprobante de Domicilio</span>
+                                <span>•</span>
+                                <span>1.8 MB</span>
+                                <span>•</span>
+                                <span>22/12/2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Pendiente</span>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Documento ejemplo 3 -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Formato_Registro.pdf</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>Formato de Registro</span>
+                                <span>•</span>
+                                <span>0.9 MB</span>
+                                <span>•</span>
+                                <span>21/12/2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Verificado</span>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        let archivoSeleccionado = null;
+
+        // Configurar drag and drop
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                manejarArchivo(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                manejarArchivo(e.target.files[0]);
+            }
+        });
+
+        function manejarArchivo(archivo) {
+            // Validar formato
+            const formatosValidos = ['image/png', 'application/pdf'];
+            if (!formatosValidos.includes(archivo.type)) {
+                mostrarAlerta('error', 'Formato no válido', 'Solo se permiten archivos PNG y PDF.');
+                return;
+            }
+
+            // Validar tamaño (5MB)
+            if (archivo.size > 5 * 1024 * 1024) {
+                mostrarAlerta('error', 'Archivo muy grande', 'El archivo no puede superar los 5 MB.');
+                return;
+            }
+
+            archivoSeleccionado = archivo;
+            mostrarArchivoSeleccionado(archivo);
+            habilitarBotonSubir();
+        }
+
+        function mostrarArchivoSeleccionado(archivo) {
+            document.getElementById('nombreArchivo').textContent = archivo.name;
+            document.getElementById('tamanoArchivo').textContent = formatearTamano(archivo.size);
+            document.getElementById('archivoSeleccionado').classList.remove('hidden');
+        }
+
+        function removerArchivo() {
+            archivoSeleccionado = null;
+            document.getElementById('archivoSeleccionado').classList.add('hidden');
+            document.getElementById('fileInput').value = '';
+            deshabilitarBotonSubir();
+        }
+
+        function habilitarBotonSubir() {
+            const btn = document.getElementById('btnSubir');
+            const tipo = document.getElementById('tipoDocumento').value;
+            
+            if (archivoSeleccionado && tipo) {
+                btn.disabled = false;
+                btn.className = 'bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors';
+            }
+        }
+
+        function deshabilitarBotonSubir() {
+            const btn = document.getElementById('btnSubir');
+            btn.disabled = true;
+            btn.className = 'bg-gray-400 text-white px-8 py-3 rounded-lg cursor-not-allowed transition-colors';
+        }
+
+        // Habilitar botón cuando se seleccione tipo
+        document.getElementById('tipoDocumento').addEventListener('change', habilitarBotonSubir);
+
+        function subirDocumento() {
+            const tipo = document.getElementById('tipoDocumento').value;
+            
+            if (!archivoSeleccionado || !tipo) {
+                mostrarAlerta('error', 'Datos incompletos', 'Seleccione un tipo de documento y un archivo.');
+                return;
+            }
+
+            // Mostrar progreso
+            document.getElementById('progreso').classList.remove('hidden');
+            
+            let progreso = 0;
+            const intervalo = setInterval(() => {
+                progreso += Math.random() * 15;
+                if (progreso > 100) progreso = 100;
+
+                document.getElementById('barraProgreso').style.width = progreso + '%';
+                document.getElementById('porcentaje').textContent = Math.round(progreso) + '%';
+
+                if (progreso < 30) {
+                    document.getElementById('estadoProgreso').textContent = 'Validando archivo...';
+                } else if (progreso < 70) {
+                    document.getElementById('estadoProgreso').textContent = 'Subiendo documento...';
+                } else {
+                    document.getElementById('estadoProgreso').textContent = 'Procesando...';
+                }
+
+                if (progreso >= 100) {
+                    clearInterval(intervalo);
+                    setTimeout(() => {
+                        finalizarSubida();
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        function finalizarSubida() {
+            document.getElementById('progreso').classList.add('hidden');
+            
+            // Simular validación de calidad
+            const esLegible = Math.random() > 0.3; // 70% de probabilidad de ser legible
+            
+            if (esLegible) {
+                mostrarAlerta('success', 'Documento cargado correctamente', 'El archivo se ha subido y validado exitosamente.');
+                agregarDocumentoALista();
+                limpiarFormulario();
+            } else {
+                mostrarAlerta('warning', 'Documento borroso o ilegible', 'El archivo parece estar borroso. Por favor, suba una imagen más clara.');
+            }
+        }
+
+        function agregarDocumentoALista() {
+            const tipo = document.getElementById('tipoDocumento').value;
+            const tiposTexto = {
+                'comprobante': 'Comprobante de Domicilio',
+                'ine': 'Identificación Oficial',
+                'formato': 'Formato de Registro',
+                'acta': 'Acta de Nacimiento'
+            };
+
+            const nuevoDocumento = `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="${archivoSeleccionado.type.includes('pdf') ? 'file-text' : 'image'}" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">${archivoSeleccionado.name}</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>${tiposTexto[tipo]}</span>
+                                <span>•</span>
+                                <span>${formatearTamano(archivoSeleccionado.size)}</span>
+                                <span>•</span>
+                                <span>Ahora</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Pendiente</span>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('listaDocumentos').insertAdjacentHTML('afterbegin', nuevoDocumento);
+            lucide.createIcons();
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('tipoDocumento').value = '';
+            removerArchivo();
+        }
+
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const colores = {
+                'success': 'bg-green-50 border-green-200 text-green-800',
+                'error': 'bg-red-50 border-red-200 text-red-800',
+                'warning': 'bg-yellow-50 border-yellow-200 text-yellow-800'
+            };
+
+            const iconos = {
+                'success': 'check-circle',
+                'error': 'x-circle',
+                'warning': 'alert-triangle'
+            };
+
+            const alerta = `
+                <div class="${colores[tipo]} border rounded-lg p-4 flex items-start space-x-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
+                </div>
+            `;
+
+            const alertasContainer = document.getElementById('alertas');
+            alertasContainer.innerHTML = alerta;
+            lucide.createIcons();
+
+            // Remover alerta después de 5 segundos
+            setTimeout(() => {
+                alertasContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function formatearTamano(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

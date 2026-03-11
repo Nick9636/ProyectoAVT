@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio de sesión{% endblock %}
+
+{% block content %}
+
+<div class="left">
+    <img src="{{ url_for('static', filename='img/avt_logo2.png') }}" class="logo-avt">
+</div>
+
+<div class="right">
+    <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" class="fmvv">
+    <h1>¡Bienvenido de nuevo!</h1>
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button type="submit">Iniciar sesión</button>
+    </form>
+
+    <div class="forgot">
+        <a href="{{ url_for('recordar_contrasena') }}">Recordar contraseña</a>
+    </div>
+
+    <div class="forgot">
+        <a href="{{ url_for('nuevo_usuario') }}">Registrar</a>
+    </div>
+</div>
+
+{% endblock %}

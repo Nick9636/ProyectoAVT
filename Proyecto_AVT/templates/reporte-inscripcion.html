@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Consultar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+         :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Filtros -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Filtros de Reporte de Inscripciones</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Temporada</label>
+                    <select id="temporada" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                    <select id="categoria" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="">Todas</option>
+                        <option value="infantil">Infantil</option>
+                        <option value="juvenil">Juvenil</option>
+                        <option value="primera">Primera División</option>
+                        <option value="veteranos">Veteranos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Equipo</label>
+                    <select id="equipo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="">Todos</option>
+                        <option value="tigres">Tigres FC</option>
+                        <option value="aguilas">Águilas United</option>
+                        <option value="leones">Leones FC</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                    <select id="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="">Todos</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex space-x-4">
+                <button onclick="aplicarFiltros()" class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition-colors">
+                    <i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>
+                    Aplicar Filtros
+                </button>
+                <button onclick="generarReportePDF()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
+                    Generar Reporte PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Estadísticas generales -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
+                <div class="text-gray-600">Total Afiliados</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Nuevas Inscripciones</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
+                <div class="text-gray-600">Renovaciones</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-red-600 mb-2">0</div>
+                <div class="text-gray-600">Bajas</div>
+            </div>
+        </div>
+
+        <!-- Gráfica de inscripciones por categoría
+        <div class="bg-white rounded-xl shadow-md p-8 mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">Inscripciones por Categoría</h3>
+            
+            <div class="h-64 flex items-end justify-center space-x-8">
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-blue-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 200px;">
+                        120
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Infantil</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-green-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 180px;">
+                        95
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Juvenil</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-red-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 160px;">
+                        78
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Primera</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 bg-purple-600 rounded-t flex items-end justify-center text-white text-xs pb-2" style="height: 100px;">
+                        45
+                    </div>
+                    <span class="text-sm text-gray-600 mt-2">Veteranos</span>
+                </div>
+            </div>
+        </div>-->
+
+        <!-- Tabla detallada -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b">
+                <h3 class="text-xl font-semibold text-gray-900">Listado de Jugadores Afiliados</h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Categoría</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Equipo</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Fecha Inscripción</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Estado</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">----- ------- ------</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">------------</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">----------</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">--/--/----</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">------</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">-----</span>
+                            </td>
+                        </tr>
+                        <!--<tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">María González López</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Juvenil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Águilas United</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">20/01/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendiente</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Carlos Martínez Ruiz</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Infantil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Leones FC</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">25/01/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendiente</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Vencido</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Ana Martínez Silva</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Juvenil</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Pumas Deportivo</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">10/02/2024</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Al día</span>
+                            </td>
+                        </tr>-->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            <div class="bg-gray-50 px-6 py-3 flex justify-between items-center">
+                <div class="text-sm text-gray-700">
+                    Mostrando 1-1 de 0 registros
+                </div>
+                <div class="flex space-x-2">
+                    <!--<button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">Anterior</button>-->
+                    <button class="px-3 py-1 text-sm bg-red-700 text-white rounded">1</button>
+                    <!--<button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">3</button>
+                    <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">Siguiente</button>-->
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen por equipo -->
+        <div class="bg-white rounded-xl shadow-md p-8 mt-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">Resumen por Equipo</h3>
+            
+            <!--<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <h4 class="font-semibold text-blue-900">Tigres FC</h4>
+                    <div class="text-2xl font-bold text-blue-600 mt-2">24</div>
+                    <div class="text-sm text-blue-700">jugadores</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <h4 class="font-semibold text-green-900">Águilas United</h4>
+                    <div class="text-2xl font-bold text-green-600 mt-2">22</div>
+                    <div class="text-sm text-green-700">jugadores</div>
+                </div>
+                <div class="bg-red-50 rounded-lg p-4 text-center">
+                    <h4 class="font-semibold text-red-900">Leones FC</h4>
+                    <div class="text-2xl font-bold text-red-600 mt-2">20</div>
+                    <div class="text-sm text-red-700">jugadores</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <h4 class="font-semibold text-purple-900">Pumas Deportivo</h4>
+                    <div class="text-2xl font-bold text-purple-600 mt-2">18</div>
+                    <div class="text-sm text-purple-700">jugadores</div>
+                </div>
+            </div>-->
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function aplicarFiltros() {
+            const temporada = document.getElementById('temporada').value;
+            const categoria = document.getElementById('categoria').value;
+            const equipo = document.getElementById('equipo').value;
+            const estado = document.getElementById('estado').value;
+
+            console.log('Aplicando filtros:', { temporada, categoria, equipo, estado });
+            alert('Filtros aplicados correctamente');
+        }
+
+        function generarReportePDF() {
+            alert('Generando reporte PDF de inscripciones...');
+            // Simular descarga
+            setTimeout(() => {
+                alert('Reporte PDF descargado exitosamente');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

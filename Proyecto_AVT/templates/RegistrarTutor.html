@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Tutor - AVT</title>
+  <style>
+    :root {
+      --primary-color: #C94C4C;
+      --primary-dark: #8C2F2F;
+      --text-dark: #3b0a0a;
+      --text-light: #f8f7f7;
+      --background-light: #f8f7f7;
+      --card-border: #6e2424;
+      --card-hover: #f4e5e5;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-light);
+      margin: 0;
+      padding: 0;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Encabezado */
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-top: 0;
+    }
+
+    .logo {
+      position: absolute;
+      top: 12px;
+      left: 20px;
+      font-weight: bold;
+      background-color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--primary-color);
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    /* Contenedor principal EXTREMADAMENTE ANCHO */
+    .container {
+      max-width: 95%;
+      width: 95%;
+      margin: 40px auto;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 40px 50px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+      flex: 1;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.8rem;
+    }
+
+    /* Formulario con 2 columnas para aprovechar el espacio */
+    form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px 30px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .full-width {
+      grid-column: 1 / 3;
+    }
+
+    label {
+      font-weight: bold;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1.5px solid var(--card-border);
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+      background-color: #fdfdfd;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: #fff;
+    }
+
+    /* Botón registrar */
+    .submit-section {
+      grid-column: 1 / 3;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .submit-section button {
+      background-color: var(--text-dark);
+      color: white;
+      border: none;
+      padding: 14px 35px;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+      width: auto;
+      min-width: 200px;
+    }
+
+    .submit-section button:hover {
+      background-color: #5b1a1a;
+      transform: translateY(-2px);
+    }
+
+    /* Sección desplegable */
+    details {
+      margin-top: 40px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid var(--text-dark);
+    }
+
+    summary {
+      font-weight: bold;
+      color: var(--text-dark);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 10px 0;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::before {
+      content: '📄';
+      font-size: 1.2rem;
+    }
+
+    details[open] summary::before {
+      content: '📄';
+    }
+
+    details p, li {
+      color: #333;
+      margin-left: 15px;
+      line-height: 1.5;
+    }
+
+    details h4 {
+      color: var(--primary-color);
+      margin: 20px 0 10px 0;
+    }
+
+    details ul, details ol {
+      margin: 10px 0;
+      padding-left: 25px;
+    }
+
+    details li {
+      margin-bottom: 8px;
+    }
+
+    /* Botón regresar */
+    .btn-regresar {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      font-size: 1rem;
+      text-decoration: none;
+      color: var(--text-dark);
+      font-weight: 500;
+      padding: 10px 20px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      transition: all 0.2s;
+    }
+
+    .btn-regresar:hover {
+      background-color: var(--card-hover);
+      text-decoration: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #555;
+      font-size: 0.9rem;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-top: 1px solid #ddd;
+      margin-top: auto;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1024px) {
+      .container {
+        max-width: 98%;
+        width: 98%;
+        padding: 35px 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        max-width: 98%;
+        width: 98%;
+        padding: 30px 25px;
+        margin: 20px auto;
+      }
+      
+      form {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .full-width, .submit-section {
+        grid-column: 1;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 15px 10px;
+        padding: 25px 20px;
+        border-radius: 8px;
+      }
+      
+      header h1 {
+        font-size: 1.4rem;
+      }
+      
+      h2 {
+        font-size: 1.3rem;
+      }
+      
+      input, select {
+        padding: 10px;
+      }
+      
+      .submit-section button {
+        padding: 12px 25px;
+        font-size: 1rem;
+        min-width: 180px;
+      }
+      
+      footer {
+        font-size: 0.8rem;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">AVT</div>
+    <h1>Registrar Tutor</h1>
+  </header>
+
+  <div class="container">
+    <h2>Registro de Tutor</h2>
+
+    <form id="formTutor" novalidate>
+      <div class="form-group">
+        <label for="jugador">Seleccionar jugador menor *</label>
+        <select id="jugador" required>
+          <option value="">Seleccione un jugador</option>
+          <option value="jugador1">Juan Pérez</option>
+          <option value="jugador2">Luis Gómez</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="parentesco">Parentesco *</label>
+        <select id="parentesco" required>
+          <option value="">Seleccione parentesco</option>
+          <option value="padre">Padre</option>
+          <option value="madre">Madre</option>
+          <option value="tutor">Tutor legal</option>
+          <option value="abuelo">Abuelo/a</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="nombre">Nombre completo del tutor *</label>
+        <input id="nombre" type="text" placeholder="Ej. Carlos Ramírez Ortega" required>
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">Teléfono de emergencia *</label>
+        <input id="telefono" type="tel" placeholder="Ej. 222-555-1234" required>
+      </div>
+
+      <div class="form-group">
+        <label for="celular">Celular</label>
+        <input id="celular" type="tel" placeholder="Ej. 222-555-6789">
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo electrónico *</label>
+        <input id="correo" type="email" placeholder="Ej. carlos.ramirez@example.com" required>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="direccion">Dirección completa</label>
+        <input id="direccion" type="text" placeholder="Ej. Calle Principal #123, Colonia Centro">
+      </div>
+
+      <div class="form-group">
+        <label for="ine">Cargar INE (formato PNG) *</label>
+        <input id="ine" type="file" accept=".png" required>
+      </div>
+
+      <div class="form-group">
+        <label for="comprobante">Comprobante de domicilio</label>
+        <input id="comprobante" type="file" accept=".png,.jpg,.pdf">
+      </div>
+
+      <div class="submit-section">
+        <button type="submit">Registrar Tutor</button>
+      </div>
+    </form>
+
+    <!-- Sección desplegable -->
+    <details>
+      <summary>Información del Caso de Uso</summary>
+      <p><strong>Objetivo:</strong> Registrar tutor de jugador menor, con datos de emergencia e INE escaneada.</p>
+      <p><strong>Precondiciones:</strong> Jugador menor ya registrado.</p>
+
+      <p><strong>Post-Condiciones:</strong></p>
+      <ul>
+        <li><strong>Éxito:</strong> Tutor asociado al jugador.</li>
+        <li><strong>Fracaso:</strong> Error en la asociación con jugador.</li>
+      </ul>
+
+      <h4>Curso Normal</h4>
+      <ol>
+        <li>Entrenador selecciona jugador menor.</li>
+        <li>Ingresa datos del tutor.</li>
+        <li>Carga INE en PNG.</li>
+        <li>Confirma asociación.</li>
+      </ol>
+
+      <h4>Alternativas</h4>
+      <ul>
+        <li>2.A Mostrar error si los datos no están completos o son incorrectos, y regresa al inicio.</li>
+        <li>3.A Si la INE no es legible → mandar error.</li>
+        <li>3.B Si la imagen no es PNG → mandar alerta.</li>
+        <li>4.A Mostrar advertencia si el tutor ya está registrado.</li>
+      </ul>
+      <p><strong>Observaciones:</strong> El tutor podría existir más de una vez en el sistema.</p>
+    </details>
+
+    <a href="RegistrarPersona.html" class="btn-regresar">↩ Regresar al Registro de Personas</a>
+  </div>
+
+  <footer>
+    © 2025 Sistema AVT — Todos los derechos reservados
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const form = document.getElementById('formTutor');
+      
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        
+        const jugador = document.getElementById('jugador').value.trim();
+        const parentesco = document.getElementById('parentesco').value.trim();
+        const nombre = document.getElementById('nombre').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const correo = document.getElementById('correo').value.trim();
+        const ine = document.getElementById('ine').files[0];
+
+        if(!jugador || !parentesco || !nombre || !telefono || !correo || !ine){
+          alert('Faltan campos obligatorios. Complete todos los campos señalados con *.');
+          return;
+        }
+
+        const ext = (ine.name.split('.').pop() || '').toLowerCase();
+        if(ext !== 'png'){
+          alert('El archivo de la INE debe ser en formato PNG.');
+          return;
+        }
+
+        // Simulación de éxito y REDIRECCIÓN
+        alert('Tutor registrado y asociado correctamente.');
+        
+        // Redirigir después del registro exitoso
+        window.location.href = 'RegistrarPersona.html';
+      });
+    });
+  </script>
+
+</body>
+</html>

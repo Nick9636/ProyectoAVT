@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Pago</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Fuente institucional -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --red1: #A8181B;
+      --red2: #df1d1d;
+    }
+
+    html, body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- NAVBAR INSTITUCIONAL -->
+<header class="bg-white shadow-md fixed w-full top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center py-4">
+
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold">AVT</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex space-x-8">
+        <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">Home</a>
+        <a href="registro.html" class="text-red-700 font-medium">Registro</a>
+        <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">Consultar</a>
+        <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">Reportes</a>
+        <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">Configuración</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <span class="text-gray-700 hidden sm:block">
+          Hola, <span class="font-semibold">Usuario</span>
+        </span>
+        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+          <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- CONTENIDO -->
+<main class="pt-24 pb-12">
+  <div class="max-w-[95%] mx-auto bg-white rounded-xl shadow-lg p-10">
+    <!-- FORM ORIGINAL (MISMO FUNCIONAMIENTO) -->
+    <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div class="flex flex-col">
+        <label class="font-semibold mb-1">Nombre del Jugador:</label>
+        <input type="text" placeholder="Ingrese nombre del jugador"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-semibold mb-1">Número de Afiliación:</label>
+        <input type="text" placeholder="Ej. AFI-2025-00123"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-semibold mb-1">Monto a Pagar ($):</label>
+        <input type="number" value="150" readonly
+          class="border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-gray-600">
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-semibold mb-1">Fecha de Pago:</label>
+        <input type="date"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-semibold mb-1">Tipo de Pago:</label>
+        <select
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+          <option value="">Seleccione...</option>
+          <option>Depósito Bancario</option>
+          <option>Transferencia</option>
+          <option>Efectivo</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-semibold mb-1">Estado del Pago:</label>
+        <select
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+          <option value="">Seleccione...</option>
+          <option>Pendiente</option>
+          <option>Pagado</option>
+          <option>Verificado</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col md:col-span-2">
+        <label class="font-semibold mb-1">Subir Comprobante:</label>
+        <input type="file" accept=".jpg,.png,.pdf"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <div class="md:col-span-2 text-center mt-6">
+        <button type="submit"
+          class="bg-red-700 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-semibold transition">
+          Registrar Pago
+        </button>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Persona - Sistema AVT</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen" onload="verificarSesion()">
+
+    <!-- ================= NAVBAR INSTITUCIONAL AVT ================= -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-red-700 font-medium">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario -->
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span id="nombreUsuario" class="font-semibold"></span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= CONTENIDO ================= -->
+    <main class="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <div class="bg-white rounded-xl shadow-lg p-8">
+
+            <!-- ================= FORM ORIGINAL (NO MODIFICADO) ================= -->
+            <form id="formPersona" onsubmit="guardarPersona(event)">
+
+                <!-- TODO tu formulario queda EXACTAMENTE igual aquí -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <form id="formPersona" onsubmit="guardarPersona(event)">
+                        <!-- Tipo de Persona -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-3">
+                                Tipo de Registro *
+                            </label>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                                <label
+                                    class="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg cursor-pointer hover:bg-red-50 transition">
+                                    <input type="radio" name="tipo_persona" value="jugador" required
+                                        class="text-red-700 focus:ring-red-700">
+                                    <span class="text-gray-700 font-medium">Jugador</span>
+                                </label>
+
+                                <label
+                                    class="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg cursor-pointer hover:bg-red-50 transition">
+                                    <input type="radio" name="tipo_persona" value="arbitro" required
+                                        class="text-red-700 focus:ring-red-700">
+                                    <span class="text-gray-700 font-medium">Árbitro</span>
+                                </label>
+
+                                <label
+                                    class="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg cursor-pointer hover:bg-red-50 transition">
+                                    <input type="radio" name="tipo_persona" value="entrenador" required
+                                        class="text-red-700 focus:ring-red-700">
+                                    <span class="text-gray-700 font-medium">Entrenador</span>
+                                </label>
+
+                            </div>
+                        </div>
+                        <!-- DATOS PERSONALES -->
+                        <div class="bg-red-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2"></span> Datos Personales
+                            </h3>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Paterno
+                                        *</label>
+                                    <input type="text" id="apellidoPaterno" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Materno
+                                        *</label>
+                                    <input type="text" id="apellidoMaterno" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre(s) *</label>
+                                    <input type="text" id="nombres" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Número de
+                                        Registro</label>
+                                    <input type="text" id="numeroRegistro"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">CURP *</label>
+                                    <input type="text" id="curpPersona" required maxlength="18"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Año de Vigencia *</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="vigencia" value="2025"
+                                            class="mr-2 w-4 h-4 text-red-600"> 2025
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="vigencia" value="2026"
+                                            class="mr-2 w-4 h-4 text-red-600"> 2026
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="vigencia" value="2027"
+                                            class="mr-2 w-4 h-4 text-red-600"> 2027
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="vigencia" value="2028"
+                                            class="mr-2 w-4 h-4 text-red-600"> 2028
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento
+                                        *</label>
+                                    <input type="date" id="fechaNacimientoPersona" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Lugar de Nacimiento
+                                        *</label>
+                                    <input type="text" id="lugarNacimiento" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nacionalidad *</label>
+                                    <input type="text" id="nacionalidad" required value="MEXICANA"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Peso (kg) *</label>
+                                    <input type="number" id="peso" required step="0.1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Estatura (m) *</label>
+                                    <input type="number" id="estatura" required step="0.01"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Sangre *</label>
+                                    <select id="tipoSangre" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                        <option value="">Seleccionar</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Ocupación</label>
+                                    <input type="text" id="ocupacion"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Escolaridad</label>
+                                    <input type="text" id="escolaridad"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Escuela</label>
+                                    <input type="text" id="escuela"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Enfermedades
+                                        Crónicas</label>
+                                    <input type="text" id="enfermedadesCronicas" placeholder="NINGUNA" value="NINGUNA"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Medicamentos</label>
+                                    <input type="text" id="medicamentos" placeholder="NINGUNA" value="NINGUNA"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DOMICILIO -->
+                        <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2"></span> Domicilio
+                            </h3>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado de Residencia
+                                        *</label>
+                                    <input type="text" id="estadoResidencia" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Municipio *</label>
+                                    <input type="text" id="municipio" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Dirección (Calle y
+                                        Número) *</label>
+                                    <input type="text" id="direccion" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Colonia *</label>
+                                    <input type="text" id="colonia" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Código Postal *</label>
+                                    <input type="text" id="codigoPostal" required maxlength="5"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                                    <input type="tel" id="telefono"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Celular *</label>
+                                    <input type="tel" id="celular" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico *</label>
+                                <input type="email" id="email" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <!-- INFORMACIÓN DEPORTIVA -->
+                        <div class="bg-green-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2"></span> Información Deportiva
+                            </h3>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Club y/o Escuela
+                                        *</label>
+                                    <input type="text" id="club" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Equipo *</label>
+                                    <select id="equipoPersona" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="">Seleccionar equipo</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo *</label>
+                                    <select id="tipoPersona" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="jugador">Jugador</option>
+                                        <option value="árbitro">Árbitro</option>
+                                        <option value="entrenador">Entrenador</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
+                                    <select id="categoria" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="">Seleccionar</option>
+                                        <option value="INFANTIL">INFANTIL</option>
+                                        <option value="MENOR INFANTIL">MENOR INFANTIL</option>
+                                        <option value="CADETE">CADETE</option>
+                                        <option value="JUVENIL">JUVENIL</option>
+                                        <option value="MAYOR">MAYOR</option>
+                                        <option value="MASTER">MASTER</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Rama *</label>
+                                    <select id="rama" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                        <option value="">Seleccionar</option>
+                                        <option value="VARONIL">VARONIL</option>
+                                        <option value="FEMENIL">FEMENIL</option>
+                                        <option value="MIXTO">MIXTO</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ligas en las que Participa
+                                    *</label>
+                                <input type="text" id="ligasParticipa" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-green-500"
+                                    placeholder="Ej: LIGA OFICIAL MUNICIPAL DE PANOTLA">
+                            </div>
+                        </div>
+
+                        <!-- PADRE O TUTOR -->
+                        <div class="bg-yellow-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2"></span> Padre o Tutor (En caso de ser menor de edad)
+                            </h3>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo del
+                                    Padre/Tutor</label>
+                                <input type="text" id="nombrePadre"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-yellow-500">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Celular del
+                                        Padre/Tutor</label>
+                                    <input type="tel" id="celularPadre"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico del
+                                        Padre/Tutor</label>
+                                    <input type="email" id="emailPadre"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Firma del
+                                    Padre/Tutor</label>
+                                <input type="text" id="firmaPadre"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-yellow-500"
+                                    placeholder="DE CONFORMIDAD A LOS REGLAMENTOS DE LA AVT">
+                            </div>
+                        </div>
+
+                        <!-- FOTOGRAFÍA -->
+                        <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2"></span> Fotografía
+                            </h3>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fotografía (PNG/JPG)</label>
+                                <input type="file" id="fotoPersona" accept=".png,.jpg,.jpeg"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
+                                <p class="text-sm text-gray-500 mt-1">Formato: PNG o JPG. Tamaño recomendado: foto tipo
+                                    credencial</p>
+                            </div>
+                        </div>
+
+                        <!-- BOTONES -->
+                        <div class="flex gap-4 justify-end">
+                            <a href="home.html"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-lg">
+                                Cancelar
+                            </a>
+                            <button type="submit"
+                                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg">
+                                Guardar Registro
+                            </button>
+                        </div>
+                    </form>
+                </div>
+    </main>
+
+
+</body>
+
+</html>

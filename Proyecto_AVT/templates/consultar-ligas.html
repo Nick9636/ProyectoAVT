@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Consultar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+            --navy: #860404;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Ligas</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Liga</label>
+                    <input type="text" id="nombreLiga" placeholder="Ingrese nombre de la liga"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                    <select id="estadoLiga"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                        <option value="">Todos</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+
+                <button onclick="buscarLigas()"
+                    class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
+                    <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
+                    Buscar Ligas
+                </button>
+            </div>
+        </div>
+        <!-- Resumen de ligas -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Ligas Activas</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
+                <div class="text-gray-600">Ligas Inactivas</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
+                <div class="text-gray-600">Total Equipos</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
+                <div class="text-gray-600">Total Jugadores</div>
+            </div>
+        </div>
+
+        <!-- Tabla de ligas -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold text-gray-900">Ligas Registradas</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre de la Liga</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Estado</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Equipos</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Jugadores</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Fecha Inicio</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">-----</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">---</span>
+                                    <button onclick="toggleEstado('municipal')"
+                                        class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">-- equipos</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">-- jugadores</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">--/--/----</td>
+                            <td class="px-6 py-4">
+                                <button onclick="verDetalles('municipal')"
+                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    Ver Detalles
+                                </button>
+                            </td>
+                        </tr>
+                        <!--<tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Juvenil</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                                    <button onclick="toggleEstado('juvenil')" class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">8 equipos</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">96 jugadores</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">20/01/2024</td>
+                            <td class="px-6 py-4">
+                                <button onclick="verDetalles('juvenil')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    Ver Detalles
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Femenil</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                                    <button onclick="toggleEstado('femenil')" class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">6 equipos</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">72 jugadoras</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">25/01/2024</td>
+                            <td class="px-6 py-4">
+                                <button onclick="verDetalles('femenil')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    Ver Detalles
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Veteranos</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Inactivo</span>
+                                    <button onclick="toggleEstado('veteranos')" class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">4 equipos</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">48 jugadores</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">10/02/2024</td>
+                            <td class="px-6 py-4">
+                                <button onclick="verDetalles('veteranos')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    Ver Detalles
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de detalles de liga 
+    <div id="modalDetalles" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full p-6 max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-900" id="tituloModal">Detalles de Liga Municipal</h3>
+                    <button onclick="cerrarModal()" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                !-- Información general --
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">Información General</h4>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="text-gray-600">Estado:</span> <span class="font-medium">Activo</span></div>
+                            <div><span class="text-gray-600">Fecha de Inicio:</span> <span class="font-medium">15/01/2024</span></div>
+                            <div><span class="text-gray-600">Fecha de Fin:</span> <span class="font-medium">15/12/2024</span></div>
+                            <div><span class="text-gray-600">Total de Equipos:</span> <span class="font-medium">12</span></div>
+                            <div><span class="text-gray-600">Total de Jugadores:</span> <span class="font-medium">156</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">Estadísticas</h4>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="text-gray-600">Partidos Jugados:</span> <span class="font-medium">45</span></div>
+                            <div><span class="text-gray-600">Partidos Pendientes:</span> <span class="font-medium">12</span></div>
+                            <div><span class="text-gray-600">Goles Totales:</span> <span class="font-medium">234</span></div>
+                            <div><span class="text-gray-600">Promedio por Partido:</span> <span class="font-medium">5.2</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                !-- Lista de equipos --
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-4">Equipos Participantes</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h5 class="font-medium text-gray-900">Tigres FC</h5>
+                                    <p class="text-sm text-gray-600">12 jugadores • Entrenador: Carlos Martínez</p>
+                                </div>
+                                <span class="text-sm font-medium text-green-600">1° Lugar</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h5 class="font-medium text-gray-900">Águilas United</h5>
+                                    <p class="text-sm text-gray-600">14 jugadores • Entrenador: Ana López</p>
+                                </div>
+                                <span class="text-sm font-medium text-blue-600">2° Lugar</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h5 class="font-medium text-gray-900">Leones FC</h5>
+                                    <p class="text-sm text-gray-600">13 jugadores • Entrenador: Miguel González</p>
+                                </div>
+                                <span class="text-sm font-medium text-yellow-600">3° Lugar</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h5 class="font-medium text-gray-900">Pumas Deportivo</h5>
+                                    <p class="text-sm text-gray-600">11 jugadores • Entrenador: Luis Hernández</p>
+                                </div>
+                                <span class="text-sm font-medium text-gray-600">4° Lugar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end">
+                    <button onclick="cerrarModal()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        Cerrar
+                    </button>
+                </div>-->
+            </div>
+        </div>
+        </div>
+
+        <script>
+            lucide.createIcons();
+
+            /* function toggleEstado(ligaId) {
+                 if (confirm('¿Desea cambiar el estado de esta liga?')) {
+                     const fila = event.target.closest('tr');
+                     const badge = fila.querySelector('.bg-green-100, .bg-yellow-100');
+                     
+                     if (badge.classList.contains('bg-green-100')) {
+                         // Cambiar a inactivo
+                         badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                         badge.textContent = 'Inactivo';
+                     } else {
+                         // Cambiar a activo
+                         badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+                         badge.textContent = 'Activo';
+                     }
+                     
+                     alert('Estado de la liga actualizado exitosamente');
+                 }
+             }
+     
+             function verDetalles(ligaId) {
+                 const nombres = {
+                     'municipal': 'Liga Municipal de Fútbol',
+                     'juvenil': 'Liga Juvenil',
+                     'femenil': 'Liga Femenil',
+                     'veteranos': 'Liga Veteranos'
+                 };
+                 
+                 document.getElementById('tituloModal').textContent = `Detalles de ${nombres[ligaId]}`;
+                 document.getElementById('modalDetalles').classList.remove('hidden');
+             }
+     
+             function cerrarModal() {
+                 document.getElementById('modalDetalles').classList.add('hidden');
+             }*/
+        </script>
+</body>
+
+</html>

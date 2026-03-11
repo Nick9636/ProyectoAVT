@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema AVT - Autorizar Registro</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Fuente institucional -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --red1: #A8181B;
+            --red2: #df1d1d;
+        }
+
+        html, body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Barra superior -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
+                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
+                    </div>
+                </div>
+
+                <!-- Menú escritorio -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Home
+                    </a>
+
+                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Registro
+                    </a>
+
+                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Consultar
+                    </a>
+
+                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Reportes
+                    </a>
+
+                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
+                        Configuración
+                    </a>
+                </nav>
+
+                <!-- Usuario + botón móvil -->
+                <div class="flex items-center space-x-3 relative">
+
+                    <span class="text-gray-700 hidden sm:block">
+                        Hola, <span class="font-semibold">Usuario</span>
+                    </span>
+
+                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                    </div>
+
+                    <!-- Botón hamburguesa -->
+                    <button onclick="toggleMenu()" class="md:hidden">
+                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                    </button>
+
+                    <!-- Menú móvil -->
+                    <div id="mobileMenu"
+                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+
+                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
+                            Home
+                        </a>
+
+                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
+                            Registro
+                        </a>
+
+                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
+                            Consultar
+                        </a>
+
+                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
+                            Reportes
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+    <!-- Contenido principal -->
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Resumen de solicitudes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
+                <div class="text-gray-600">Solicitudes Pendientes</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-gray-600">Autorizadas Hoy</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-red-600 mb-2">0</div>
+                <div class="text-gray-600">Rechazadas</div>
+            </div>
+        </div>
+
+        <!-- Lista de solicitudes pendientes -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold text-gray-900">Solicitudes Pendientes de Autorización</h2>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-gray-600">No hay solicitudes pendientes en este momento.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de rechazo -->
+    <div id="modalRechazo" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Rechazar Solicitud</h3>
+                <p class="text-gray-600 mb-4">Por favor proporcione un comentario obligatorio para el rechazo:</p>
+                <textarea id="comentarioRechazo" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700" placeholder="Motivo del rechazo..."></textarea>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button onclick="cerrarModal()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button onclick="confirmarRechazo()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                        Confirmar Rechazo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let solicitudActual = null;
+
+       /* function verDetalles(id) {
+            alert(`Ver detalles completos de la solicitud: ${id}`);
+        }
+
+        function autorizarSolicitud(id) {
+            if (confirm('¿Está seguro de que desea autorizar esta solicitud?')) {
+                // Actualizar visualmente el estado
+                const solicitud = document.querySelector(`button[onclick="autorizarSolicitud('${id}')"]`).closest('.p-6');
+                const badge = solicitud.querySelector('.bg-yellow-100, .bg-red-100');
+                if (badge) {
+                    badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+                    badge.textContent = 'Autorizada';
+                }
+                
+                // Deshabilitar botones
+                const botones = solicitud.querySelectorAll('button[onclick*="autorizarSolicitud"], button[onclick*="rechazarSolicitud"]');
+                botones.forEach(btn => {
+                    btn.disabled = true;
+                    btn.className = 'bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed text-sm';
+                    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 inline mr-1"></i>Autorizada';
+                });
+                
+                lucide.createIcons();
+                alert('Solicitud autorizada exitosamente. Se ha generado una notificación automática.');
+            }
+        }
+
+        function rechazarSolicitud(id) {
+            solicitudActual = id;
+            document.getElementById('modalRechazo').classList.remove('hidden');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalRechazo').classList.add('hidden');
+            document.getElementById('comentarioRechazo').value = '';
+            solicitudActual = null;
+        }
+
+        function confirmarRechazo() {
+            const comentario = document.getElementById('comentarioRechazo').value.trim();
+            
+            if (!comentario) {
+                alert('El comentario es obligatorio para rechazar una solicitud');
+                return;
+            }
+
+            // Actualizar visualmente el estado
+            const solicitud = document.querySelector(`button[onclick="rechazarSolicitud('${solicitudActual}')"]`).closest('.p-6');
+            const badge = solicitud.querySelector('.bg-yellow-100, .bg-red-100');
+            if (badge) {
+                badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800';
+                badge.textContent = 'Rechazada';
+            }
+            
+            // Deshabilitar botones
+            const botones = solicitud.querySelectorAll('button[onclick*="autorizarSolicitud"], button[onclick*="rechazarSolicitud"]');
+            botones.forEach(btn => {
+                btn.disabled = true;
+                btn.className = 'bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed text-sm';
+                btn.innerHTML = '<i data-lucide="x" class="w-4 h-4 inline mr-1"></i>Rechazada';
+            });
+            
+            lucide.createIcons();
+            cerrarModal();
+            alert('Solicitud rechazada. Se ha enviado notificación con el comentario al solicitante.');
+        }*/
+    </script>
+</body>
+</html>
