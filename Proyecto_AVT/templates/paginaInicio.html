@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red1: #A8181B;
+            --red2: #de1c1c;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    {% include 'header.html' %}
+
+    <!-- Contenido principal -->
+    <main class="flex-1 flex items-center justify-center px-4 py-12 pt-24">
+        <div class="w-full max-w-4xl">
+
+            <!-- Cuadrícula de tarjetas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                <!-- Notificaciones -->
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                    onclick="window.location.href='{{ url_for('notificaciones') }}'">
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="bell" class="w-8 h-8 text-red-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Notificaciones</h3>
+                        <p class="text-gray-600">Ver mensajes y alertas del sistema</p>
+                    </div>
+                </div>
+
+                <!-- Generar Expediente -->
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                    onclick="window.location.href='{{ url_for('expedientes') }}'">
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="file-text" class="w-8 h-8 text-red-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Generar Expediente</h3>
+                        <p class="text-gray-600">Crear expedientes SIRED de afiliados</p>
+                    </div>
+                </div>
+
+                <!-- Pendientes -->
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer">
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="clock" class="w-8 h-8 text-red-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Pendientes</h3>
+                        <p class="text-gray-600">Revisar tareas y acciones pendientes</p>
+                    </div>
+                </div>
+
+                <!-- Digitalizar Documentos -->
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+                    onclick="window.location.href='{{ url_for('digitalizar') }}'">
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="upload" class="w-8 h-8 text-red-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Digitalizar Documentos</h3>
+                        <p class="text-gray-600">Subir y almacenar archivos digitales</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleMenu() {
+            const menu = document.getElementById("mobileMenu");
+            menu.classList.toggle("hidden");
+        }
+
+        document.addEventListener("click", function (event) {
+            const menu = document.getElementById("mobileMenu");
+            const button = event.target.closest("button");
+            if (!menu.contains(event.target) && !button) {
+                menu.classList.add("hidden");
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
@@ -13,7 +14,7 @@
 <body>
 
     {% include 'header.html' %}
-
+    
     <main class="pt-20">
         {% block content %}
         {% endblock %}
@@ -24,4 +25,5 @@
     </script>
 
 </body>
+
 </html>
