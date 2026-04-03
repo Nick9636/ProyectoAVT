@@ -1,0 +1,28 @@
+paleta de color rojo
+#5a070b //color prncipal
+#8C0E14 
+#BE131B //color secundario
+#E81721
+#EC4149
+#F06A71
+#F9BEC1
+#FDE8E9 //color claro
+
+
+paleta verde 
+#0E8C4D
+#13BE69
+#17E880
+#6AF0AD
+#94F4C4
+#BEF9DB
+#E8FDF2
+
+paleta azul
+#121654
+#1D2487
+#252EAD
+#525CDA
+#787FE2
+#9EA3EA
+#C4C7F3

@@ -1,156 +1,45 @@
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio de sesión</title>
 
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        height: 100vh;
-        overflow: hidden;
-    }
+    <!-- AQUÍ LLAMAS TU CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
 
-    .login-wrapper {
-        display: flex;
-        height: 100vh;
-    }
-
-    /* LADO IZQUIERDO - fondo rojo con logo */
-    .left {
-        width: 50%;
-        background-color: #5a070b;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Efecto de círculos concéntricos */
-    .left::before {
-        content: '';
-        position: absolute;
-        width: 800px;
-        height: 800px;
-        border-radius: 50%;
-        border: 40px solid rgba(255, 255, 255, 0.05);
-        box-shadow:
-            0 0 0 80px rgba(255, 255, 255, 0.04),
-            0 0 0 160px rgba(255, 255, 255, 0.03),
-            0 0 0 240px rgba(255, 255, 255, 0.02);
-    }
-
-    .logo-avt {
-        width: 320px;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* LADO DERECHO - formulario */
-    .right {
-        width: 50%;
-        background-color: #fff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 60px;
-        position: relative;
-    }
-
-    .fmvb {
-        position: absolute;
-        top: 24px;
-        right: 24px;
-        width: 80px;
-    }
-
-    .right h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin-bottom: 40px;
-        text-align: center;
-    }
-
-    .right form {
-        width: 100%;
-        max-width: 420px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .right input {
-        width: 100%;
-        padding: 16px 20px;
-        border: 2px solid #d1d5db;
-        border-radius: 12px;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.2s;
-    }
-
-    .right input:focus {
-        border-color: #EC4149;
-    }
-
-    .right button {
-        width: 100%;
-        padding: 16px;
-        background-color: #BE131B;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        margin-top: 8px;
-        transition: background-color 0.2s;
-    }
-
-    .right button:hover {
-        background-color: #EC4149;
-    }
-
-    .links {
-        margin-top: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .links a {
-        color: #1a1a1a;
-        text-decoration: underline;
-        font-size: 0.95rem;
-    }
-
-    .links a:hover {
-        color: #9b1c1c;
-    }
-</style>
+<body>
 
 <div class="login-wrapper">
+
+    <!-- LADO IZQUIERDO -->
     <div class="left">
-        <img src="{{ url_for('static', filename='img/avt_logo2.png') }}" class="logo-avt" alt="Logo AVT">
+        <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" 
+             class="logo-avt" 
+             alt="Logo AVT">
     </div>
 
+    <!-- LADO DERECHO -->
     <div class="right">
-        <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" class="fmvb" alt="Logo FMVB">
+        <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" 
+             class="fmvb" 
+             alt="Logo FMVB">
+
         <h1>¡Bienvenido de nuevo!</h1>
 
-        <form method="POST" action="{{ url_for('iniciarSesion') }}">
+        <form method="POST" action="{{ url_for('auth.iniciarSesion') }}">
             <input type="email" name="email" placeholder="Correo electrónico" required>
             <input type="password" name="password" placeholder="Contraseña" required>
             <button type="submit">Iniciar sesión</button>
         </form>
 
         <div class="links">
-            <a href="{{ url_for('recordarContrasena') }}">Recordar contraseña</a>
-            <a href="{{ url_for('nuevoUsuario') }}">Registrar</a>
+            <a href="{{ url_for('auth.recordarContrasena') }}">Recordar contraseña</a>
+            <a href="{{ url_for('auth.nuevoUsuario') }}">Registrar</a>
         </div>
     </div>
+
 </div>
+
+</body>
+</html>

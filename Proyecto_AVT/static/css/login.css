@@ -1,0 +1,105 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.login-wrapper {
+    display: flex;
+    height: 100vh;
+}
+
+/* LADO IZQUIERDO */
+.left {
+    width: 50%;
+    background-color: #8C0E14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-avt {
+    width: 320px;
+    position: relative;
+    z-index: 1;
+}
+
+/* LADO DERECHO */
+.right {
+    width: 50%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+}
+
+.fmvb {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 80px;
+}
+
+.right h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+/* FORMULARIO */
+.right form {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.right input {
+    padding: 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 12px;
+    outline: none;
+}
+
+.right input:focus {
+    border-color: #EC4149;
+}
+
+.right button {
+    padding: 16px;
+    background-color: #BE131B;
+    color: white;
+    border-radius: 50px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.right button:hover {
+    background-color: #EC4149;
+}
+
+/* LINKS */
+.links {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.links a {
+    display: block;
+    margin: 5px 0;
+    text-decoration: underline;
+    color: black;
+}

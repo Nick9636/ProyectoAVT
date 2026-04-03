@@ -13,22 +13,22 @@
 
             <!-- Menú escritorio -->
             <nav class="hidden md:flex space-x-8">
-                <a href="{{ url_for('iniciarSesion') }}"
+                <a href="{{ url_for('principal.paginaInicio') }}"
                    class="text-gray-600 hover:text-red-700 transition-colors">
                    Home
                 </a>
 
-                <a href="{{ url_for('registro') }}"
+                <a href="{{ url_for('registro.registroGeneral') }}"
                    class="text-gray-600 hover:text-red-700 transition-colors">
                    Registro
                 </a>
 
-                <a href="{{ url_for('consultar') }}"
+                <a href="{{ url_for('consulta.consultaGeneral') }}"
                    class="text-gray-600 hover:text-red-700 transition-colors">
                    Consultar
                 </a>
 
-                <a href="{{ url_for('reportes') }}"
+                <a href="{{ url_for('reportes.reporteGeneral') }}"
                    class="text-gray-600 hover:text-red-700 transition-colors">
                    Reportes
                 </a>
@@ -61,22 +61,22 @@
                 <div id="mobileMenu"
                      class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
 
-                    <a href="{{ url_for('paginaInicio') }}"
+                    <a href="{{ url_for('principal.paginaInicio') }}"
                        class="block px-4 py-2 hover:bg-red-50">
                        Home
                     </a>
 
-                    <a href="{{ url_for('registro') }}"
+                    <a href="{{ url_for('registro.registroGeneral') }}"
                        class="block px-4 py-2 hover:bg-red-50">
                        Registro
                     </a>
 
-                    <a href="{{ url_for('consultar') }}"
+                    <a href="{{ url_for('consulta.consultaGeneral') }}"
                        class="block px-4 py-2 hover:bg-red-50">
                        Consultar
                     </a>
 
-                    <a href="{{ url_for('reportes') }}"
+                    <a href="{{ url_for('reportes.reporteGeneral') }}"
                        class="block px-4 py-2 hover:bg-red-50">
                        Reportes
                     </a>
