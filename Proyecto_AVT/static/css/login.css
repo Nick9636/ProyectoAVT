@@ -2,104 +2,236 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    height: 100vh;
+    display: flex;
+    min-height: 100vh;
+    background-image: url('/static/img/fondo1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ── Panel izquierdo ─────────────────────────────────── */
+.left {
+    transition: all 0.6s ease;
+    background-color: transparent;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: white;
     overflow: hidden;
 }
 
-.login-wrapper {
+.logo-container {
     display: flex;
-    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
 }
 
-/* LADO IZQUIERDO */
-.left {
-    width: 50%;
-    background-color: #8C0E14;
+.left::before {
+    content: "";
+    position: absolute;
+    top: 165px;
+    left: 0;
+    width: 400px;
+    height: 400px;
+}
+
+.left img.logo-avt {
+    width: 400px;
+    height: auto;
+    margin-bottom: 20px;
+    
+}
+
+.left img.byteers {
+    width: 100px;
+    height: auto;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1;
+}
+
+/* ── Panel derecho ───────────────────────────────────── */
+.right {
+    background-color: transparent;
+    flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
 }
 
-.logo-avt {
-    width: 320px;
+.right img.fmvv {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 70px;
+    z-index: 2;
+}
+
+/* ── Card glassmorphism ───────────────────────────────── */
+.login-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    padding: 80px 30px;
+    width: 80%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
     position: relative;
     z-index: 1;
 }
 
-/* LADO DERECHO */
-.right {
-    width: 50%;
-    background-color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
-    position: relative;
-}
-
-.fmvb {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 80px;
-}
-
-.right h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 40px;
-}
-
-/* FORMULARIO */
-.right form {
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.right input {
-    padding: 16px;
-    border: 2px solid #d1d5db;
-    border-radius: 12px;
-    outline: none;
-}
-
-.right input:focus {
-    border-color: #EC4149;
-}
-
-.right button {
-    padding: 16px;
-    background-color: #BE131B;
-    color: white;
-    border-radius: 50px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.right button:hover {
-    background-color: #EC4149;
-}
-
-/* LINKS */
-.links {
-    margin-top: 20px;
+/* ── Título ──────────────────────────────────────────── */
+h1 {
+    font-size: 26px;
+    color: #ffffff;        /* ← era #222, invisible sobre rojo */
+    margin-bottom: 32px;
     text-align: center;
+    font-weight: 600;
 }
 
-.links a {
-    display: block;
-    margin: 5px 0;
+/* ── Form ────────────────────────────────────────────── */
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;           /* ← era 80%, se salía de la card */
+    max-width: 100%;       /* ← era 350px, innecesario dentro de la card */
+}
+
+/* ── Inputs ──────────────────────────────────────────── */
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.15);   /* ← fondo translúcido */
+    border: 1px solid rgba(255, 255, 255, 0.3);  /* ← borde blanco suave */
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 15px;
+    color: #ffffff;                           /* ← texto blanco */
+    outline: none;
+    transition: border 0.25s, background 0.25s;
+    margin-bottom: 16px;                         /* ← lo maneja .input-group */
+}
+
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Botón ───────────────────────────────────────────── */
+button[type="submit"] {
+    width: 100%;
+    background: #ffffff;
+    color: #8C0E14;
+    border: none;
+    border-radius: 25px;
+    padding: 13px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.25s, transform 0.15s;
+    letter-spacing: 0.5px;
+}
+
+button[type="submit"]:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* ── Olvidé contraseña ───────────────────────────────── */
+.forgot {
+    text-align: center;
+    margin-top: 14px;
+}
+
+.forgot a {
+    color: rgba(255, 255, 255, 0.75); 
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+}
+
+.forgot a:hover {
+    color: #ffffff;
     text-decoration: underline;
-    color: black;
+}
+
+/* ── Mobile ──────────────────────────────────────────── */
+.avt-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left {
+        display: none;
+    }
+
+    .right {
+        width: 100%;
+        min-height: 100vh;      
+        padding: 40px 20px;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 32px 24px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .right img.fmvv {
+        width: 70px;
+        top: 15px;
+        right: 15px;
+    }
+
+    .left img.byteers {
+        width: 90px;
+        top: 15px;
+        left: 15px;
+    }
+
+    .avt-mobile {
+        display: block;
+        position: absolute;
+        top: 15px;
+        left: 20px;
+        width: 70px;
+        z-index: 2;
+    }
 }

@@ -1,3 +1,164 @@
+<style>
+    /* Efecto burbuja para el menú de escritorio */
+    .nav-bubble-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .nav-bubble-container .bubble {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: #B91C1C;
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .nav-bubble-container a {
+        position: relative;
+        z-index: 1;
+        padding: 6px 12px;
+        border-radius: 9999px;
+    }
+
+    .nav-bubble-container a:hover {
+        color: #ffffff !important;
+    }
+
+    /* Ocultar burbuja por defecto */
+    .bubble.hidden-bubble {
+        opacity: 0;
+    }
+    /*panel lateral*/
+    .side-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0);
+        z-index: 40;
+        transition: background 0.35s;
+    }
+    .side-overlay.visible {
+        display: block;
+        background: rgba(0,0,0,0.4);
+    }
+
+    .side-panel {
+        position: fixed;
+        top: 0; right: 0;
+        width: 260px;
+        height: 100%;
+        background: white;
+        z-index: 50;
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    }
+    .side-panel.open {
+        transform: translateX(0);
+    }
+
+    .side-panel-header {
+        height: 64px;
+        background: #B91C1C;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        flex-shrink: 0;
+    }
+    .side-panel-header span {
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    .side-close-btn {
+        width: 30px; height: 30px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s;
+    }
+    .side-close-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .side-user-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    .side-avatar {
+        width: 42px; height: 42px;
+        background: #FEE2E2;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .side-nav-links { flex: 1; padding: 8px 0; }
+
+    .side-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 20px;
+        font-size: 14px;
+        color: #374151;
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: all 0.18s;
+    }
+    .side-nav-link:hover {
+        background: #FEF2F2;
+        color: #B91C1C;
+        border-left-color: #B91C1C;
+    }
+    .side-nav-icon {
+        width: 32px; height: 32px;
+        background: #F3F4F6;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.18s;
+    }
+    .side-nav-link:hover .side-nav-icon { background: #FEE2E2; }
+
+    .side-panel-footer {
+        padding: 16px 20px;
+        border-top: 1px solid #F3F4F6;
+    }
+
+    /* Animación del botón hamburguesa → X */
+    .hamburger-bar {
+        display: block;
+        width: 22px; height: 2px;
+        background: #B91C1C;
+        border-radius: 2px;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+    button.ham-open .hamburger-bar:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+    button.ham-open .hamburger-bar:nth-child(2) {
+        opacity: 0; transform: scaleX(0);
+    }
+    button.ham-open .hamburger-bar:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+</style>
+
 <header class="bg-white shadow-md fixed w-full top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
@@ -11,79 +172,163 @@
                 </div>
             </div>
 
-            <!-- Menú escritorio -->
-            <nav class="hidden md:flex space-x-8">
-                <a href="{{ url_for('principal.paginaInicio') }}"
-                   class="text-gray-600 hover:text-red-700 transition-colors">
-                   Home
-                </a>
+            <!-- Menú escritorio con efecto burbuja -->
+            <nav class="hidden md:flex">
+                <div class="nav-bubble-container" id="navContainer">
+                    <!-- La burbuja -->
+                    <div class="bubble hidden-bubble" id="navBubble"></div>
 
-                <a href="{{ url_for('registro.registroGeneral') }}"
-                   class="text-gray-600 hover:text-red-700 transition-colors">
-                   Registro
-                </a>
-
-                <a href="{{ url_for('consulta.consultaGeneral') }}"
-                   class="text-gray-600 hover:text-red-700 transition-colors">
-                   Consultar
-                </a>
-
-                <a href="{{ url_for('reportes.reporteGeneral') }}"
-                   class="text-gray-600 hover:text-red-700 transition-colors">
-                   Reportes
-                </a>
-
-                <a href="#"
-                   class="text-gray-600 hover:text-red-700 transition-colors">
-                   Configuración
-                </a>
+                    <a href="{{ url_for('principal.paginaInicio') }}"
+                       class="text-gray-600 hover:text-red-700 transition-colors">
+                       Home
+                    </a>
+                    <a href="{{ url_for('registro.registroGeneral') }}"
+                       class="text-gray-600 hover:text-red-700 transition-colors">
+                       Registro
+                    </a>
+                    <a href="{{ url_for('consulta.consultaGeneral') }}"
+                       class="text-gray-600 hover:text-red-700 transition-colors">
+                       Consultar
+                    </a>
+                    <a href="{{ url_for('reportes.reporteGeneral') }}"
+                       class="text-gray-600 hover:text-red-700 transition-colors">
+                       Reportes
+                    </a>
+                    <a href="#"
+                       class="text-gray-600 hover:text-red-700 transition-colors">
+                       Configuración
+                    </a>
+                </div>
             </nav>
 
-            <!-- Usuario + botón móvil -->
-            <div class="flex items-center space-x-3 relative">
-
+            <!-- Usuario + botón hamburguesa -->
+            <div class="flex items-center space-x-3">
                 <span class="text-gray-700 hidden sm:block">
-                    Hola, <span class="font-semibold">
-                        {{ session.get('usuario', 'Usuario') }}
-                    </span>
+                    Hola, <span class="font-semibold">{{ session.get('usuario', 'Usuario') }}</span>
                 </span>
-
                 <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                     <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
                 </div>
 
-                <!-- Botón hamburguesa -->
-                <button onclick="toggleMenu()" class="md:hidden">
-                    <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
+                <!-- Botón hamburguesa animado -->
+                <button id="hamBtn" onclick="toggleSidePanel()"
+                        class="md:hidden flex flex-col gap-1.5 p-1">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
                 </button>
-
-                <!-- Menú móvil -->
-                <div id="mobileMenu"
-                     class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
-
-                    <a href="{{ url_for('principal.paginaInicio') }}"
-                       class="block px-4 py-2 hover:bg-red-50">
-                       Home
-                    </a>
-
-                    <a href="{{ url_for('registro.registroGeneral') }}"
-                       class="block px-4 py-2 hover:bg-red-50">
-                       Registro
-                    </a>
-
-                    <a href="{{ url_for('consulta.consultaGeneral') }}"
-                       class="block px-4 py-2 hover:bg-red-50">
-                       Consultar
-                    </a>
-
-                    <a href="{{ url_for('reportes.reporteGeneral') }}"
-                       class="block px-4 py-2 hover:bg-red-50">
-                       Reportes
-                    </a>
-
-                </div>
             </div>
 
         </div>
     </div>
 </header>
+
+<!-- Overlay oscuro -->
+<div class="side-overlay" id="sideOverlay" onclick="closeSidePanel()"></div>
+
+<!-- Panel lateral -->
+<div class="side-panel" id="sidePanel">
+
+    <div class="side-panel-header">
+        <span>Menú</span>
+        <button class="side-close-btn" onclick="closeSidePanel()">✕</button>
+    </div>
+
+    <div class="side-user-section">
+        <div class="side-avatar">
+            <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+        </div>
+        <div>
+            <p class="font-semibold text-sm text-gray-800">
+                {{ session.get('usuario', 'Usuario') }}
+            </p>
+            <p class="text-xs text-gray-500">Administrador</p>
+        </div>
+    </div>
+
+    <div class="side-nav-links">
+        <a href="{{ url_for('principal.paginaInicio') }}" class="side-nav-link">
+            <div class="side-nav-icon">
+                <i data-lucide="home" class="w-4 h-4 text-gray-500"></i>
+            </div>
+            Home
+        </a>
+        <a href="{{ url_for('registro.registroGeneral') }}" class="side-nav-link">
+            <div class="side-nav-icon">
+                <i data-lucide="clipboard-pen" class="w-4 h-4 text-gray-500"></i>
+            </div>
+            Registro
+        </a>
+        <a href="{{ url_for('consulta.consultaGeneral') }}" class="side-nav-link">
+            <div class="side-nav-icon">
+                <i data-lucide="search" class="w-4 h-4 text-gray-500"></i>
+            </div>
+            Consultar
+        </a>
+        <a href="{{ url_for('reportes.reporteGeneral') }}" class="side-nav-link">
+            <div class="side-nav-icon">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-gray-500"></i>
+            </div>
+            Reportes
+        </a>
+        <a href="#" class="side-nav-link">
+            <div class="side-nav-icon">
+                <i data-lucide="settings" class="w-4 h-4 text-gray-500"></i>
+            </div>
+            Configuración
+        </a>
+    </div>
+
+    <div class="side-panel-footer">
+        <a href="#" class="side-nav-link" style="color:#B91C1C; border-radius:8px; background:#FEF2F2;">
+            <div class="side-nav-icon" style="background:#FEE2E2;">
+                <i data-lucide="log-out" class="w-4 h-4 text-red-700"></i>
+            </div>
+            Cerrar sesión
+        </a>
+    </div>
+</div>
+
+<script>
+    // ── Panel lateral ───────────────────────────────────────
+    function toggleSidePanel() {
+        const open = document.getElementById('sidePanel').classList.contains('open');
+        open ? closeSidePanel() : openSidePanel();
+    }
+    function openSidePanel() {
+        document.getElementById('sidePanel').classList.add('open');
+        document.getElementById('sideOverlay').classList.add('visible');
+        document.getElementById('hamBtn').classList.add('ham-open');
+    }
+    function closeSidePanel() {
+        document.getElementById('sidePanel').classList.remove('open');
+        document.getElementById('sideOverlay').classList.remove('visible');
+        document.getElementById('hamBtn').classList.remove('ham-open');
+    }
+
+    // ── Efecto burbuja ───────────────────────────────────────
+    const navContainer = document.getElementById('navContainer');
+    const bubble = document.getElementById('navBubble');
+
+    if (navContainer && bubble) {
+        navContainer.querySelectorAll('a').forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                const cr = navContainer.getBoundingClientRect();
+                const lr = link.getBoundingClientRect();
+                bubble.style.left = (lr.left - cr.left + lr.width / 2 - bubble.offsetWidth / 2) + 'px';
+                bubble.style.width = (lr.width + 20) + 'px';
+                bubble.style.height = '38px';
+                bubble.style.borderRadius = '9999px';
+                bubble.style.opacity = '1';
+                bubble.classList.remove('hidden-bubble');
+            });
+        });
+        navContainer.addEventListener('mouseleave', () => {
+            bubble.style.opacity = '0';
+            setTimeout(() => bubble.classList.add('hidden-bubble'), 300);
+        });
+    }
+
+    // ── Lucide icons ─────────────────────────────────────────
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+</script>

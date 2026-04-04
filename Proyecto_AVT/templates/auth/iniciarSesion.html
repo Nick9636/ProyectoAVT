@@ -1,45 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de sesión</title>
-
-    <!-- AQUÍ LLAMAS TU CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css', v=1) }}">
 </head>
 
 <body>
 
-<div class="login-wrapper">
-
-    <!-- LADO IZQUIERDO -->
     <div class="left">
-        <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" 
-             class="logo-avt" 
-             alt="Logo AVT">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers Logo" class="byteers">
+            <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" class="logo-avt">
+        </div>
+        <div class="circulos-right"></div>
     </div>
 
-    <!-- LADO DERECHO -->
     <div class="right">
-        <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" 
-             class="fmvb" 
-             alt="Logo FMVB">
+        <div class="login-card">
+            <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="FMVB Logo" class="fmvv">
+            <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" class="avt-mobile">
+            <h1>¡Bienvenido de nuevo!</h1>
+            <form method="POST" action="{{ url_for('auth.iniciarSesion') }}">
+                <input type="email" name="email" placeholder="Correo electrónico" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <button type="submit">Iniciar sesión</button>
 
-        <h1>¡Bienvenido de nuevo!</h1>
-
-        <form method="POST" action="{{ url_for('auth.iniciarSesion') }}">
-            <input type="email" name="email" placeholder="Correo electrónico" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <button type="submit">Iniciar sesión</button>
-        </form>
-
-        <div class="links">
-            <a href="{{ url_for('auth.recordarContrasena') }}">Recordar contraseña</a>
-            <a href="{{ url_for('auth.nuevoUsuario') }}">Registrar</a>
+            </form>
+            <div class="forgot">
+                <a href="{{ url_for('auth.recordarContrasena') }}">Recordar contraseña</a>
+            </div>
+            <div class="forgot">
+                <a href="{{ url_for('auth.nuevoUsuario') }}">Registrar</a>
+            </div>
         </div>
     </div>
 
-</div>
-
 </body>
+
 </html>
