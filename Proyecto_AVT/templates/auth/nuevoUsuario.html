@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nuevo Usuario</title>
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css', v=1) }}">
     
 </head>
 
 <body>
 
-    <img class="logo-left-large" src="../static/img/byteers_logo.png" alt="Logo compañia">
+    <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Logo compañia" class="logobyteers">
 
     <div class="bg-circles" aria-hidden="true"></div>
     <div class="bg-circles2" aria-hidden="true"></div>
@@ -20,8 +20,8 @@
         <div class="card" role="main">
 
             <div class="card-logos">
-                <img src="../static/img/avt_logo.png" alt="Logo AVT">
-                <img src="../static/img/fmvb_logo.jpg" alt="Logo FMVB">
+                <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="Logo AVT">
+                <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="Logo FMVB">
             </div>
 
             <h2>Nuevo Usuario</h2>

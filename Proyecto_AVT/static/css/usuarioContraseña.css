@@ -1,0 +1,185 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ── Variables ───────────────────────────────────────── */
+:root {
+    --navy: #f5c4c4;
+    --red1: #921215;
+}
+
+/* ── Fondo general ───────────────────────────────────── */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-image: url('/static/img/fondo1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow-y: auto;  
+    padding: 20px 0;
+}
+
+/* ── Logo Byteers (esquina superior izquierda) ───────── */
+.logobyteers {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    z-index: 1;
+    width: 70px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+/* ── Contenedor de la card ───────────────────────────── */
+.card-wrap {
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 30px;
+}
+
+/* ── Card ────────────────────────────────────────────── */
+.card {
+    width: 420px;
+    background: hsla(0, 32%, 38%, 0.37);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 8px;
+    padding: 28px 34px;
+    box-shadow: 0 16px 22px rgba(0, 0, 0, 0.22);
+    position: relative;
+}
+
+/* ── Logos dentro de la card ─────────────────────────── */
+.card-logos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.card-logos img {
+    height: 60px;
+    width: auto;
+}
+
+/* ── Título ──────────────────────────────────────────── */
+h2 {
+    text-align: center;
+    font-size: 28px;
+    margin: 6px 0 22px 0;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* ── Labels ──────────────────────────────────────────── */
+label {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #f8f5f5;
+}
+
+/* ── Input box ───────────────────────────────────────── */
+.input-box {
+    position: relative;
+    margin-bottom: 22px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    padding: 12px 44px 12px 14px;
+    border-radius: 8px;
+    border: 3px solid var(--navy);
+    font-size: 15px;
+    outline: none;
+    background: transparent;
+    color: #ffffff;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+/* ── Ícono ojo ───────────────────────────────────────── */
+.eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 18px;
+    user-select: none;
+}
+
+/* ── Botón ───────────────────────────────────────────── */
+.btn-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+button {
+    width: 60%;
+    min-width: 160px;
+    padding: 12px 18px;
+    border-radius: 28px;
+    border: 3px solid var(--navy);
+    background: var(--red1);
+    color: white;
+    font-weight: 800;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 600px) {
+
+    body {
+        align-items: flex-start;      /* ← permite que la card baje para dar espacio al logo */
+        padding-top: 5px;           /* ← espacio para el logo arriba de la card */
+    }
+
+    .card {
+        width: 92%;
+        padding: 20px;
+    }
+
+    .card-logos img {
+        height: 60px;
+    }
+
+    .logobyteers {
+        position: relative;
+        left: 15px;
+        width: 70px;         
+        top: 10px;            
+      
+    }
+}
