@@ -115,7 +115,7 @@ form {
 
 /* ── Inputs ──────────────────────────────────────────── */
 
-input[type="email"],
+input[type="text"],
 input[type="password"] {
     width: 100%;
     background: rgba(255, 255, 255, 0.15);   /* ← fondo translúcido */
@@ -129,12 +129,12 @@ input[type="password"] {
     margin-bottom: 16px;                         /* ← lo maneja .input-group */
 }
 
-input[type="email"]::placeholder,
+input[type="text"]::placeholder,
 input[type="password"]::placeholder {
     color: rgba(255, 255, 255, 0.55);
 }
 
-input[type="email"]:focus,
+input[type="text"]:focus,
 input[type="password"]:focus {
     border-color: rgba(255, 255, 255, 0.7);
     background: rgba(255, 255, 255, 0.22);

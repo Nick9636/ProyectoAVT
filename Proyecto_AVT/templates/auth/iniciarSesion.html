@@ -24,7 +24,7 @@
             <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" class="avt-mobile">
             <h1>¡Bienvenido de nuevo!</h1>
             <form method="POST" action="{{ url_for('auth.iniciarSesion') }}">
-                <input type="email" name="email" placeholder="Correo electrónico" required>
+                <input type="text" name="nombreUsuario" placeholder="Nombre de usuario" required>
                 <input type="password" name="password" placeholder="Contraseña" required>
                 <button type="submit">Iniciar sesión</button>
 
@@ -35,6 +35,8 @@
             <div class="forgot">
                 <a href="{{ url_for('auth.nuevoUsuario') }}">Registrar</a>
             </div>
+            <div class="forgot">
+                <a href="{{ url_for('accesoExterno') }}">Llenado de formato SIRED</a>
         </div>
     </div>
 

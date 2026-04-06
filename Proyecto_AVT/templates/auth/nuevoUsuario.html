@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nuevo Usuario</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css', v=1) }}">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css') }}">
 </head>
 
 <body>
@@ -26,41 +25,91 @@
 
             <h2>Nuevo Usuario</h2>
 
-            <label>Nombre completo</label>
-            <div class="input-box">
-                <input type="text" placeholder="Nombre completo">
-            </div>
+            <!-- Mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-            <label>Correo electrónico</label>
-            <div class="input-box">
-                <input type="email" placeholder="Correo electrónico">
-            </div>
+            <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
 
-            <label>Contraseña</label>
-            <div class="input-box">
-                <input id="password" type="password" placeholder="Contraseña">
-                <div class="eye" onclick="togglePass()">👁</div>
-            </div>
+                <label>Nombre de usuario</label>
+                <div class="input-box">
+                    <input type="text" name="nombre_usuario" placeholder="Nombre de usuario" required>
+                </div>
 
-            <label>Confirmar contraseña</label>
-            <div class="input-box">
-                <input id="password2" type="password" placeholder="Confirmar contraseña">
-            </div>
+                <label>Nombre completo</label>
+                <div class="input-box">
+                    <input type="text" name="nombre_completo" placeholder="Nombre completo" required>
+                </div>
 
-            <div class="btn-wrap">
-                <button type="button" onclick="window.location.href='iniciarSesion.html'">Registrarse</button>
-            </div>
+                <label>Correo electrónico</label>
+                <div class="input-box">
+                    <input type="email" name="email" placeholder="Correo electrónico" required>
+                </div>
+
+                <label>Rol</label>
+                <div class="input-box">
+                    <select name="rol" required>
+                        <option value="">Selecciona un rol</option>
+                        <option value="Presidente">Presidente</option>
+                        <option value="Secretaria">Secretaria</option>
+                        <option value="Tesorero">Tesorero</option>
+                        <option value="Vocal">Vocal</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Capturista">Capturista</option>
+                    </select>
+                </div>
+
+                <label>Contraseña</label>
+                <div class="input-box">
+                    <input id="password" type="password" name="password" placeholder="Contraseña" required>
+                    <div class="eye" onclick="togglePass('password')">👁</div>
+                </div>
+
+                <label>Confirmar contraseña</label>
+                <div class="input-box">
+                    <input id="password2" type="password" placeholder="Confirmar contraseña" required>
+                    <div class="eye" onclick="togglePass('password2')">👁</div>
+                </div>
+
+                <p id="error-pass" style="color:red; display:none;">Las contraseñas no coinciden</p>
+
+                <div class="btn-wrap">
+                    <button type="submit">Registrarse</button>
+                </div>
+
+                <div class="btn-wrap">
+                    <a href="{{ url_for('auth.index') }}">¿Ya tienes cuenta? Inicia sesión</a>
+                </div>
+
+            </form>
 
         </div>
     </div>
 
     <script>
-        function togglePass() {
-            const p = document.getElementById('password');
+        function togglePass(id) {
+            const p = document.getElementById(id);
             p.type = (p.type === 'password') ? 'text' : 'password';
+        }
+
+        function validarForm() {
+            const p1 = document.getElementById('password').value;
+            const p2 = document.getElementById('password2').value;
+            const error = document.getElementById('error-pass');
+
+            if (p1 !== p2) {
+                error.style.display = 'block';
+                return false; // detiene el envío del form
+            }
+            error.style.display = 'none';
+            return true;
         }
     </script>
 
 </body>
-
 </html>
