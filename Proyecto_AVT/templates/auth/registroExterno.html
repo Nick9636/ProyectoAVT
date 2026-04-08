@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Persona - Sistema AVT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .reglas-box { display: none; }
+        .reglas-box.activo { display: block; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gray-100">
+    <!-- CONTENIDO -->
+    <main class="pt-24 max-w-5xl mx-auto px-4 pb-12">
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {{ 'bg-green-100 text-green-800' if category == 'success' else 'bg-red-100 text-red-800' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="bg-white rounded-xl shadow-lg p-8">
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Registro de Persona</h2>
+
+            <form method="POST" action="{{ url_for('registro.registroPersona') }}" enctype="multipart/form-data">
+
+                <!-- ── SELECTOR DE TIPO ── -->
+                <div class="mb-8">
+                    <label class="block text-gray-700 font-semibold mb-2">Tipo de Registro *</label>
+                    <select name="tipo_persona" id="tipoPersonaSelect" required onchange="cambiarTipo(this.value)"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 focus:border-red-500 focus:outline-none transition">
+                        <option value="">-- Selecciona tu tipo --</option>
+                        <option value="jugador">🏐 Jugador</option>
+                        <option value="arbitro">🟡 Árbitro</option>
+                        <option value="entrenador">📋 Entrenador</option>
+                    </select>
+                </div>
+
+                <!-- ── DATOS PERSONALES ── -->
+                <div class="bg-red-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-red-800 mb-4">Datos Personales</h3>
+
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Paterno *</label>
+                            <input type="text" name="apellido_paterno" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Apellido Materno *</label>
+                            <input type="text" name="apellido_materno" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre(s) *</label>
+                            <input type="text" name="nombres" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Número de Registro</label>
+                            <input type="text" name="numero_registro"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">CURP *</label>
+                            <input type="text" name="curp" required maxlength="18"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Año de Vigencia *</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center"><input type="checkbox" name="vigencia" value="2025" class="mr-2 w-4 h-4 text-red-600"> 2025</label>
+                            <label class="flex items-center"><input type="checkbox" name="vigencia" value="2026" class="mr-2 w-4 h-4 text-red-600"> 2026</label>
+                            <label class="flex items-center"><input type="checkbox" name="vigencia" value="2027" class="mr-2 w-4 h-4 text-red-600"> 2027</label>
+                            <label class="flex items-center"><input type="checkbox" name="vigencia" value="2028" class="mr-2 w-4 h-4 text-red-600"> 2028</label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento *</label>
+                            <input type="date" name="fecha_nacimiento" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lugar de Nacimiento *</label>
+                            <input type="text" name="lugar_nacimiento" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nacionalidad *</label>
+                            <input type="text" name="nacionalidad" required value="MEXICANA"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Peso (kg) *</label>
+                            <input type="number" name="peso" required step="0.1"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Estatura (m) *</label>
+                            <input type="number" name="estatura" required step="0.01"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Sangre *</label>
+                            <select name="tipo_sangre" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                                <option value="">Seleccionar</option>
+                                <option>O+</option><option>O-</option>
+                                <option>A+</option><option>A-</option>
+                                <option>B+</option><option>B-</option>
+                                <option>AB+</option><option>AB-</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ocupación</label>
+                            <input type="text" name="ocupacion"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Escolaridad</label>
+                            <input type="text" name="escolaridad"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Escuela</label>
+                            <input type="text" name="escuela"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Enfermedades Crónicas</label>
+                            <input type="text" name="enfermedades_cronicas" value="NINGUNA"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Medicamentos</label>
+                            <input type="text" name="medicamentos" value="NINGUNA"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-red-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── DOMICILIO ── -->
+                <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4">Domicilio</h3>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Estado de Residencia *</label>
+                            <input type="text" name="estado_residencia" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Municipio *</label>
+                            <input type="text" name="municipio" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dirección (Calle y Número) *</label>
+                            <input type="text" name="direccion" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Colonia *</label>
+                            <input type="text" name="colonia" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Código Postal *</label>
+                            <input type="text" name="codigo_postal" required maxlength="5"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                            <input type="tel" name="telefono"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Celular *</label>
+                            <input type="tel" name="celular" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico *</label>
+                        <input type="email" name="email" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- ── INFORMACIÓN DEPORTIVA ── -->
+                <div class="bg-green-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-green-800 mb-4">Información Deportiva</h3>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Club y/o Escuela *</label>
+                            <input type="text" name="club" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Equipo *</label>
+                            <input type="text" name="equipo" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
+                            <select name="categoria" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <option value="">Seleccionar</option>
+                                <option>INFANTIL</option>
+                                <option>MENOR INFANTIL</option>
+                                <option>CADETE</option>
+                                <option>JUVENIL</option>
+                                <option>MAYOR</option>
+                                <option>MASTER</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rama *</label>
+                            <select name="rama" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <option value="">Seleccionar</option>
+                                <option>VARONIL</option>
+                                <option>FEMENIL</option>
+                                <option>MIXTO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ligas en las que Participa *</label>
+                        <input type="text" name="ligas_participa" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-green-500"
+                            placeholder="Ej: LIGA OFICIAL MUNICIPAL DE PANOTLA">
+                    </div>
+                </div>
+
+                <!-- ── PADRE O TUTOR ── -->
+                <div class="bg-yellow-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-yellow-800 mb-4">Padre o Tutor <span class="text-sm font-normal text-gray-500">(En caso de ser menor de edad)</span></h3>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo del Padre/Tutor</label>
+                        <input type="text" name="nombre_padre"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-yellow-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Celular del Padre/Tutor</label>
+                            <input type="tel" name="celular_padre"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Correo del Padre/Tutor</label>
+                            <input type="email" name="email_padre"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── FOTOGRAFÍA ── -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Fotografía</h3>
+                    <input type="file" name="foto" accept=".png,.jpg,.jpeg"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <p class="text-sm text-gray-500 mt-1">Formato: PNG o JPG. Tamaño recomendado: foto tipo credencial.</p>
+                </div>
+
+                <!-- ── REGLAMENTO DINÁMICO ── -->
+                <div id="seccionReglamento" class="mb-6 hidden">
+
+                    <!-- JUGADOR -->
+                    <div id="reglasJugador" class="reglas-box bg-red-50 border border-red-200 p-6 rounded-lg">
+                        <h3 class="text-lg font-bold text-red-800 mb-3">📋 Reglamento para Jugadores</h3>
+                        <ul class="text-sm text-gray-700 space-y-2 mb-4 list-disc list-inside">
+                            <li>Respetar las decisiones del árbitro en todo momento.</li>
+                            <li>Mantener conducta deportiva dentro y fuera de la cancha.</li>
+                            <li>Portar el uniforme oficial del equipo en cada partido.</li>
+                            <li>Asistir puntualmente a entrenamientos y partidos programados.</li>
+                            <li>No utilizar sustancias prohibidas según el reglamento de la AVT.</li>
+                        </ul>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="acepta_reglamento" value="1" required
+                                class="w-5 h-5 text-red-600 rounded">
+                            <span class="text-sm font-medium text-gray-700">
+                                He leído y acepto el reglamento para jugadores de la AVT.
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- ÁRBITRO -->
+                    <div id="reglasArbitro" class="reglas-box bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
+                        <h3 class="text-lg font-bold text-yellow-800 mb-3">📋 Reglamento para Árbitros</h3>
+                        <ul class="text-sm text-gray-700 space-y-2 mb-4 list-disc list-inside">
+                            <li>Aplicar el reglamento oficial de voleibol con imparcialidad.</li>
+                            <li>Mantener comunicación respetuosa con jugadores y entrenadores.</li>
+                            <li>Portar el uniforme oficial de árbitro en cada evento.</li>
+                            <li>Presentarse con al menos 30 minutos de anticipación al partido.</li>
+                            <li>Reportar cualquier incidente al comité disciplinario de la AVT.</li>
+                        </ul>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="acepta_reglamento" value="1" required
+                                class="w-5 h-5 text-yellow-600 rounded">
+                            <span class="text-sm font-medium text-gray-700">
+                                He leído y acepto el reglamento para árbitros de la AVT.
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- ENTRENADOR -->
+                    <div id="reglasEntrenador" class="reglas-box bg-green-50 border border-green-200 p-6 rounded-lg">
+                        <h3 class="text-lg font-bold text-green-800 mb-3">📋 Reglamento para Entrenadores</h3>
+                        <ul class="text-sm text-gray-700 space-y-2 mb-4 list-disc list-inside">
+                            <li>Promover el desarrollo deportivo y personal de los jugadores.</li>
+                            <li>Respetar las decisiones arbitrales durante los partidos.</li>
+                            <li>Mantener un ambiente de respeto y disciplina en el equipo.</li>
+                            <li>Contar con certificación vigente de entrenador reconocida por la AVT.</li>
+                            <li>Reportar lesiones o incidentes de jugadores al área médica designada.</li>
+                        </ul>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="acepta_reglamento" value="1" required
+                                class="w-5 h-5 text-green-600 rounded">
+                            <span class="text-sm font-medium text-gray-700">
+                                He leído y acepto el reglamento para entrenadores de la AVT.
+                            </span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <!-- ── BOTONES ── -->
+                <div class="flex gap-4 justify-end">
+                    <a href="{{ url_for('auth.accesoExterno') }}"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-lg">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg">
+                        Guardar Registro
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function cambiarTipo(valor) {
+            const seccion = document.getElementById('seccionReglamento');
+            const cajas = document.querySelectorAll('.reglas-box');
+
+            // Ocultar todas las cajas de reglas
+            cajas.forEach(c => c.classList.remove('activo'));
+            // Desmarcar todos los checkboxes de reglamento
+            document.querySelectorAll('input[name="acepta_reglamento"]').forEach(cb => {
+                cb.checked = false;
+                cb.required = false;
+            });
+
+            if (!valor) {
+                seccion.classList.add('hidden');
+                return;
+            }
+
+            seccion.classList.remove('hidden');
+
+            if (valor === 'jugador') {
+                document.getElementById('reglasJugador').classList.add('activo');
+                document.querySelector('#reglasJugador input[type="checkbox"]').required = true;
+            } else if (valor === 'arbitro') {
+                document.getElementById('reglasArbitro').classList.add('activo');
+                document.querySelector('#reglasArbitro input[type="checkbox"]').required = true;
+            } else if (valor === 'entrenador') {
+                document.getElementById('reglasEntrenador').classList.add('activo');
+                document.querySelector('#reglasEntrenador input[type="checkbox"]').required = true;
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -22,6 +22,10 @@
         <div class="login-card">
             <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="FMVB Logo" class="fmvv">
             <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" class="avt-mobile">
+            <div class="card-logos-mobile">
+                <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="AVT Logo" class="avt-mobile">
+                <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="FMVB Logo" class="fmvv">
+            </div>
             <h1>¡Bienvenido de nuevo!</h1>
             <form method="POST" action="{{ url_for('auth.iniciarSesion') }}">
                 <input type="text" name="nombreUsuario" placeholder="Nombre de usuario" required>

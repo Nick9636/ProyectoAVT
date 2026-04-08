@@ -88,12 +88,16 @@ body {
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 20px;
-    padding: 80px 30px;
+    padding: 40px 30px;
     width: 80%;
     max-width: 480px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
     position: relative;
     z-index: 1;
+}
+
+.card-logos-mobile {
+    display: none;              /* ← oculto en escritorio */
 }
 
 /* ── Título ──────────────────────────────────────────── */
@@ -198,6 +202,11 @@ button[type="submit"]:active {
         display: none;
     }
 
+    .right img.fmvv,
+    .avt-mobile {
+        display: none;
+    }
+
     .right {
         width: 100%;
         min-height: 100vh;      
@@ -210,14 +219,29 @@ button[type="submit"]:active {
         padding: 32px 24px;
     }
 
+    .card-logos-mobile {
+        display: flex;                  /* ← aparecen en móvil */
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;            /* ← espacio antes del h1 */
+    }
+
+    .card-logos-mobile img {
+        height: 55px;
+        width: auto;
+    }
+
     h1 {
-        font-size: 22px;
+        font-size: 23px;
     }
 
     .right img.fmvv {
-        width: 70px;
+        display: block;
+        position: absolute;
+        width: 50px;
         top: 15px;
-        right: 15px;
+        right: 20px;
+        z-index: 2;
     }
 
     .left img.byteers {
@@ -231,7 +255,7 @@ button[type="submit"]:active {
         position: absolute;
         top: 15px;
         left: 20px;
-        width: 70px;
+        width: 60px;
         z-index: 2;
     }
 }

@@ -5,84 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio</title>
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background-image: url('static/img/fondo2.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        
-    </style>
 </head>
 
 <body class="min-h-screen flex flex-col">
-
     {% include 'header.html' %}
-
     <!-- CONTENIDO -->
-    <main class="flex-1 flex items-center justify-center px-4 py-12 pt-24">
-        <div class="w-full max-w-4xl">
+    <main class="flex-1 flex items-center justify-center px-3 py-12 pt-24">
+        <div class="w-full max-w-5xl">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 
                 <!-- NOTIFICACIONES -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
-                    <a href="{{ url_for('principal.notificaciones') }}" class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer block">
+                <a href="{{ url_for('principal.notificaciones') }}"
+                    class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="bell" class="w-8 h-8 text-red-700"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Notificaciones</h3>
-                        <p class="text-gray-600">Ver mensajes y alertas del sistema</p>
+                        <h3 class="text-xl font-semibold text-black mb-2">Notificaciones</h3>
+                        <p class="text-white">Ver mensajes y alertas del sistema</p>
                     </div>
-                </div>
+                </a>
 
                 <!-- EXPEDIENTES -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
-                    <a href="{{ url_for('principal.expedientes') }}" class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer block">
+                <a href="{{ url_for('principal.expedientes') }}"
+                    class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="file-text" class="w-8 h-8 text-red-700"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Generar Expediente</h3>
-                        <p class="text-gray-600">Crear expedientes SIRED de afiliados</p>
+                        <h3 class="text-xl font-semibold text-black mb-2">Generar Expediente</h3>
+                        <p class="text-white">Crear expedientes SIRED de afiliados</p>
                     </div>
-                </div>
-
-                <!-- PENDIENTES -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer">
-                    <div class="p-8 text-center">
-                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="clock" class="w-8 h-8 text-red-700"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Pendientes</h3>
-                        <p class="text-gray-600">Revisar tareas y acciones pendientes</p>
-                    </div>
-                </div>
+                </a>
 
                 <!-- DIGITALIZAR -->
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
-                    <a href="{{ url_for('principal.digitalizar') }}" class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer block">
+                <a href="{{ url_for('principal.digitalizar') }}"
+                    class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="upload" class="w-8 h-8 text-red-700"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Digitalizar Documentos</h3>
-                        <p class="text-gray-600">Subir y almacenar archivos digitales</p>
+                        <h3 class="text-xl font-semibold text-black mb-2">Digitalizar Documentos</h3>
+                        <p class="text-white">Subir y almacenar archivos digitales</p>
                     </div>
-                </div>
+                </a>
 
             </div>
         </div>

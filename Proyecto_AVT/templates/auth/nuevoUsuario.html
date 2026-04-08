@@ -51,19 +51,6 @@
                     <input type="email" name="email" placeholder="Correo electrónico" required>
                 </div>
 
-                <label>Rol</label>
-                <div class="input-box">
-                    <select name="rol" required>
-                        <option value="">Selecciona un rol</option>
-                        <option value="Presidente">Presidente</option>
-                        <option value="Secretaria">Secretaria</option>
-                        <option value="Tesorero">Tesorero</option>
-                        <option value="Vocal">Vocal</option>
-                        <option value="Administrador">Administrador</option>
-                        <option value="Capturista">Capturista</option>
-                    </select>
-                </div>
-
                 <label>Contraseña</label>
                 <div class="input-box">
                     <input id="password" type="password" name="password" placeholder="Contraseña" required>
@@ -81,11 +68,6 @@
                 <div class="btn-wrap">
                     <button type="submit">Registrarse</button>
                 </div>
-
-                <div class="btn-wrap">
-                    <a href="{{ url_for('auth.index') }}">¿Ya tienes cuenta? Inicia sesión</a>
-                </div>
-
             </form>
 
         </div>

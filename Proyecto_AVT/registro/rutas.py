@@ -21,3 +21,7 @@ def registroPago():
 @registro.route("/persona")
 def registroPersona():
     return render_template("registro/registroPersona.html")
+
+@registro.route("/afiliado")
+def registroAfiliado():
+    return render_template("registro/registroAfiliado.html")

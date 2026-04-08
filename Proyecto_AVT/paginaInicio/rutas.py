@@ -14,9 +14,9 @@ def paginaInicio():
 def autorizarRegistro():
     return render_template("autorizar/autorizarRegistro.html")
 
-@principal.route("/digitalizar")
+@principal.route("/digitalizarDocumentos")
 def digitalizar():
-    return render_template("paginaInicio/digitalizar.html")
+    return render_template("paginaInicio/digitalizarDocumentos.html")
 
 @principal.route("/expedientes")
 def expedientes():

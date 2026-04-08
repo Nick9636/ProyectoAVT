@@ -7,147 +7,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-         :root {
-            --red1: #A8181B;
-            --red2: #df1d1d;
-            --navy: #860404;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Barra superior -->
-    <header class="bg-white shadow-md fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
-                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
-                    </div>
-                </div>
-
-                <!-- Menú escritorio -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Home
-                    </a>
-
-                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Registro
-                    </a>
-
-                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Consultar
-                    </a>
-
-                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Reportes
-                    </a>
-
-                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Configuración
-                    </a>
-                </nav>
-
-                <!-- Usuario + botón móvil -->
-                <div class="flex items-center space-x-3 relative">
-
-                    <span class="text-gray-700 hidden sm:block">
-                        Hola, <span class="font-semibold">Usuario</span>
-                    </span>
-
-                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
-                    </div>
-
-                    <!-- Botón hamburguesa -->
-                    <button onclick="toggleMenu()" class="md:hidden">
-                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
-                    </button>
-
-                    <!-- Menú móvil -->
-                    <div id="mobileMenu"
-                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
-
-                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
-                            Home
-                        </a>
-
-                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
-                            Registro
-                        </a>
-
-                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
-                            Consultar
-                        </a>
-
-                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
-                            Reportes
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
+    {%include 'header.html'%}   
     <!-- Contenido principal -->
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!--<div class="text-center mb-12">
-            <h2 class="text-4xl font-bold text-red-700 mb-4">Reportes</h2>
-            <p class="text-gray-600 text-lg">Genera reportes y estadísticas del sistema</p>
-        </div>-->
-
         <!-- Grid de opciones de reportes -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <!-- Reporte de Ingresos -->
-            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer" onclick="window.location.href='reporte-ingresos.html'">
+            <div class="card cursor-pointer" onclick="window.location.href='reporte-ingresos.html'">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Reporte de Ingresos</h3>
-                    <p class="text-gray-600">Análisis financiero y ingresos por liga</p>
+                    <h3 class="text-xl font-semibold text-black mb-2">Reporte de Ingresos</h3>
+                    <p class="text-white">Análisis financiero y ingresos por liga</p>
                 </div>
             </div>
 
             <!-- Reporte de Inscripción -->
-            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer" onclick="window.location.href='reporte-inscripcion.html'">
+            <div class="card cursor-pointer" onclick="window.location.href='reporte-inscripcion.html'">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="user-plus" class="w-8 h-8 text-blue-600"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Reporte de Inscripción</h3>
-                    <p class="text-gray-600">Estadísticas de jugadores afiliados</p>
+                    <h3 class="text-xl font-semibold text-black mb-2">Reporte de Inscripción</h3>
+                    <p class="text-white">Estadísticas de jugadores afiliados</p>
                 </div>
             </div>
 
             <!-- Reporte del Sistema -->
-            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer" onclick="window.location.href='reporte-sistema.html'">
+            <div class="card cursor-pointer" onclick="window.location.href='reporte-sistema.html'">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="bar-chart-3" class="w-8 h-8 text-purple-600"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Reporte del Sistema</h3>
-                    <p class="text-gray-600">Resumen general y estadísticas</p>
+                    <h3 class="text-xl font-semibold text-black mb-2">Reporte del Sistema</h3>
+                    <p class="text-white">Resumen general y estadísticas</p>
                 </div>
             </div>
         </div>
 
         <!-- Resumen rápido -->
-        <div class="bg-white rounded-xl shadow-md p-8 mt-12">
+        <div class="card p-8 mt-12">
             <h3 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Resumen Rápido</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -170,37 +73,6 @@
                     <div class="text-3xl font-bold text-orange-600 mb-2">0</div>
                     <div class="text-sm text-orange-700">Equipos Registrados</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Gráfica simple -->
-        <!--<div class="bg-white rounded-xl shadow-md p-8 mt-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-6">Inscripciones por Mes</h3>
-            <div class="h-64 flex items-end justify-center space-x-4">
-                <div class="flex flex-col items-center">
-                    <div class="w-12 bg-red-700 rounded-t" style="height: 120px;"></div>
-                    <span class="text-sm text-gray-600 mt-2">Ene</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-12 bg-red-700 rounded-t" style="height: 180px;"></div>
-                    <span class="text-sm text-gray-600 mt-2">Feb</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-12 bg-red-700 rounded-t" style="height: 150px;"></div>
-                    <span class="text-sm text-gray-600 mt-2">Mar</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-12 bg-red-700 rounded-t" style="height: 200px;"></div>
-                    <span class="text-sm text-gray-600 mt-2">Abr</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-12 bg-red-700 rounded-t" style="height: 160px;"></div>
-                    <span class="text-sm text-gray-600 mt-2">May</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-12 bg-red-700 rounded-t" style="height: 140px;"></div>
-                    <span class="text-sm text-gray-600 mt-2">Jun</span>
-                </div>-->
             </div>
         </div>
     </main>
