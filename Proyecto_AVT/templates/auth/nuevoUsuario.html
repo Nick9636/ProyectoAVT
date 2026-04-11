@@ -5,73 +5,80 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Nuevo Usuario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css') }}">
 </head>
 
 <body>
+    {% include 'header.html' %}
 
-    <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Logo compañia" class="logobyteers">
+    <div class="card mt-12" role="main">
 
-    <div class="bg-circles" aria-hidden="true"></div>
-    <div class="bg-circles2" aria-hidden="true"></div>
+        <h2>Nuevo Usuario</h2>
 
-    <div class="card-wrap">
-        <div class="card" role="main">
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
-            <div class="card-logos">
-                <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="Logo AVT">
-                <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="Logo FMVB">
+        <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
+
+            <label>Nombre de usuario</label>
+            <div class="input-box">
+                <input type="text" name="nombre_usuario" placeholder="Nombre de usuario" required>
             </div>
 
-            <h2>Nuevo Usuario</h2>
+            <label>Nombre completo</label>
+            <div class="input-box">
+                <input type="text" name="nombre_completo" placeholder="Nombre completo" required>
+            </div>
 
-            <!-- Mensajes flash -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+            <label>Correo electrónico</label>
+            <div class="input-box">
+                <input type="email" name="email" placeholder="correo@ejemplo.com" required>
+            </div>
 
-            <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
+            <label>Rol</label>
+            <div class="input-box">
+                <select name="rol" required>
+                    <option value="">Seleccione un rol</option>
+                    <option value="Presidente">Presidente</option>
+                    <option value="Secretaria">Secretaria</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Delegado">Delegado</option>
+                </select>
+            </div>
 
-                <label>Nombre de usuario</label>
-                <div class="input-box">
-                    <input type="text" name="nombre_usuario" placeholder="Nombre de usuario" required>
-                </div>
+            <label>Contraseña</label>
+            <div class="input-box">
+                <input id="password" type="password" name="password" placeholder="Contraseña" required>
+                <div class="eye" onclick="togglePass('password')"></div>
+            </div>
 
-                <label>Nombre completo</label>
-                <div class="input-box">
-                    <input type="text" name="nombre_completo" placeholder="Nombre completo" required>
-                </div>
+            <label>Confirmar contraseña</label>
+            <div class="input-box">
+                <input id="password2" type="password" placeholder="Confirmar contraseña" required>
+                <div class="eye" onclick="togglePass('password2')"></div>
+            </div>
 
-                <label>Correo electrónico</label>
-                <div class="input-box">
-                    <input type="email" name="email" placeholder="Correo electrónico" required>
-                </div>
+            <p id="error-pass" style="color:#fca5a5; display:none; font-size:13px; margin-top:-10px;">
+                Las contraseñas no coinciden
+            </p>
 
-                <label>Contraseña</label>
-                <div class="input-box">
-                    <input id="password" type="password" name="password" placeholder="Contraseña" required>
-                    <div class="eye" onclick="togglePass('password')">👁</div>
-                </div>
+            <div class="btn-wrap">
+                <button type="submit">Registrar Usuario</button>
+            </div>
 
-                <label>Confirmar contraseña</label>
-                <div class="input-box">
-                    <input id="password2" type="password" placeholder="Confirmar contraseña" required>
-                    <div class="eye" onclick="togglePass('password2')">👁</div>
-                </div>
+        </form>
 
-                <p id="error-pass" style="color:red; display:none;">Las contraseñas no coinciden</p>
-
-                <div class="btn-wrap">
-                    <button type="submit">Registrarse</button>
-                </div>
-            </form>
-
-        </div>
     </div>
+
 
     <script>
         function togglePass(id) {
@@ -83,15 +90,14 @@
             const p1 = document.getElementById('password').value;
             const p2 = document.getElementById('password2').value;
             const error = document.getElementById('error-pass');
-
             if (p1 !== p2) {
                 error.style.display = 'block';
-                return false; // detiene el envío del form
+                return false;
             }
             error.style.display = 'none';
             return true;
         }
     </script>
-
 </body>
+
 </html>

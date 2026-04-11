@@ -16,7 +16,7 @@
     <main class="flex-1 flex items-center justify-center px-3 py-12 pt-24">
         <div class="w-full max-w-5xl">
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                 <!-- NOTIFICACIONES -->
                 <a href="{{ url_for('principal.notificaciones') }}"
@@ -51,6 +51,17 @@
                         </div>
                         <h3 class="text-xl font-semibold text-black mb-2">Digitalizar Documentos</h3>
                         <p class="text-white">Subir y almacenar archivos digitales</p>
+                    </div>
+                </a>
+                <!-- NUEVO ADMINISTRADOR -->
+                <a href="{{ url_for('auth.nuevoUsuario') }}"
+                    class="card cursor-pointer block">
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="user-plus" class="w-8 h-8 text-red-700"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-black mb-2">Nuevo Administrador</h3>
+                        <p class="text-white">Crear nuevo administrador para el sistema</p>
                     </div>
                 </a>
 

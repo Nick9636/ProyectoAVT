@@ -4,100 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Persona - Sistema AVT</title>
-
-    <!-- Tailwind -->
+    <title>Registro de Persona</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <style>
-        :root {
-            --red1: #A8181B;
-            --red2: #df1d1d;
-            --navy: #860404;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
 <body class="min-h-screen" onload="verificarSesion()">
-
-    <!-- ================= NAVBAR INSTITUCIONAL AVT ================= -->
-    <header class="bg-white shadow-md fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
-                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
-                    </div>
-                </div>
-
-                <!-- Menú escritorio -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Home
-                    </a>
-
-                    <a href="registro.html" class="text-red-700 font-medium">
-                        Registro
-                    </a>
-
-                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Consultar
-                    </a>
-
-                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Reportes
-                    </a>
-
-                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Configuración
-                    </a>
-                </nav>
-
-                <!-- Usuario -->
-                <div class="flex items-center space-x-3">
-                    <span class="text-gray-700 hidden sm:block">
-                        Hola, <span id="nombreUsuario" class="font-semibold"></span>
-                    </span>
-
-                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </header>
-
-    <!-- ================= CONTENIDO ================= -->
+    {% include 'header.html' %}
     <main class="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-        <div class="bg-white rounded-xl shadow-lg p-8">
-
-            <!-- ================= FORM ORIGINAL (NO MODIFICADO) ================= -->
+        <div class="rounded-xl shadow-lg p-8">
             <form id="formPersona" onsubmit="guardarPersona(event)">
 
-                <!-- TODO tu formulario queda EXACTAMENTE igual aquí -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="card-ui rounded-lg shadow-lg p-8">
                     <form id="formPersona" onsubmit="guardarPersona(event)">
                         <!-- Tipo de Persona -->
                         <div class="mb-6">
@@ -347,11 +268,17 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Equipo *</label>
-                                    <select id="equipoPersona" required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                    <select id="equipoPersona" required class="w-full px-3 py-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-green-500">
                                         <option value="">Seleccionar equipo</option>
+                                        {% for eq in equipos %}
+                                        <option value="{{ eq['id_equipo'] }}">
+                                            {{ eq['nombre_equipo'] }} — {{ eq['categoria'] }} ({{ eq['nombre_liga'] }})
+                                        </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
+
                             </div>
 
                             <div class="grid grid-cols-3 gap-4 mb-4">
@@ -395,6 +322,40 @@
                                 <input type="text" id="ligasParticipa" required
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-green-500"
                                     placeholder="Ej: LIGA OFICIAL MUNICIPAL DE PANOTLA">
+                            </div>
+                        </div>
+
+                        <!-- Campos solo para árbitro -->
+                        <div id="camposArbitro" class="hidden bg-purple-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4">Datos de Árbitro</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Licencia</label>
+                                    <input type="text" id="licencia" class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase
+                          focus:ring-2 focus:ring-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Zona</label>
+                                    <input type="text" id="zona" class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase
+                          focus:ring-2 focus:ring-purple-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campos solo para entrenador -->
+                        <div id="camposEntrenador" class="hidden bg-teal-50 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-teal-800 mb-4">Datos de Entrenador</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cédula</label>
+                                    <input type="text" id="cedula" class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase
+                          focus:ring-2 focus:ring-teal-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Especialidad</label>
+                                    <input type="text" id="especialidad" class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase
+                          focus:ring-2 focus:ring-teal-500">
+                                </div>
                             </div>
                         </div>
 
@@ -463,7 +424,80 @@
                     </form>
                 </div>
     </main>
+    <script>
+        function guardarPersona(event) {
+            event.preventDefault();
 
+            const form = document.getElementById('formPersona');
+            const formData = new FormData(form);
+
+            // Agregar campos con id (no tienen name en el HTML actual)
+            const campos = [
+                'apellidoPaterno', 'apellidoMaterno', 'nombres',
+                'numeroRegistro', 'curpPersona', 'fechaNacimientoPersona',
+                'lugarNacimiento', 'nacionalidad', 'peso', 'estatura',
+                'tipoSangre', 'ocupacion', 'escolaridad', 'escuela',
+                'enfermedadesCronicas', 'medicamentos', 'club',
+                'equipoPersona', 'categoria', 'ligasParticipa',
+                'estadoResidencia', 'municipio', 'direccion',
+                'colonia', 'codigoPostal', 'telefono', 'celular', 'email',
+                'nombrePadre', 'celularPadre', 'emailPadre', 'firmaPadre',
+                'fotoPersona'
+            ];
+            const nombres_bd = [
+                'apellido_paterno', 'apellido_materno', 'nombres',
+                'numero_registro', 'curp', 'fecha_nacimiento',
+                'lugar_nacimiento', 'nacionalidad', 'peso', 'estatura',
+                'tipo_sangre', 'ocupacion', 'escolaridad', 'escuela',
+                'enfermedades_cronicas', 'medicamentos', 'club',
+                'id_equipo', 'categoria', 'ligas_participa',
+                'estado_residencia', 'municipio', 'calle',
+                'colonia', 'codigo_postal', 'telefono', 'celular', 'email',
+                'nombre_padre', 'celular_padre', 'email_padre', 'firma_padre',
+                'fotoPersona'
+            ];
+
+            campos.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (el.type === 'file') {
+                    if (el.files[0]) formData.append(nombres_bd[i], el.files[0]);
+                } else {
+                    formData.append(nombres_bd[i], el.value);
+                }
+            });
+
+            // tipo_persona viene del radio button — ya tiene name="tipo_persona"
+
+            fetch("{{ url_for('registro.guardarPersona') }}", {
+                method: 'POST',
+                body: formData
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        alert(`✓ ${data.mensaje}`);
+                        form.reset();
+                    } else {
+                        alert(`✗ Error: ${data.mensaje}`);
+                    }
+                })
+                .catch(() => alert('Error de conexión'));
+        }
+
+        // Mostrar/ocultar campos según tipo seleccionado
+        document.querySelectorAll('input[name="tipo_persona"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const esArbitro = this.value === 'arbitro';
+                const esEntrenador = this.value === 'entrenador';
+
+                document.getElementById('camposArbitro')?.classList
+                    .toggle('hidden', !esArbitro);
+                document.getElementById('camposEntrenador')?.classList
+                    .toggle('hidden', !esEntrenador);
+            });
+        });
+    </script>
 
 </body>
 

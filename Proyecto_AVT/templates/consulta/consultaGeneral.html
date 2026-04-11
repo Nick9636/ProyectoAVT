@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema AVT - Consultar</title>
+    <title>Consultar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,13 +11,12 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     {%include 'header.html'%}
-    <!-- Contenido principal -->
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         <!-- Grid de opciones de consulta -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <!-- Consultar Registro -->
-            <div class="card cursor-pointer" onclick="window.location.href='consultar-registro.html'">
+            <a href="{{ url_for('consulta.consultarRegistro') }}" class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="search" class="w-8 h-8 text-red-700"></i>
@@ -25,10 +24,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Consultar Registro</h3>
                     <p class="text-white">Buscar personas registradas en el sistema</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Consultar Ligas -->
-            <div class="card cursor-pointer" onclick="window.location.href='consultar-ligas.html'">
+            <a href="{{ url_for('consulta.consultarLigas') }}" class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="trophy" class="w-8 h-8 text-red-700"></i>
@@ -36,10 +35,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Consultar Ligas</h3>
                     <p class="text-white">Ver información de ligas y equipos</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Consultar Afiliado -->
-            <div class="card cursor-pointer" onclick="window.location.href='consultar-afiliado.html'">
+            <a href="{{ url_for('consulta.consultarAfiliado') }}" class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="user-check" class="w-8 h-8 text-red-700"></i>
@@ -47,10 +46,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Consultar Afiliado</h3>
                     <p class="text-white">Ver detalles de afiliados y expedientes</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Consultar Pagos -->
-            <div class="card cursor-pointer" onclick="window.location.href='consultar-pagos.html'">
+            <a href="{{ url_for('consulta.consultarPagos') }}" class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="credit-card" class="w-8 h-8 text-red-700"></i>
@@ -58,10 +57,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Consultar Pagos</h3>
                     <p class="text-white">Revisar estado de pagos e inscripciones</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Consultar Tutor -->
-            <div class="card cursor-pointer" onclick="window.location.href='consultar-tutor.html'">
+            <a href="{{ url_for('consulta.consultarTutor') }}" class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="users" class="w-8 h-8 text-red-700"></i>
@@ -69,7 +68,7 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Consultar Tutor</h3>
                     <p class="text-white">Ver información de tutores registrados</p>
                 </div>
-            </div>
+            </a>
         </div>
     </main>
 

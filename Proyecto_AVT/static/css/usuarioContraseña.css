@@ -159,37 +159,41 @@ button:active {
     transform: translateY(1px);
 }
 
-.alert {
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    text-align: center;
+select {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 8px;
+    border: 3px solid var(--navy);
+    font-size: 15px;
+    outline: none;
+    background: transparent;
+    color: #ffffff;
+    appearance: none;
+    cursor: pointer;
 }
 
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+select option {
+    background: #8C0E14;
+    color: #ffffff;
 }
 
-.alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.flash {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
 }
 
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
+.flash.error   { background: rgba(255,100,100,0.2); color: #fca5a5; }
+.flash.success { background: rgba(100,255,100,0.2); color: #86efac; }
+.flash.info    { background: rgba(100,100,255,0.2); color: #bfdbfe; }
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 768px) {
 
     body {
-        align-items: flex-start;      /* ← permite que la card baje para dar espacio al logo */
-        padding-top: 5px;           /* ← espacio para el logo arriba de la card */
+        align-items: flex-start;      
+        padding-top: 5px;        
     }
 
     .card {

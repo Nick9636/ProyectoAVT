@@ -233,13 +233,7 @@
                     <div id="userDropdown"
                         class="absolute right-0 mt-3 w-48 bg-red-900 rounded-xl shadow-lg border border-gray-100 hidden overflow-hidden">
 
-                        <a href="#"
-                            class="flex items-center gap-2 px-4 py-3 text-sm text-white hover:bg-white/10 transition">
-                            <i data-lucide="settings" class="w-4 h-4"></i>
-                            Configuración
-                        </a>
-
-                        <a href="#"
+                        <a href="{{ url_for('auth.cerrarSesion') }}"
                             class="flex items-center gap-2 px-4 py-3 text-sm text-white hover:bg-white/10 transition">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                             Cerrar sesión
@@ -309,16 +303,10 @@
             </div>
             Reportes
         </a>
-        <a href="#" class="side-nav-link">
-            <div class="side-nav-icon">
-                <i data-lucide="settings" class="w-4 h-4 text-gray-500"></i>
-            </div>
-            Configuración
-        </a>
     </div>
 
     <div class="side-panel-footer">
-        <a href="#" class="side-nav-link" style="color:#B91C1C; border-radius:8px; background:#FEF2F2;">
+        <a href="{{ url_for('auth.cerrarSesion') }}" class="side-nav-link" style="color:#B91C1C; border-radius:8px; background:#FEF2F2;">
             <div class="side-nav-icon" style="background:#FEE2E2;">
                 <i data-lucide="log-out" class="w-4 h-4 text-red-700"></i>
             </div>

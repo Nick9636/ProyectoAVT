@@ -60,14 +60,16 @@ input {
     border: 2px solid var(--navy);
 }
 
-/* 🎨 Fondo general más pro */
+
 .gradient-bg {
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
 }
 
-/* 🧱 Cards más elegantes */
+
 .card-ui {
-    background: white;
+    background: rgba(255, 255, 255, 0.772);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 16px;
     padding: 32px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
@@ -79,7 +81,7 @@ input {
     box-shadow: 0 14px 30px rgba(0,0,0,0.12);
 }
 
-/* ✏ Inputs más modernos */
+
 .input-ui {
     border-radius: 10px;
     border: 1px solid #e5e7eb;
@@ -93,7 +95,6 @@ input {
     box-shadow: 0 0 0 2px rgba(122,12,12,0.15);
 }
 
-/* 🔴 Botones consistentes */
 .btn-vino {
     background: var(--vino);
     color: white;
@@ -108,7 +109,6 @@ input {
     transform: translateY(-1px);
 }
 
-/* 📦 Dropzone mejorado */
 .file-drop-zone {
     border: 2px dashed #d1d5db;
     transition: all 0.2s ease;
@@ -125,7 +125,7 @@ input {
     background: #fdecec;
 }
 
-/* 📊 Barra progreso suave */
+
 .progress-bar {
     transition: width 0.4s ease;
 }

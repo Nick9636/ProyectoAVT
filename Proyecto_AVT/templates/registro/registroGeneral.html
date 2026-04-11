@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,16 +12,13 @@
 
 <body class="bg-gray-50 min-h-screen">
     {% include 'header.html' %}
-    <!-- Contenido principal -->
+
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="text-center mb-12">
 
-        </div>
-
-        <!-- Grid de opciones de registro -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <!-- Registrar Persona -->
-            <div href="{{ url_for('registro.registroPersona') }}" class="card cursor-pointer">
+
+            <a href="{{ url_for('registro.registroPersona') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="user-plus" class="w-8 h-8 text-red-700"></i>
@@ -30,10 +26,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Registrar Persona</h3>
                     <p class="text-white">Registrar jugadores, árbitros y entrenadores</p>
                 </div>
-            </div>
+            </a>
 
-            <!-- Registrar Liga -->
-            <div href="{{ url_for('registro.registroLiga') }}" class="card cursor-pointer">
+            <a href="{{ url_for('registro.registroLiga') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="trophy" class="w-8 h-8 text-red-700"></i>
@@ -41,10 +37,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Registrar Liga</h3>
                     <p class="text-white">Crear y gestionar ligas deportivas</p>
                 </div>
-            </div>
+            </a>
 
-            <!-- Registrar Equipo -->
-            <div href="{{ url_for('registro.registroEquipo') }}" class="card cursor-pointer">
+            <a href="{{ url_for('registro.registroEquipo') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="users" class="w-8 h-8 text-red-700"></i>
@@ -52,10 +48,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Registrar Equipo</h3>
                     <p class="text-white">Registrar equipos y asignar entrenadores</p>
                 </div>
-            </div>
+            </a>
 
-            <!-- Registrar Afiliado -->
-            <div href="{{ url_for('registro.registroAfiliado') }}" class="card cursor-pointer">
+            <a href="{{ url_for('registro.registroAfiliado') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="users" class="w-8 h-8 text-red-700"></i>
@@ -63,10 +59,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Registrar Afiliado</h3>
                     <p class="text-white">Registrar afiliados y gestionar su información</p>
                 </div>
-            </div>
+            </a>
 
-            <!-- Registrar Pago -->
-            <div href="{{ url_for('registro.registroPago') }}" class="card cursor-pointer">
+            <a href="{{ url_for('registro.registroPago') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="credit-card" class="w-8 h-8 text-red-700"></i>
@@ -74,10 +70,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Registrar Pago</h3>
                     <p class="text-white">Gestionar pagos de inscripciones</p>
                 </div>
-            </div>
+            </a>
 
-            <!-- Autorizar Registro -->
-            <div href="{{ url_for('principal.autorizarRegistro') }}" class="card cursor-pointer">
+            <a href="{{ url_for('registro.autorizarRegistro') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="check-circle" class="w-8 h-8 text-red-700"></i>
@@ -85,7 +81,8 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Autorizar Registro</h3>
                     <p class="text-white">Aprobar o rechazar solicitudes</p>
                 </div>
-            </div>
+            </a>
+
         </div>
     </main>
 
@@ -93,5 +90,4 @@
         lucide.createIcons();
     </script>
 </body>
-
 </html>

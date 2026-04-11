@@ -36,6 +36,7 @@ def iniciarSesion():
         flash("Usuario o contraseña incorrectos", "error")
         return redirect(url_for("auth.iniciarSesion"))
 
+# ---USUARIO NUEVO --------
 # ── NUEVO USUARIO ─────────────────────────────────
 @auth.route("/nuevoUsuario", methods=["GET", "POST"])
 def nuevoUsuario():
@@ -63,14 +64,12 @@ def nuevoUsuario():
             return redirect(url_for("auth.nuevoUsuario"))
 
     return render_template("auth/nuevoUsuario.html")
-
 # ── RECORDAR CONTRASEÑA (VISTA PRINCIPAL) ─────────
 @auth.route("/recordarContrasena", methods=["GET"])
 def recordarContrasena():
     return render_template("auth/recordarContrasena.html")
 
 # ── SOLICITAR CÓDIGO DE VERIFICACIÓN ──────────────
-# auth/rutas.py
 @auth.route("/solicitarCodigo", methods=["POST"])
 def solicitarCodigo():
     try:

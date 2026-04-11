@@ -9,115 +9,138 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="gradient-bg min-h-screen">
+
+<body class="min-h-screen">
     {% include 'header.html' %}
-    <!-- Contenido principal -->
+
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
+
         <!-- Controles superiores -->
         <div class="bg-red-800 rounded-xl shadow-md p-6 mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                <!-- Buscador -->
-                <div class="relative flex-1 max-w-md">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                    <input type="text" placeholder="Buscar notificaciones..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+
+                <!-- Filtro por fecha -->
+                <div class="flex items-center gap-3">
+                    <label class="text-white text-sm font-medium whitespace-nowrap">
+                        Filtrar por fecha:
+                    </label>
+                    <input type="date" id="filtroFecha"
+                           value="{{ fecha_filtro }}"
+                           class="px-3 py-2 rounded-lg border border-red-400 bg-red-700
+                                  text-white focus:outline-none focus:ring-2 focus:ring-white
+                                  [color-scheme:dark]">
+                    {% if fecha_filtro %}
+                    <button onclick="limpiarFiltro()"
+                            class="text-red-200 hover:text-white text-sm underline">
+                        Limpiar
+                    </button>
+                    {% endif %}
                 </div>
-                
-                <!-- Botón marcar todas como leídas -->
-                <button onclick="marcarTodasLeidas()" class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2">
+
+                <!-- Marcar todas -->
+                <button onclick="marcarTodasLeidas()"
+                        class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-600
+                               transition-colors flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="check-check" class="w-5 h-5"></i>
-                    <span>Marcar todas como leídas</span>
+                    Marcar todas como leídas
                 </button>
             </div>
         </div>
 
+        <!-- Alerta: sin notificaciones nuevas -->
+        {% if sin_nuevas %}
+        <div id="alertaSinNuevas"
+             class="flex items-center gap-3 bg-yellow-50 border border-yellow-200
+                    text-yellow-800 rounded-xl px-5 py-4 mb-6">
+            <i data-lucide="bell-off" class="w-5 h-5 flex-shrink-0"></i>
+            <p class="text-sm font-medium">No tienes notificaciones nuevas.</p>
+            <button onclick="document.getElementById('alertaSinNuevas').remove()"
+                    class="ml-auto text-yellow-500 hover:text-yellow-700">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        {% endif %}
+
         <!-- Lista de notificaciones -->
-        <div class="space-y-4">
-            <!-- Notificación no leída -->
-            <div class="card rounded-xl shadow-md p-6 border-l-4 border-red-500">
-                <div class="flex items-start justify-between">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                            <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <h3 class="font-semibold text-gray-900">Registro Aprobado</h3>
-                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No leída</span>
-                            </div>
-                            <p class="text-white mb-2">El registro del jugador Juan Pérez ha sido aprobado exitosamente.</p>
-                            <div class="flex items-center text-sm text-gray-500 space-x-4">
-                                <span>Hace 2 horas</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="space-y-4" id="listaNotificaciones">
 
-            <!-- Notificación leída -->
-            <div class="bg-gray-300 rounded-xl shadow-md p-6 border-l-4 border-gray-300">
-                <div class="flex items-start justify-between">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                            <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <h3 class="font-semibold text-gray-700">Afiliación Rechazada</h3>
-                                <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">Leída</span>
-                            </div>
-                            <p class="text-white mb-2">La afiliación de María González fue rechazada por documentos incompletos.</p>
-                            <div class="flex items-center text-sm text-gray-400 space-x-4">
-                                <span>Ayer</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% if notificaciones %}
+                {% for notif in notificaciones %}
+                <div id="notif-{{ notif.id }}"
+                     class="rounded-xl shadow-md p-6 border-l-4 transition-all
+                            {% if notif.leida %}
+                                bg-gray-100 border-gray-300
+                            {% else %}
+                                card border-red-500 notif-unread
+                            {% endif %}">
 
-            <!-- Notificación informativa -->
-            <div class="card rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                <div class="flex items-start justify-between">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <i data-lucide="info" class="w-6 h-6 text-blue-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <h3 class="font-semibold text-gray-900">Pago Verificado</h3>
-                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No leída</span>
-                            </div>
-                            <p class="text-white mb-2">Se ha verificado el pago de inscripción del equipo "Tigres FC".</p>
-                            <div class="flex items-center text-sm text-gray-500 space-x-4">
-                                <span>Hace 1 día</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <div class="flex items-start gap-4">
 
-            <!-- Más notificaciones -->
-            <div class="card rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
-                <div class="flex items-start justify-between">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600"></i>
+                        <!-- Ícono según estado -->
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+                                    {% if notif.leida %}bg-gray-200{% else %}bg-red-100{% endif %}">
+                            {% if notif.leida %}
+                                <i data-lucide="check" class="w-5 h-5 text-gray-500"></i>
+                            {% else %}
+                                <i data-lucide="bell" class="w-5 h-5 text-red-600"></i>
+                            {% endif %}
                         </div>
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <h3 class="font-semibold text-gray-900">Documentos Pendientes</h3>
-                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">No leída</span>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <h3 class="font-semibold
+                                           {% if notif.leida %}text-gray-600{% else %}text-gray-900{% endif %}">
+                                    {{ notif.titulo }}
+                                </h3>
+                                {% if notif.leida %}
+                                    <span class="badge-read">Leída</span>
+                                {% else %}
+                                    <span class="badge-unread">No leída</span>
+                                {% endif %}
                             </div>
-                            <p class="text-white mb-2">El entrenador Carlos López tiene documentos pendientes por subir.</p>
-                            <div class="flex items-center text-sm text-gray-500 space-x-4">
-                                <span>Hace 3 días</span>
+
+                            <p class="text-sm mb-2
+                                      {% if notif.leida %}text-gray-400{% else %}text-gray-600{% endif %}">
+                                {{ notif.mensaje }}
+                            </p>
+
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <span class="text-xs text-gray-400">
+                                    <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>
+                                    {{ notif.fecha }}
+                                </span>
+
+                                {% if not notif.leida %}
+                                <button onclick="marcarLeida({{ notif.id }})"
+                                        class="text-xs text-red-600 hover:text-red-800
+                                               underline transition-colors">
+                                    Marcar como leída
+                                </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                {% endfor %}
+
+            {% else %}
+                <!-- Sin resultados -->
+                <div class="text-center py-16 text-gray-400">
+                    <i data-lucide="bell-off" class="w-12 h-12 mx-auto mb-4 opacity-40"></i>
+                    <p class="text-lg font-medium">
+                        {% if fecha_filtro %}
+                            No hay notificaciones para esta fecha.
+                        {% else %}
+                            No tienes notificaciones aún.
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+
         </div>
 
-        <!-- Paginación -->
+        <!-- Paginación (solo si hay notificaciones) -->
+        {% if notificaciones %}
         <div class="flex justify-center mt-8">
             <nav class="flex items-center space-x-2">
                 <button class="px-3 py-2 text-gray-500 hover:text-red-600 transition-colors">
@@ -131,28 +154,79 @@
                 </button>
             </nav>
         </div>
+        {% endif %}
+
     </main>
 
     <script>
-        // Inicializar iconos de Lucide
         lucide.createIcons();
 
-        // Función para marcar todas como leídas
+        // Filtro por fecha — recarga la página con el parámetro
+        document.getElementById('filtroFecha').addEventListener('change', function () {
+            const fecha = this.value;
+            if (fecha) {
+                window.location.href = `{{ url_for('principal.notificaciones') }}?fecha=${fecha}`;
+            }
+        });
+
+        function limpiarFiltro() {
+            window.location.href = "{{ url_for('principal.notificaciones') }}";
+        }
+
+        // Marcar una notificación como leída
+        function marcarLeida(id) {
+            fetch(`/notificaciones/marcar/${id}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) return;
+                    const el = document.getElementById(`notif-${id}`);
+                    if (!el) return;
+
+                    // Cambiar estilos a "leída"
+                    el.classList.remove('card', 'border-red-500', 'notif-unread');
+                    el.classList.add('bg-gray-100', 'border-gray-300');
+
+                    // Cambiar ícono
+                    const icono = el.querySelector('[data-lucide="bell"]');
+                    if (icono) {
+                        icono.setAttribute('data-lucide', 'check');
+                        icono.classList.remove('text-red-600');
+                        icono.classList.add('text-gray-500');
+                    }
+                    const circulo = icono?.parentElement;
+                    if (circulo) {
+                        circulo.classList.remove('bg-red-100');
+                        circulo.classList.add('bg-gray-200');
+                    }
+
+                    // Cambiar badge
+                    const badge = el.querySelector('.badge-unread');
+                    if (badge) { badge.className = 'badge-read'; badge.textContent = 'Leída'; }
+
+                    // Cambiar título y mensaje
+                    const titulo = el.querySelector('h3');
+                    if (titulo) { titulo.classList.remove('text-gray-900'); titulo.classList.add('text-gray-600'); }
+
+                    const msg = el.querySelector('p.text-sm');
+                    if (msg) { msg.classList.remove('text-gray-600'); msg.classList.add('text-gray-400'); }
+
+                    // Quitar botón
+                    el.querySelector('button[onclick^="marcarLeida"]')?.remove();
+
+                    lucide.createIcons();
+                });
+        }
+
+        // Marcar todas como leídas
         function marcarTodasLeidas() {
-            const notificaciones = document.querySelectorAll('.border-red-500, .border-blue-500, .border-yellow-500');
-            notificaciones.forEach(notif => {
-                notif.classList.remove('bg-white', 'border-red-500', 'border-blue-500', 'border-yellow-500');
-                notif.classList.add('bg-gray-50', 'border-gray-300');
-                
-                const badge = notif.querySelector('.bg-red-100');
-                if (badge) {
-                    badge.classList.remove('bg-red-100', 'text-red-800');
-                    badge.classList.add('bg-gray-200', 'text-gray-600');
-                    badge.textContent = 'Leída';
-                }
-            });
-            
-            alert('Todas las notificaciones han sido marcadas como leídas');
+            fetch("{{ url_for('principal.marcar_todas_leidas') }}", { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) return;
+                    document.querySelectorAll('.notif-unread').forEach(el => {
+                        marcarLeida(el.id.replace('notif-', ''));
+                    });
+                });
         }
     </script>
 </body>

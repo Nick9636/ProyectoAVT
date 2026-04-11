@@ -4,67 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registrar Pago</title>
-
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-  <!-- Fuente institucional -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --red1: #A8181B;
-      --red2: #df1d1d;
-    }
-
-    html, body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
-    }
-  </style>
+<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
 <body class="min-h-screen">
-
-<!-- NAVBAR INSTITUCIONAL -->
-<header class="bg-white shadow-md fixed w-full top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center py-4">
-
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
-          <span class="text-white font-bold">AVT</span>
-        </div>
-      </div>
-
-      <nav class="hidden md:flex space-x-8">
-        <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">Home</a>
-        <a href="registro.html" class="text-red-700 font-medium">Registro</a>
-        <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">Consultar</a>
-        <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">Reportes</a>
-        <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">Configuración</a>
-      </nav>
-
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 hidden sm:block">
-          Hola, <span class="font-semibold">Usuario</span>
-        </span>
-        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-          <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</header>
-
+    {% include 'header.html' %}
 <!-- CONTENIDO -->
 <main class="pt-24 pb-12">
   <div class="max-w-[95%] mx-auto bg-white rounded-xl shadow-lg p-10">
