@@ -219,9 +219,9 @@
                     <!-- Botón usuario -->
                     <button onclick="toggleUserMenu()" class="flex items-center space-x-2 focus:outline-none">
 
-                        <span class="text-white hidden sm:block">
-                            Hola, <span class="font-semibold">{{ session.get('usuario', 'Usuario') }}</span>
-                        </span>
+                        <div class="usuario text-white hidden sm:block">
+                            Hola, {{ session['nombre_usuario'] }}
+                        </div>
 
                         <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
                             <i data-lucide="user" class="w-5 h-5 text-white"></i>
@@ -270,11 +270,8 @@
         <div class="side-avatar">
             <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
         </div>
-        <div>
-            <p class="font-semibold text-sm text-gray-800">
-                {{ session.get('usuario', 'Usuario') }}
-            </p>
-            <p class="text-xs text-gray-500">Administrador</p>
+        <div class="usuario text-white hidden sm:block">
+            Hola, {{ session['nombre_usuario'] }}
         </div>
     </div>
 

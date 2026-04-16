@@ -1,104 +1,196 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrar Equipo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Equipo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-
 <body class="min-h-screen">
-  {% include 'header.html' %}
+    {% include 'header.html' %}
 
-  <main class="pt-24 pb-12">
-    <div class="max-w-[95%] mx-auto bg-white rounded-xl shadow-lg p-10">
-      <!-- FORM ORIGINAL SIN CAMBIOS FUNCIONALES -->
-      <form class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Nombre del Equipo:</label>
-          <input type="text" placeholder="Ingrese nombre del equipo" required
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
+        <!-- Formulario -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-xl font-semibold text-white mb-6">Registrar Equipo</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Liga *
+                    </label>
+                    <select id="idLiga"
+                            class="w-full px-4 py-2 rounded-lg border border-red-400
+                                   focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="">Seleccionar liga</option>
+                        {% for liga in ligas %}
+                        <option value="{{ liga['id_liga'] }}">
+                            {{ liga['nombre_liga'] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Nombre del Equipo *
+                    </label>
+                    <input type="text" id="nombreEquipo"
+                           placeholder="Ej: TIGRES FC"
+                           class="w-full px-4 py-2 rounded-lg border border-red-400
+                                  focus:outline-none focus:ring-2 focus:ring-white uppercase">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Categoría
+                    </label>
+                    <select id="categoriaEquipo"
+                            class="w-full px-4 py-2 rounded-lg border border-red-400
+                                   focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="">Seleccionar</option>
+                        <option value="INFANTIL">INFANTIL</option>
+                        <option value="MENOR INFANTIL">MENOR INFANTIL</option>
+                        <option value="CADETE">CADETE</option>
+                        <option value="JUVENIL">JUVENIL</option>
+                        <option value="MAYOR">MAYOR</option>
+                        <option value="MASTER">MASTER</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="guardarEquipo()"
+                    class="btn-vino flex items-center gap-2">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                Registrar Equipo
+            </button>
         </div>
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Categoría:</label>
-          <select required
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-            <option value="">Seleccione...</option>
-            <option>Infantil</option>
-            <option>Juvenil</option>
-            <option>Libre</option>
-            <option>Veteranos</option>
-            <option>Femenil</option>
-          </select>
+        <!-- Alertas -->
+        <div id="alertas" class="mb-6"></div>
+
+        <!-- Lista -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                Equipos Registrados
+                <span class="text-red-200 text-sm font-normal ml-2">
+                    {{ equipos|length }} equipo(s)
+                </span>
+            </h2>
+            <div class="space-y-3" id="listaEquipos">
+                {% if equipos %}
+                    {% for eq in equipos %}
+                    <div class="flex items-center justify-between p-4 bg-white
+                                rounded-lg hover:shadow-sm transition"
+                         id="equipo-{{ eq['id_equipo'] }}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex
+                                        items-center justify-center">
+                                <i data-lucide="shield" class="w-5 h-5 text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">
+                                    {{ eq['nombre_equipo'] }}
+                                </p>
+                                <p class="text-sm text-gray-400">
+                                    {{ eq['nombre_liga'] }} —
+                                    {{ eq['categoria'] or 'Sin categoría' }}
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="eliminarEquipo({{ eq['id_equipo'] }})"
+                                class="text-gray-400 hover:text-red-600 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-10 text-red-200" id="vacioEquipos">
+                        <i data-lucide="shield" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                        <p class="text-sm">No hay equipos registrados aún.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
+    </main>
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Rama:</label>
-          <select required
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-            <option value="">Seleccione...</option>
-            <option>Masculina</option>
-            <option>Femenina</option>
-            <option>Mixta</option>
-          </select>
-        </div>
+    <script>
+        lucide.createIcons();
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Municipio:</label>
-          <input type="text" placeholder="Ciudad o localidad del equipo" required
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-        </div>
+        function guardarEquipo() {
+            const idLiga    = document.getElementById('idLiga').value;
+            const nombre    = document.getElementById('nombreEquipo').value.trim();
+            const categoria = document.getElementById('categoriaEquipo').value;
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Club Asociado:</label>
-          <input type="text" placeholder="Nombre del club asociado"
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-        </div>
+            if (!idLiga || !nombre) {
+                mostrarAlerta('error','Campos requeridos','Liga y nombre son obligatorios.');
+                return;
+            }
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Entrenador:</label>
-          <input type="text" placeholder="Nombre del entrenador" required
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-        </div>
+            const form = new FormData();
+            form.append('id_liga',        idLiga);
+            form.append('nombre_equipo',  nombre);
+            form.append('categoria',      categoria);
 
-        <div class="flex flex-col">
-          <label class="font-semibold mb-1">Liga Asociada:</label>
-          <select required
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-            <option value="">Seleccione liga...</option>
-            <option>Liga Municipal de Fútbol</option>
-            <option>Liga Estatal de Béisbol</option>
-            <option>Liga Regional de Voleibol</option>
-          </select>
-        </div>
+            fetch("{{ url_for('registro.guardarEquipo') }}", { method:'POST', body:form })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        mostrarAlerta('success','Equipo registrado', data.mensaje);
+                        agregarEquipoALista(data);
+                        document.getElementById('nombreEquipo').value    = '';
+                        document.getElementById('categoriaEquipo').value = '';
+                    } else {
+                        mostrarAlerta('error','Error', data.mensaje);
+                    }
+                });
+        }
 
-        <div class="flex flex-col xl:col-span-3 md:col-span-2">
-          <label class="font-semibold mb-1">Observaciones:</label>
-          <textarea placeholder="Información adicional relevante"
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"></textarea>
-        </div>
+        function agregarEquipoALista(data) {
+            document.getElementById('vacioEquipos')?.remove();
+            document.getElementById('listaEquipos').insertAdjacentHTML('afterbegin', `
+                <div class="flex items-center justify-between p-4 bg-white rounded-lg
+                            hover:shadow-sm transition" id="equipo-${data.id}">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield" class="w-5 h-5 text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900">${data.nombre}</p>
+                            <p class="text-sm text-gray-400">
+                                ${data.nombre_liga} — ${data.categoria || 'Sin categoría'}
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="eliminarEquipo(${data.id})"
+                            class="text-gray-400 hover:text-red-600 transition-colors">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>`);
+            lucide.createIcons();
+        }
 
-        <div class="xl:col-span-3 md:col-span-2 text-center mt-6">
-          <button type="submit"
-            class="bg-red-700 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-semibold transition">
-            Registrar Equipo
-          </button>
-        </div>
+        function eliminarEquipo(id) {
+            if (!confirm('¿Eliminar este equipo?')) return;
+            fetch(`/registro/equipo/eliminar/${id}`, { method:'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) document.getElementById(`equipo-${id}`)?.remove();
+                    else mostrarAlerta('error','Error', data.mensaje);
+                });
+        }
 
-      </form>
-
-    </div>
-  </main>
-  <script>
-    lucide.createIcons();
-  </script>
-
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const estilos = { success:'bg-green-50 border-green-200 text-green-800',
+                              error:'bg-red-50 border-red-200 text-red-800' };
+            const iconos  = { success:'check-circle', error:'x-circle' };
+            document.getElementById('alertas').innerHTML = `
+                <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div><p class="font-medium">${titulo}</p><p class="text-sm">${mensaje}</p></div>
+                </div>`;
+            lucide.createIcons();
+            setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
+        }
+    </script>
 </body>
-
 </html>

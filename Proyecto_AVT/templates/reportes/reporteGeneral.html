@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema AVT - Consultar</title>
+    <title>Generar reporte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
         <!-- Grid de opciones de reportes -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <!-- Reporte de Ingresos -->
-            <div class="card cursor-pointer" onclick="window.location.href='reporte-ingresos.html'">
+            <a href= "{{ url_for('reportes.reporteIngresos') }}"class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
@@ -24,10 +24,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Reporte de Ingresos</h3>
                     <p class="text-white">Análisis financiero y ingresos por liga</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Reporte de Inscripción -->
-            <div class="card cursor-pointer" onclick="window.location.href='reporte-inscripcion.html'">
+            <a href="{{ url_for('reportes.reporteInscripcion') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="user-plus" class="w-8 h-8 text-blue-600"></i>
@@ -35,10 +35,10 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Reporte de Inscripción</h3>
                     <p class="text-white">Estadísticas de jugadores afiliados</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Reporte del Sistema -->
-            <div class="card cursor-pointer" onclick="window.location.href='reporte-sistema.html'">
+            <a href="{{ url_for('reportes.reporteSistema') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="bar-chart-3" class="w-8 h-8 text-purple-600"></i>
@@ -46,7 +46,7 @@
                     <h3 class="text-xl font-semibold text-black mb-2">Reporte del Sistema</h3>
                     <p class="text-white">Resumen general y estadísticas</p>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Resumen rápido -->

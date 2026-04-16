@@ -64,6 +64,7 @@ def nuevoUsuario():
             return redirect(url_for("auth.nuevoUsuario"))
 
     return render_template("auth/nuevoUsuario.html")
+
 # ── RECORDAR CONTRASEÑA (VISTA PRINCIPAL) ─────────
 @auth.route("/recordarContrasena", methods=["GET"])
 def recordarContrasena():

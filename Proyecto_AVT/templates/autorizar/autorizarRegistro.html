@@ -3,232 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema AVT - Autorizar Registro</title>
-
-    <!-- Tailwind -->
+    <title>Autorizar Registro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Lucide -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-    <!-- Fuente institucional -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --red1: #A8181B;
-            --red2: #df1d1d;
-        }
-
-        html, body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+<body class="gradient-bg min-h-screen">
+    {% include 'header.html' %}
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Barra superior -->
-    <header class="bg-white shadow-md fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
-                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
-                    </div>
-                </div>
-
-                <!-- Menú escritorio -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Home
-                    </a>
-
-                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Registro
-                    </a>
-
-                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Consultar
-                    </a>
-
-                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Reportes
-                    </a>
-
-                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Configuración
-                    </a>
-                </nav>
-
-                <!-- Usuario + botón móvil -->
-                <div class="flex items-center space-x-3 relative">
-
-                    <span class="text-gray-700 hidden sm:block">
-                        Hola, <span class="font-semibold">Usuario</span>
-                    </span>
-
-                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
-                    </div>
-
-                    <!-- Botón hamburguesa -->
-                    <button onclick="toggleMenu()" class="md:hidden">
-                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
-                    </button>
-
-                    <!-- Menú móvil -->
-                    <div id="mobileMenu"
-                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
-
-                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
-                            Home
-                        </a>
-
-                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
-                            Registro
-                        </a>
-
-                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
-                            Consultar
-                        </a>
-
-                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
-                            Reportes
-                        </a>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </header>
-    <!-- Contenido principal -->
-    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Resumen de solicitudes -->
+        <!-- Contadores -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
+                <div class="text-3xl font-bold text-yellow-600 mb-2">
+                    {{ contadores['pendientes'] or 0 }}
+                </div>
                 <div class="text-gray-600">Solicitudes Pendientes</div>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+                <div class="text-3xl font-bold text-green-600 mb-2">
+                    {{ contadores['hoy'] or 0 }}
+                </div>
                 <div class="text-gray-600">Autorizadas Hoy</div>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-red-600 mb-2">0</div>
+                <div class="text-3xl font-bold text-red-600 mb-2">
+                    {{ contadores['rechazadas'] or 0 }}
+                </div>
                 <div class="text-gray-600">Rechazadas</div>
             </div>
         </div>
 
-        <!-- Lista de solicitudes pendientes -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-900">Solicitudes Pendientes de Autorización</h2>
-            </div>
-            
-            <div class="p-6">
-                <p class="text-gray-600">No hay solicitudes pendientes en este momento.</p>
-            </div>
-        </div>
-    </main>
+        <!-- Alertas -->
+        <div id="alertas" class="mb-6"></div>
 
-    <!-- Modal de rechazo -->
-    <div id="modalRechazo" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Rechazar Solicitud</h3>
-                <p class="text-gray-600 mb-4">Por favor proporcione un comentario obligatorio para el rechazo:</p>
-                <textarea id="comentarioRechazo" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700" placeholder="Motivo del rechazo..."></textarea>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button onclick="cerrarModal()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                        Cancelar
+        <!-- Lista de solicitudes -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    Solicitudes de Autorización
+                </h2>
+                <!-- Filtro de estatus -->
+                <div class="flex gap-2">
+                    <button onclick="filtrar('todas')"
+                            class="filtro-btn active px-3 py-1 rounded-lg text-sm
+                                   bg-gray-800 text-white" data-filtro="todas">
+                        Todas
                     </button>
-                    <button onclick="confirmarRechazo()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                        Confirmar Rechazo
+                    <button onclick="filtrar('Pendiente')"
+                            class="filtro-btn px-3 py-1 rounded-lg text-sm
+                                   bg-yellow-100 text-yellow-800" data-filtro="Pendiente">
+                        Pendientes
+                    </button>
+                    <button onclick="filtrar('Autorizado')"
+                            class="filtro-btn px-3 py-1 rounded-lg text-sm
+                                   bg-green-100 text-green-800" data-filtro="Autorizado">
+                        Autorizadas
+                    </button>
+                    <button onclick="filtrar('Rechazado')"
+                            class="filtro-btn px-3 py-1 rounded-lg text-sm
+                                   bg-red-100 text-red-800" data-filtro="Rechazado">
+                        Rechazadas
                     </button>
                 </div>
+            </div>
+
+            <div class="divide-y divide-gray-100" id="listaSolicitudes">
+
+                {% if solicitudes %}
+                    {% for sol in solicitudes %}
+                    <div class="p-6 hover:bg-gray-50 transition solicitud-item"
+                         data-estatus="{{ sol['estatus'] }}"
+                         id="sol-{{ sol['id_autorizacion'] }}">
+
+                        <div class="flex items-start justify-between gap-4 flex-wrap">
+
+                            <!-- Info persona -->
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 rounded-full flex items-center
+                                            justify-content-center flex-shrink-0
+                                            bg-red-100 flex justify-center items-center">
+                                    <i data-lucide="user" class="w-6 h-6 text-red-700"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                                        <h3 class="font-semibold text-gray-900">
+                                            {{ sol['nombre_persona'] }}
+                                        </h3>
+                                        <!-- Badge tipo -->
+                                        <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                                                     {% if sol['tipo_solicitud'] == 'jugador' %}
+                                                         bg-blue-100 text-blue-700
+                                                     {% elif sol['tipo_solicitud'] == 'entrenador' %}
+                                                         bg-green-100 text-green-700
+                                                     {% else %}
+                                                         bg-purple-100 text-purple-700
+                                                     {% endif %}">
+                                            {{ sol['tipo_solicitud']|capitalize }}
+                                        </span>
+                                        <!-- Badge estatus -->
+                                        <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                                                     {% if sol['estatus'] == 'Pendiente' %}
+                                                         bg-yellow-100 text-yellow-800
+                                                     {% elif sol['estatus'] == 'Autorizado' %}
+                                                         bg-green-100 text-green-800
+                                                     {% else %}
+                                                         bg-red-100 text-red-800
+                                                     {% endif %}">
+                                            {{ sol['estatus'] }}
+                                        </span>
+                                    </div>
+
+                                    <div class="text-sm text-gray-400 flex flex-wrap gap-3">
+                                        {% if sol['curp'] %}
+                                        <span>
+                                            <i data-lucide="id-card" class="w-3 h-3 inline"></i>
+                                            {{ sol['curp'] }}
+                                        </span>
+                                        {% endif %}
+                                        {% if sol['categoria'] %}
+                                        <span>
+                                            <i data-lucide="tag" class="w-3 h-3 inline"></i>
+                                            {{ sol['categoria'] }}
+                                        </span>
+                                        {% endif %}
+                                        <span>
+                                            <i data-lucide="calendar" class="w-3 h-3 inline"></i>
+                                            {{ sol['fecha_solicitud'].strftime('%d/%m/%Y') if sol['fecha_solicitud'] else '' }}
+                                        </span>
+                                        {% if sol['email_solicitante'] %}
+                                        <span>
+                                            <i data-lucide="mail" class="w-3 h-3 inline"></i>
+                                            {{ sol['email_solicitante'] }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if sol['comentarios'] and sol['estatus'] == 'Rechazado' %}
+                                    <div class="mt-2 text-sm bg-red-50 border border-red-200
+                                                text-red-700 rounded-lg px-3 py-2">
+                                        <strong>Motivo:</strong> {{ sol['comentarios'] }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            {% if sol['estatus'] == 'Pendiente' %}
+                            <div class="flex gap-2 flex-shrink-0">
+                                <button onclick="aprobar({{ sol['id_autorizacion'] }})"
+                                        class="flex items-center gap-2 px-4 py-2 rounded-lg
+                                               bg-green-600 text-white text-sm
+                                               hover:bg-green-700 transition-colors">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                    Autorizar
+                                </button>
+                                <button onclick="abrirModalRechazo({{ sol['id_autorizacion'] }})"
+                                        class="flex items-center gap-2 px-4 py-2 rounded-lg
+                                               bg-red-600 text-white text-sm
+                                               hover:bg-red-700 transition-colors">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                    Rechazar
+                                </button>
+                            </div>
+                            {% else %}
+                            <span class="text-sm text-gray-400 italic">
+                                {% if sol['estatus'] == 'Autorizado' %}
+                                    ✓ Autorizada
+                                {% else %}
+                                    ✗ Rechazada
+                                {% endif %}
+                            </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                {% else %}
+                    <div class="text-center py-16 text-gray-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+                        <p class="text-lg font-medium">No hay solicitudes aún.</p>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal rechazo -->
+    <div id="modalRechazo"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden z-50
+                flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                Rechazar Solicitud
+            </h3>
+            <p class="text-gray-500 text-sm mb-4">
+                El motivo será enviado por correo al solicitante.
+            </p>
+            <textarea id="comentarioRechazo" rows="4"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                             focus:ring-2 focus:ring-red-500 focus:outline-none text-sm"
+                      placeholder="Motivo del rechazo..."></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="cerrarModal()"
+                        class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700
+                               hover:bg-gray-200 transition-colors text-sm">
+                    Cancelar
+                </button>
+                <button onclick="confirmarRechazo()"
+                        class="px-4 py-2 rounded-lg bg-red-600 text-white
+                               hover:bg-red-700 transition-colors text-sm
+                               flex items-center gap-2">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    Confirmar Rechazo
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
+        let idSolicitudActual = null;
 
-        let solicitudActual = null;
-
-       /* function verDetalles(id) {
-            alert(`Ver detalles completos de la solicitud: ${id}`);
+        // ── Filtrar por estatus ───────────────────
+        function filtrar(estatus) {
+            document.querySelectorAll('.solicitud-item').forEach(el => {
+                el.style.display = (estatus === 'todas' || el.dataset.estatus === estatus)
+                    ? '' : 'none';
+            });
         }
 
-        function autorizarSolicitud(id) {
-            if (confirm('¿Está seguro de que desea autorizar esta solicitud?')) {
-                // Actualizar visualmente el estado
-                const solicitud = document.querySelector(`button[onclick="autorizarSolicitud('${id}')"]`).closest('.p-6');
-                const badge = solicitud.querySelector('.bg-yellow-100, .bg-red-100');
-                if (badge) {
-                    badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-                    badge.textContent = 'Autorizada';
-                }
-                
-                // Deshabilitar botones
-                const botones = solicitud.querySelectorAll('button[onclick*="autorizarSolicitud"], button[onclick*="rechazarSolicitud"]');
-                botones.forEach(btn => {
-                    btn.disabled = true;
-                    btn.className = 'bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed text-sm';
-                    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 inline mr-1"></i>Autorizada';
+        // ── Aprobar ───────────────────────────────
+        function aprobar(id) {
+            if (!confirm('¿Autorizar esta solicitud? Se enviará correo al solicitante.')) return;
+
+            fetch(`/autorizar/aprobar/${id}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        mostrarAlerta('success', 'Solicitud autorizada', data.mensaje);
+                        // Actualizar visualmente sin recargar
+                        const el = document.getElementById(`sol-${id}`);
+                        el.dataset.estatus = 'Autorizado';
+                        const badges = el.querySelectorAll('span.text-xs');
+                        badges.forEach(b => {
+                            if (['Pendiente','Autorizado','Rechazado'].includes(b.textContent.trim())) {
+                                b.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-800';
+                                b.textContent = 'Autorizado';
+                            }
+                        });
+                        // Quitar botones
+                        el.querySelector('.flex.gap-2.flex-shrink-0')?.remove();
+                        lucide.createIcons();
+                    } else {
+                        mostrarAlerta('error', 'Error', data.mensaje);
+                    }
                 });
-                
-                lucide.createIcons();
-                alert('Solicitud autorizada exitosamente. Se ha generado una notificación automática.');
-            }
         }
 
-        function rechazarSolicitud(id) {
-            solicitudActual = id;
+        // ── Modal rechazo ─────────────────────────
+        function abrirModalRechazo(id) {
+            idSolicitudActual = id;
+            document.getElementById('comentarioRechazo').value = '';
             document.getElementById('modalRechazo').classList.remove('hidden');
         }
 
         function cerrarModal() {
             document.getElementById('modalRechazo').classList.add('hidden');
-            document.getElementById('comentarioRechazo').value = '';
-            solicitudActual = null;
+            idSolicitudActual = null;
         }
 
         function confirmarRechazo() {
             const comentario = document.getElementById('comentarioRechazo').value.trim();
-            
             if (!comentario) {
-                alert('El comentario es obligatorio para rechazar una solicitud');
+                alert('El motivo del rechazo es obligatorio.');
                 return;
             }
 
-            // Actualizar visualmente el estado
-            const solicitud = document.querySelector(`button[onclick="rechazarSolicitud('${solicitudActual}')"]`).closest('.p-6');
-            const badge = solicitud.querySelector('.bg-yellow-100, .bg-red-100');
-            if (badge) {
-                badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800';
-                badge.textContent = 'Rechazada';
-            }
-            
-            // Deshabilitar botones
-            const botones = solicitud.querySelectorAll('button[onclick*="autorizarSolicitud"], button[onclick*="rechazarSolicitud"]');
-            botones.forEach(btn => {
-                btn.disabled = true;
-                btn.className = 'bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed text-sm';
-                btn.innerHTML = '<i data-lucide="x" class="w-4 h-4 inline mr-1"></i>Rechazada';
-            });
-            
+            const form = new FormData();
+            form.append('comentario', comentario);
+
+            fetch(`/autorizar/rechazar/${idSolicitudActual}`, { method:'POST', body:form })
+                .then(r => r.json())
+                .then(data => {
+                    cerrarModal();
+                    if (data.ok) {
+                        mostrarAlerta('success', 'Solicitud rechazada', data.mensaje);
+                        const el = document.getElementById(`sol-${idSolicitudActual}`);
+                        el.dataset.estatus = 'Rechazado';
+                        const badges = el.querySelectorAll('span.text-xs');
+                        badges.forEach(b => {
+                            if (['Pendiente','Autorizado','Rechazado'].includes(b.textContent.trim())) {
+                                b.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-800';
+                                b.textContent = 'Rechazado';
+                            }
+                        });
+                        el.querySelector('.flex.gap-2.flex-shrink-0')?.remove();
+                        lucide.createIcons();
+                    } else {
+                        mostrarAlerta('error', 'Error', data.mensaje);
+                    }
+                });
+        }
+
+        // ── Alerta ────────────────────────────────
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success:'check-circle', error:'x-circle' };
+            document.getElementById('alertas').innerHTML = `
+                <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
+                </div>`;
             lucide.createIcons();
-            cerrarModal();
-            alert('Solicitud rechazada. Se ha enviado notificación con el comentario al solicitante.');
-        }*/
+            setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
+        }
     </script>
 </body>
 </html>

@@ -1,76 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultar Ligas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+<body class="gradient-bg min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-<body class="bg-gray-50 min-h-screen">
-    {%include 'header.html'%}
-    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <form method="GET" action="{{ url_for('consulta.consultarLigas') }}">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Ligas</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Liga</label>
-                    <input type="text" id="nombreLiga" placeholder="Ingrese nombre de la liga"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                    <input type="text" name="nombre" value="{{ filtro_nombre }}"
+                           placeholder="Nombre de la liga"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                    <select id="estadoLiga"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <select name="estado"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                   focus:ring-2 focus:ring-red-700">
                         <option value="">Todos</option>
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
+                        <option value="activo"   {% if filtro_estado=='activo'   %}selected{% endif %}>Activo</option>
+                        <option value="inactivo" {% if filtro_estado=='inactivo' %}selected{% endif %}>Inactivo</option>
                     </select>
                 </div>
-
-                <button onclick="buscarLigas()"
-                    class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
-                    <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
-                    Buscar Ligas
-                </button>
+                <div class="flex items-end">
+                    <button type="submit"
+                            class="w-full bg-red-700 text-white px-6 py-2 rounded-lg
+                                   hover:bg-red-800 transition-colors flex items-center
+                                   justify-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Buscar
+                    </button>
+                </div>
             </div>
         </div>
-        <!-- Resumen de ligas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
-                <div class="text-gray-600">Ligas Activas</div>
+        </form>
+
+        <!-- Contadores -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">{{ activas }}</div>
+                <div class="text-sm text-gray-600">Ligas Activas</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
-                <div class="text-gray-600">Ligas Inactivas</div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ inactivas }}</div>
+                <div class="text-sm text-gray-600">Ligas Inactivas</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
-                <div class="text-gray-600">Total Equipos</div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ total_equipos }}</div>
+                <div class="text-sm text-gray-600">Total Equipos</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
-                <div class="text-gray-600">Total Jugadores</div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ total_jugadores }}</div>
+                <div class="text-sm text-gray-600">Total Jugadores</div>
             </div>
         </div>
 
-        <!-- Tabla de ligas -->
+        <!-- Tabla -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-900">Ligas Registradas</h2>
+                <h3 class="text-xl font-semibold text-gray-900">Ligas Registradas</h3>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-red-700 text-white">
                         <tr>
-                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre de la Liga</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Categoría</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold">Estado</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold">Equipos</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold">Jugadores</th>
@@ -79,208 +85,74 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">-----</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2">
-                                    <span
-                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">---</span>
-                                    <button onclick="toggleEstado('municipal')"
-                                        class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">-- equipos</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">-- jugadores</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">--/--/----</td>
-                            <td class="px-6 py-4">
-                                <button onclick="verDetalles('municipal')"
-                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-                                    Ver Detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <!--<tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Juvenil</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                                    <button onclick="toggleEstado('juvenil')" class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">8 equipos</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">96 jugadores</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">20/01/2024</td>
-                            <td class="px-6 py-4">
-                                <button onclick="verDetalles('juvenil')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-                                    Ver Detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Femenil</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                                    <button onclick="toggleEstado('femenil')" class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">6 equipos</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">72 jugadoras</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">25/01/2024</td>
-                            <td class="px-6 py-4">
-                                <button onclick="verDetalles('femenil')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-                                    Ver Detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Liga Veteranos</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center space-x-2">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Inactivo</span>
-                                    <button onclick="toggleEstado('veteranos')" class="text-sm text-blue-600 hover:text-blue-800">Cambiar</button>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">4 equipos</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">48 jugadores</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">10/02/2024</td>
-                            <td class="px-6 py-4">
-                                <button onclick="verDetalles('veteranos')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-                                    Ver Detalles
-                                </button>
-                            </td>
-                        </tr>
+                        {% if ligas %}
+                            {% for liga in ligas %}
+                            <tr class="hover:bg-gray-50" id="liga-{{ liga['id_liga'] }}">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{ liga['nombre_liga'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ liga['categoria'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span id="badge-{{ liga['id_liga'] }}"
+                                          class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if liga['estado']=='activo' %}bg-green-100 text-green-700
+                                                 {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                                        {{ liga['estado']|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ liga['total_equipos'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ liga['total_jugadores'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ liga['fecha_inicio'].strftime('%d/%m/%Y') if liga['fecha_inicio'] else '—' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button onclick="toggleEstado({{ liga['id_liga'] }})"
+                                            class="text-sm text-blue-600 hover:text-blue-800
+                                                   underline transition-colors">
+                                        Cambiar estado
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+                                    <i data-lucide="trophy" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                    <p>No se encontraron ligas.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Modal de detalles de liga 
-    <div id="modalDetalles" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full p-6 max-h-screen overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-semibold text-gray-900" id="tituloModal">Detalles de Liga Municipal</h3>
-                    <button onclick="cerrarModal()" class="text-gray-400 hover:text-gray-600">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
-                </div>
-                
-                !-- Información general --
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Información General</h4>
-                        <div class="space-y-2 text-sm">
-                            <div><span class="text-gray-600">Estado:</span> <span class="font-medium">Activo</span></div>
-                            <div><span class="text-gray-600">Fecha de Inicio:</span> <span class="font-medium">15/01/2024</span></div>
-                            <div><span class="text-gray-600">Fecha de Fin:</span> <span class="font-medium">15/12/2024</span></div>
-                            <div><span class="text-gray-600">Total de Equipos:</span> <span class="font-medium">12</span></div>
-                            <div><span class="text-gray-600">Total de Jugadores:</span> <span class="font-medium">156</span></div>
-                        </div>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Estadísticas</h4>
-                        <div class="space-y-2 text-sm">
-                            <div><span class="text-gray-600">Partidos Jugados:</span> <span class="font-medium">45</span></div>
-                            <div><span class="text-gray-600">Partidos Pendientes:</span> <span class="font-medium">12</span></div>
-                            <div><span class="text-gray-600">Goles Totales:</span> <span class="font-medium">234</span></div>
-                            <div><span class="text-gray-600">Promedio por Partido:</span> <span class="font-medium">5.2</span></div>
-                        </div>
-                    </div>
-                </div>
+    <script>
+        lucide.createIcons();
 
-                !-- Lista de equipos --
-                <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Equipos Participantes</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h5 class="font-medium text-gray-900">Tigres FC</h5>
-                                    <p class="text-sm text-gray-600">12 jugadores • Entrenador: Carlos Martínez</p>
-                                </div>
-                                <span class="text-sm font-medium text-green-600">1° Lugar</span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h5 class="font-medium text-gray-900">Águilas United</h5>
-                                    <p class="text-sm text-gray-600">14 jugadores • Entrenador: Ana López</p>
-                                </div>
-                                <span class="text-sm font-medium text-blue-600">2° Lugar</span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h5 class="font-medium text-gray-900">Leones FC</h5>
-                                    <p class="text-sm text-gray-600">13 jugadores • Entrenador: Miguel González</p>
-                                </div>
-                                <span class="text-sm font-medium text-yellow-600">3° Lugar</span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h5 class="font-medium text-gray-900">Pumas Deportivo</h5>
-                                    <p class="text-sm text-gray-600">11 jugadores • Entrenador: Luis Hernández</p>
-                                </div>
-                                <span class="text-sm font-medium text-gray-600">4° Lugar</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex justify-end">
-                    <button onclick="cerrarModal()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                        Cerrar
-                    </button>
-                </div>-->
-            </div>
-        </div>
-        </div>
-
-        <script>
-            lucide.createIcons();
-
-            /* function toggleEstado(ligaId) {
-                 if (confirm('¿Desea cambiar el estado de esta liga?')) {
-                     const fila = event.target.closest('tr');
-                     const badge = fila.querySelector('.bg-green-100, .bg-yellow-100');
-                     
-                     if (badge.classList.contains('bg-green-100')) {
-                         // Cambiar a inactivo
-                         badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
-                         badge.textContent = 'Inactivo';
-                     } else {
-                         // Cambiar a activo
-                         badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-                         badge.textContent = 'Activo';
-                     }
-                     
-                     alert('Estado de la liga actualizado exitosamente');
-                 }
-             }
-     
-             function verDetalles(ligaId) {
-                 const nombres = {
-                     'municipal': 'Liga Municipal de Fútbol',
-                     'juvenil': 'Liga Juvenil',
-                     'femenil': 'Liga Femenil',
-                     'veteranos': 'Liga Veteranos'
-                 };
-                 
-                 document.getElementById('tituloModal').textContent = `Detalles de ${nombres[ligaId]}`;
-                 document.getElementById('modalDetalles').classList.remove('hidden');
-             }
-     
-             function cerrarModal() {
-                 document.getElementById('modalDetalles').classList.add('hidden');
-             }*/
-        </script>
+        function toggleEstado(id) {
+            if (!confirm('¿Cambiar el estado de esta liga?')) return;
+            fetch(`/consulta/ligas/toggle/${id}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) { alert(data.mensaje); return; }
+                    const badge = document.getElementById(`badge-${id}`);
+                    if (data.nuevo_estado === 'activo') {
+                        badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700';
+                        badge.textContent = 'Activo';
+                    } else {
+                        badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700';
+                        badge.textContent = 'Inactivo';
+                    }
+                });
+        }
+    </script>
 </body>
-
 </html>

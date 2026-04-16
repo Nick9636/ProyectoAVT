@@ -1,89 +1,292 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrar Pago</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Pago</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-
 <body class="min-h-screen">
     {% include 'header.html' %}
-<!-- CONTENIDO -->
-<main class="pt-24 pb-12">
-  <div class="max-w-[95%] mx-auto bg-white rounded-xl shadow-lg p-10">
-    <!-- FORM ORIGINAL (MISMO FUNCIONAMIENTO) -->
-    <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <div class="flex flex-col">
-        <label class="font-semibold mb-1">Nombre del Jugador:</label>
-        <input type="text" placeholder="Ingrese nombre del jugador"
-          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-      </div>
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
-      <div class="flex flex-col">
-        <label class="font-semibold mb-1">Número de Afiliación:</label>
-        <input type="text" placeholder="Ej. AFI-2025-00123"
-          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-      </div>
+        <!-- Formulario -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-xl font-semibold text-white mb-6">Registrar Pago</h2>
 
-      <div class="flex flex-col">
-        <label class="font-semibold mb-1">Monto a Pagar ($):</label>
-        <input type="number" value="150" readonly
-          class="border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-gray-600">
-      </div>
+            <!-- Buscar persona -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-white mb-2">
+                    Buscar Jugador / Árbitro / Entrenador *
+                </label>
+                <div class="flex gap-2">
+                    <input type="text" id="buscarPago"
+                           placeholder="Nombre o número de registro..."
+                           class="flex-1 px-4 py-2 rounded-lg border border-red-400
+                                  bg-white focus:outline-none focus:ring-2 focus:ring-white">
+                    <button onclick="buscarPersonaPago()"
+                            class="bg-red-600 text-white px-4 py-2 rounded-lg
+                                   hover:bg-red-500 transition-colors flex items-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Buscar
+                    </button>
+                </div>
 
-      <div class="flex flex-col">
-        <label class="font-semibold mb-1">Fecha de Pago:</label>
-        <input type="date"
-          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-      </div>
+                <!-- Persona seleccionada -->
+                <div id="personaPagoSeleccionada"
+                     class="hidden mt-3 bg-white rounded-lg p-3
+                            flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-red-100 rounded-full flex
+                                    items-center justify-center">
+                            <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
+                        </div>
+                        <div>
+                            <p id="nombrePersonaPago"
+                               class="font-semibold text-gray-900 text-sm"></p>
+                            <p id="tipoPersonaPago"
+                               class="text-xs text-gray-500"></p>
+                        </div>
+                    </div>
+                    <button onclick="limpiarPersonaPago()"
+                            class="text-gray-400 hover:text-red-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
 
-      <div class="flex flex-col">
-        <label class="font-semibold mb-1">Tipo de Pago:</label>
-        <select
-          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-          <option value="">Seleccione...</option>
-          <option>Depósito Bancario</option>
-          <option>Transferencia</option>
-          <option>Efectivo</option>
-        </select>
-      </div>
+                <div id="alertaBusquedaPago"
+                     class="hidden mt-3 bg-yellow-50 border border-yellow-200
+                            text-yellow-800 rounded-lg px-4 py-3 text-sm flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    No se encontró ninguna persona con ese criterio.
+                </div>
 
-      <div class="flex flex-col">
-        <label class="font-semibold mb-1">Estado del Pago:</label>
-        <select
-          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-          <option value="">Seleccione...</option>
-          <option>Pendiente</option>
-          <option>Pagado</option>
-          <option>Verificado</option>
-        </select>
-      </div>
+                <input type="hidden" id="idPersonaPago">
+                <input type="hidden" id="tipoPersonaPagoHidden">
+            </div>
 
-      <div class="flex flex-col md:col-span-2">
-        <label class="font-semibold mb-1">Subir Comprobante:</label>
-        <input type="file" accept=".jpg,.png,.pdf"
-          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-600">
-      </div>
+            <!-- Datos del pago -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Fecha de Pago *
+                    </label>
+                    <input type="date" id="fechaPago"
+                           class="w-full px-4 py-2 rounded-lg border border-red-400
+                                  bg-white focus:outline-none focus:ring-2 focus:ring-white
+                                  [color-scheme:light]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Estatus
+                    </label>
+                    <select id="estatusPago"
+                            class="w-full px-4 py-2 rounded-lg border border-red-400
+                                   bg-white focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Método de Pago
+                    </label>
+                    <select id="metodoPago"
+                            class="w-full px-4 py-2 rounded-lg border border-red-400
+                                   bg-white focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="">Seleccionar</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Transferencia">Transferencia</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        Referencia / Folio
+                    </label>
+                    <input type="text" id="referenciaPago"
+                           placeholder="Ej: TRF-20240101"
+                           class="w-full px-4 py-2 rounded-lg border border-red-400
+                                  bg-white focus:outline-none focus:ring-2 focus:ring-white">
+                </div>
+            </div>
 
-      <div class="md:col-span-2 text-center mt-6">
-        <button type="submit"
-          class="bg-red-700 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-semibold transition">
-          Registrar Pago
-        </button>
-      </div>
+            <button onclick="guardarPago()"
+                    class="btn-vino flex items-center gap-2">
+                <i data-lucide="credit-card" class="w-5 h-5"></i>
+                Registrar Pago
+            </button>
+        </div>
 
-    </form>
-  </div>
-</main>
+        <!-- Alertas -->
+        <div id="alertas" class="mb-6"></div>
 
-<script>
-  lucide.createIcons();
-</script>
+        <!-- Lista de pagos -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                Pagos Registrados
+                <span class="text-red-200 text-sm font-normal ml-2">
+                    {{ pagos|length }} pago(s)
+                </span>
+            </h2>
+            <div class="space-y-3" id="listaPagos">
+                {% if pagos %}
+                    {% for pago in pagos %}
+                    <div class="flex items-center justify-between p-4 bg-white
+                                rounded-lg hover:shadow-sm transition"
+                         id="pago-{{ pago['id_pago'] }}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center
+                                        {% if pago['estatus'] == 'Completado' %}bg-green-100
+                                        {% elif pago['estatus'] == 'Cancelado' %}bg-red-100
+                                        {% else %}bg-yellow-100{% endif %}">
+                                <i data-lucide="credit-card"
+                                   class="w-5 h-5
+                                          {% if pago['estatus'] == 'Completado' %}text-green-600
+                                          {% elif pago['estatus'] == 'Cancelado' %}text-red-600
+                                          {% else %}text-yellow-600{% endif %}">
+                                </i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">
+                                    {{ pago['nombre_persona'] }}
+                                </p>
+                                <div class="flex items-center gap-2 text-sm text-gray-400">
+                                    <span>{{ pago['fecha_pago'] }}</span>
+                                    <span>•</span>
+                                    <span>{{ pago['metodo_pago'] or 'Sin método' }}</span>
+                                    <span>•</span>
+                                    <span>{{ pago['tipo_persona'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select onchange="actualizarPago({{ pago['id_pago'] }}, this.value)"
+                                    class="text-sm px-2 py-1 rounded-lg border border-gray-200
+                                           focus:outline-none focus:ring-1 focus:ring-red-400">
+                                <option {% if pago['estatus']=='Pendiente' %}selected{% endif %}
+                                        value="Pendiente">Pendiente</option>
+                                <option {% if pago['estatus']=='Completado' %}selected{% endif %}
+                                        value="Completado">Completado</option>
+                                <option {% if pago['estatus']=='Cancelado' %}selected{% endif %}
+                                        value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-10 text-red-200" id="vacioPagos">
+                        <i data-lucide="credit-card" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                        <p class="text-sm">No hay pagos registrados aún.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
 
+    <script>
+        lucide.createIcons();
+
+        // ── Buscar persona ────────────────────────
+        function buscarPersonaPago() {
+            const termino = document.getElementById('buscarPago').value.trim();
+            if (!termino) return;
+
+            document.getElementById('alertaBusquedaPago').classList.add('hidden');
+            document.getElementById('personaPagoSeleccionada').classList.add('hidden');
+
+            fetch(`{{ url_for('principal.buscar_expediente') }}?termino=${encodeURIComponent(termino)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok || !data.resultados.length) {
+                        document.getElementById('alertaBusquedaPago').classList.remove('hidden');
+                        lucide.createIcons();
+                        return;
+                    }
+                    const p = data.resultados[0];
+                    document.getElementById('idPersonaPago').value          = p.id_persona;
+                    document.getElementById('tipoPersonaPagoHidden').value  = p.tipo;
+                    document.getElementById('nombrePersonaPago').textContent = p.nombre;
+                    document.getElementById('tipoPersonaPago').textContent  =
+                        p.tipo.charAt(0).toUpperCase() + p.tipo.slice(1) +
+                        ' — Reg: ' + p.numero_registro;
+                    document.getElementById('personaPagoSeleccionada').classList.remove('hidden');
+                    lucide.createIcons();
+                });
+        }
+
+        document.getElementById('buscarPago').addEventListener('keydown', e => {
+            if (e.key === 'Enter') buscarPersonaPago();
+        });
+
+        function limpiarPersonaPago() {
+            document.getElementById('idPersonaPago').value          = '';
+            document.getElementById('tipoPersonaPagoHidden').value  = '';
+            document.getElementById('buscarPago').value             = '';
+            document.getElementById('personaPagoSeleccionada').classList.add('hidden');
+        }
+
+        // ── Guardar pago ──────────────────────────
+        function guardarPago() {
+            const idPersona   = document.getElementById('idPersonaPago').value;
+            const tipoPersona = document.getElementById('tipoPersonaPagoHidden').value;
+            const fecha       = document.getElementById('fechaPago').value;
+
+            if (!idPersona || !fecha) {
+                mostrarAlerta('error','Campos requeridos',
+                    'Selecciona una persona y una fecha de pago.');
+                return;
+            }
+
+            const form = new FormData();
+            form.append('id_persona',   idPersona);
+            form.append('tipo_persona', tipoPersona);
+            form.append('fecha_pago',   fecha);
+            form.append('estatus',      document.getElementById('estatusPago').value);
+            form.append('metodo_pago',  document.getElementById('metodoPago').value);
+            form.append('referencia',   document.getElementById('referenciaPago').value);
+
+            fetch("{{ url_for('registro.guardarPago') }}", { method:'POST', body:form })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        mostrarAlerta('success','Pago registrado', data.mensaje);
+                        limpiarPersonaPago();
+                        document.getElementById('fechaPago').value      = '';
+                        document.getElementById('referenciaPago').value = '';
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        mostrarAlerta('error','Error', data.mensaje);
+                    }
+                });
+        }
+
+        // ── Actualizar estatus ────────────────────
+        function actualizarPago(id, estatus) {
+            const form = new FormData();
+            form.append('estatus', estatus);
+            fetch(`/registro/pago/actualizar/${id}`, { method:'POST', body:form })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) mostrarAlerta('error','Error', data.mensaje);
+                });
+        }
+
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const estilos = { success:'bg-green-50 border-green-200 text-green-800',
+                              error:'bg-red-50 border-red-200 text-red-800' };
+            const iconos  = { success:'check-circle', error:'x-circle' };
+            document.getElementById('alertas').innerHTML = `
+                <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div><p class="font-medium">${titulo}</p><p class="text-sm">${mensaje}</p></div>
+                </div>`;
+            lucide.createIcons();
+            setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
+        }
+    </script>
 </body>
 </html>

@@ -6,255 +6,141 @@
     <title>Consultar Pagos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    {%include 'header.html'%}
-    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Filtros -->
-        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+<body class="gradient-bg min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <form method="GET" action="{{ url_for('consulta.consultarPagos') }}">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Filtros de Búsqueda</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jugador</label>
-                    <input type="text" id="jugadorFiltro" placeholder="Nombre del jugador" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                    <input type="text" name="nombre" value="{{ filtro_nombre }}"
+                           placeholder="Nombre del afiliado"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                    <select id="estadoFiltro" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estatus</label>
+                    <select name="estatus"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                   focus:ring-2 focus:ring-red-700">
                         <option value="">Todos</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="pagado">Pagado</option>
-                        <option value="verificado">Verificado</option>
+                        <option value="Pendiente"  {% if filtro_estatus=='Pendiente'  %}selected{% endif %}>Pendiente</option>
+                        <option value="Completado" {% if filtro_estatus=='Completado' %}selected{% endif %}>Completado</option>
+                        <option value="Cancelado"  {% if filtro_estatus=='Cancelado'  %}selected{% endif %}>Cancelado</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Desde</label>
-                    <input type="date" id="fechaDesde" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Desde</label>
+                    <input type="date" name="fecha_desde" value="{{ filtro_desde }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700 [color-scheme:light]">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Hasta</label>
-                    <input type="date" id="fechaHasta" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hasta</label>
+                    <input type="date" name="fecha_hasta" value="{{ filtro_hasta }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700 [color-scheme:light]">
                 </div>
             </div>
-            
-            <div class="mt-6">
-                <button onclick="aplicarFiltros()" class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition-colors">
-                    <i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>
-                    Aplicar Filtros
-                </button>
+            <button type="submit"
+                    class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800
+                           transition-colors flex items-center gap-2">
+                <i data-lucide="filter" class="w-4 h-4"></i>
+                Aplicar Filtros
+            </button>
+        </div>
+        </form>
+
+        <!-- Contadores -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">{{ completados }}</div>
+                <div class="text-sm text-gray-600">Completados</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ pendientes }}</div>
+                <div class="text-sm text-gray-600">Pendientes</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-red-600">{{ cancelados }}</div>
+                <div class="text-sm text-gray-600">Cancelados</div>
             </div>
         </div>
 
-        <!-- Resumen de pagos -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-green-600 mb-2">$0</div>
-                <div class="text-gray-600">Total Recaudado</div>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
-                <div class="text-gray-600">Pagos Verificados</div>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
-                <div class="text-gray-600">Pagos Pendientes</div>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-red-600 mb-2">0</div>
-                <div class="text-gray-600">Pagos Vencidos</div>
-            </div>
-        </div>
-
-        <!-- Tabla de pagos -->
+        <!-- Tabla -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="p-6 border-b">
+            <div class="p-6 border-b flex items-center justify-between">
                 <h3 class="text-xl font-semibold text-gray-900">Historial de Pagos</h3>
+                <span class="text-sm text-gray-500">{{ pagos|length }} pago(s)</span>
             </div>
-            
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-red-700 text-white">
                         <tr>
-                            <th class="px-6 py-3 text-left text-sm font-semibold">Jugador</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold">Concepto</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">No. Registro</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Tipo</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold">Fecha</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold">Monto</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold">Estado</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold">Acciones</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Método</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Referencia</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Estatus</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">---- ------- --------</div>
-                                    <div class="text-sm text-gray-500">AVT_----_---</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">Inscripción 202-</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">--/--/----</td>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$150.00</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Verificado</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <button onclick="verComprobante('pago1')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                    <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>
-                                    Ver Comprobante
-                                </button>
-                            </td>
-                        </tr>
-                        <!--<tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">María González López</div>
-                                    <div class="text-sm text-gray-500">AVT-2024-002</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">Mensualidad Diciembre</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">14/12/2024</td>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$100.00</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Pagado</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <button onclick="verComprobante('pago2')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                    <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>
-                                    Ver Comprobante
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Carlos Martínez Ruiz</div>
-                                    <div class="text-sm text-gray-500">AVT-2024-003</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">Inscripción 2024</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">13/12/2024</td>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$150.00</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendiente</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <button onclick="marcarPagado('pago3')" class="text-green-600 hover:text-green-800 text-sm mr-3">
-                                    <i data-lucide="check" class="w-4 h-4 inline mr-1"></i>
-                                    Marcar Pagado
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Ana Martínez Silva</div>
-                                    <div class="text-sm text-gray-500">AVT-2024-004</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">Renovación</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">12/12/2024</td>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$120.00</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Verificado</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <button onclick="verComprobante('pago4')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                    <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>
-                                    Ver Comprobante
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Luis Hernández Torres</div>
-                                    <div class="text-sm text-gray-500">AVT-2024-005</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">Mensualidad Noviembre</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">10/11/2024</td>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">$100.00</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Vencido</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <button onclick="enviarRecordatorio('pago5')" class="text-orange-600 hover:text-orange-800 text-sm">
-                                    <i data-lucide="mail" class="w-4 h-4 inline mr-1"></i>
-                                    Enviar Recordatorio
-                                </button>
-                            </td>
-                        </tr>-->
+                        {% if pagos %}
+                            {% for p in pagos %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{ p['nombre_persona'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['numero_registro'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if p['tipo_persona']=='jugador' %}bg-blue-100 text-blue-700
+                                                 {% elif p['tipo_persona']=='entrenador' %}bg-green-100 text-green-700
+                                                 {% else %}bg-purple-100 text-purple-700{% endif %}">
+                                        {{ p['tipo_persona']|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['fecha_pago'].strftime('%d/%m/%Y') if p['fecha_pago'] else '—' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['metodo_pago'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['referencia'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if p['estatus']=='Completado' %}bg-green-100 text-green-700
+                                                 {% elif p['estatus']=='Pendiente' %}bg-yellow-100 text-yellow-700
+                                                 {% else %}bg-red-100 text-red-700{% endif %}">
+                                        {{ p['estatus'] }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+                                    <i data-lucide="credit-card" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                    <p>No se encontraron pagos.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Paginación -->
-            <div class="bg-gray-50 px-6 py-3 flex justify-between items-center">
-                <div class="text-sm text-gray-700">
-                    Mostrando 1-1 de 0 registros
-                </div>
-                <div class="flex space-x-2">
-                    <!--<button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">Anterior</button>-->
-                    <button class="px-3 py-1 text-sm bg-red-700 text-white rounded">1</button>
-                    <!--<button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">2</button>
-                    <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">3</button>
-                    <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50">Siguiente</button>-->
-                </div>
-            </div>
         </div>
     </main>
-
-    <script>
-        lucide.createIcons();
-
-        function aplicarFiltros() {
-            const jugador = document.getElementById('jugadorFiltro').value;
-            const estado = document.getElementById('estadoFiltro').value;
-            const fechaDesde = document.getElementById('fechaDesde').value;
-            const fechaHasta = document.getElementById('fechaHasta').value;
-
-            console.log('Aplicando filtros:', { jugador, estado, fechaDesde, fechaHasta });
-            alert('Filtros aplicados correctamente');
-        }
-
-        function verComprobante(pagoId) {
-            // Simular descarga de PDF
-            alert(`Descargando comprobante de pago: ${pagoId}.pdf`);
-        }
-
-        function marcarPagado(pagoId) {
-            if (confirm('¿Confirma que este pago ha sido realizado?')) {
-                const fila = event.target.closest('tr');
-                const badge = fila.querySelector('.bg-yellow-100');
-                
-                if (badge) {
-                    badge.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800';
-                    badge.textContent = 'Pagado';
-                    
-                    // Cambiar botón
-                    const boton = event.target;
-                    boton.outerHTML = `
-                        <button onclick="verComprobante('${pagoId}')" class="text-blue-600 hover:text-blue-800 text-sm">
-                            <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>
-                            Ver Comprobante
-                        </button>
-                    `;
-                    
-                    lucide.createIcons();
-                }
-                
-                alert('Pago marcado como pagado exitosamente');
-            }
-        }
-
-        function enviarRecordatorio(pagoId) {
-            if (confirm('¿Desea enviar un recordatorio de pago al jugador?')) {
-                alert('Recordatorio de pago enviado exitosamente');
-            }
-        }
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

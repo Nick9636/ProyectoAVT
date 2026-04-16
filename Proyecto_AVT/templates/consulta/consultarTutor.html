@@ -3,290 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultar Tutor</title>
+    <title>Consultar Tutores</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    {%include 'header.html'%}
-    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Búsqueda -->
-        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+<body class="gradient-bg min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <form method="GET" action="{{ url_for('consulta.consultarTutor') }}">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Tutor</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Tutor</label>
-                    <input type="text" id="nombreTutor" placeholder="Ingrese nombre" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre del Tutor
+                    </label>
+                    <input type="text" name="nombre_tutor" value="{{ filtro_nombre_tutor }}"
+                           placeholder="Ingrese nombre"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Menor</label>
-                    <input type="text" id="nombreMenor" placeholder="Nombre del jugador menor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre del Menor
+                    </label>
+                    <input type="text" name="nombre_menor" value="{{ filtro_nombre_menor }}"
+                           placeholder="Nombre del jugador menor"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                    <input type="text" id="telefono" placeholder="Número de teléfono" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <input type="text" name="telefono" value="{{ filtro_telefono }}"
+                           placeholder="Número de teléfono"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700">
                 </div>
             </div>
-            
-            <button onclick="buscarTutores()" class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
-                <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
+            <button type="submit"
+                    class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800
+                           transition-colors flex items-center gap-2">
+                <i data-lucide="search" class="w-4 h-4"></i>
                 Buscar Tutores
             </button>
         </div>
+        </form>
 
-        <!-- Resumen -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
-                <div class="text-gray-600">Tutores Registrados</div>
+        <!-- Contadores -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ total_tutores }}</div>
+                <div class="text-sm text-gray-600">Tutores Registrados</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-green-600 mb-2">0</div>
-                <div class="text-gray-600">Menores Asociados</div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">{{ menores_con_tutor }}</div>
+                <div class="text-sm text-gray-600">Menores con Tutor</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-yellow-600 mb-2">0</div>
-                <div class="text-gray-600">Menores Sin Tutor</div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ sin_tutor }}</div>
+                <div class="text-sm text-gray-600">Menores sin Tutor</div>
             </div>
         </div>
 
         <!-- Lista de tutores -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="p-6 border-b">
+            <div class="p-6 border-b flex items-center justify-between">
                 <h3 class="text-xl font-semibold text-gray-900">Tutores Registrados</h3>
+                <span class="text-sm text-gray-500">{{ tutores|length }} tutor(es)</span>
             </div>
-            
-            <div class="divide-y divide-gray-200">
-                <!-- Tutor 1 -->
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+
+            <div class="divide-y divide-gray-100">
+                {% if tutores %}
+                    {% for tutor in tutores %}
+                    <div class="p-6 hover:bg-gray-50 transition">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex
+                                            items-center justify-center flex-shrink-0">
                                     <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-gray-900">------ ------ ------</h4>
-                                    <p class="text-gray-600">Padre de familia</p>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                                <div>
-                                    <span class="text-gray-600">Teléfono:</span>
-                                    <span class="font-medium ml-2">--- ---- ----</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Email:</span>
-                                    <span class="font-medium ml-2">------@email.com</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Parentesco:</span>
-                                    <span class="font-medium ml-2">-----</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Fecha Registro:</span>
-                                    <span class="font-medium ml-2">--/--/----</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Menores asociados -->
-                            <div>
-                                <h5 class="font-medium text-gray-900 mb-2">Menores Asociados:</h5>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        ------(-- años)
-                                    </span>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        -----(-- años)
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col space-y-2">
-                            <button onclick="verDetalleTutor('roberto')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
-                                Ver Detalles
-                            </button>
-                            <button onclick="editarTutor('roberto')" class="text-green-600 hover:text-green-800 text-sm">
-                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
-                                Editar
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                    <h4 class="font-semibold text-gray-900 mb-1">
+                                        {{ tutor['nombre_completo'] }}
+                                    </h4>
+                                    <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-sm
+                                                text-gray-600 mb-3">
+                                        <span>
+                                            <i data-lucide="phone" class="w-3 h-3 inline mr-1"></i>
+                                            {{ tutor['celular'] or '—' }}
+                                        </span>
+                                        <span>
+                                            <i data-lucide="mail" class="w-3 h-3 inline mr-1"></i>
+                                            {{ tutor['correo_electronico'] or '—' }}
+                                        </span>
+                                        <span>
+                                            <i data-lucide="id-card" class="w-3 h-3 inline mr-1"></i>
+                                            {{ tutor['curp_tutor'] or '—' }}
+                                        </span>
+                                    </div>
 
-                <!-- Tutor 2 
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-                                    <i data-lucide="user" class="w-6 h-6 text-pink-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-semibold text-gray-900">Carmen López Hernández</h4>
-                                    <p class="text-gray-600">Madre de familia</p>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                                <div>
-                                    <span class="text-gray-600">Teléfono:</span>
-                                    <span class="font-medium ml-2">555-987-6543</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Email:</span>
-                                    <span class="font-medium ml-2">carmen.lopez@email.com</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Parentesco:</span>
-                                    <span class="font-medium ml-2">Madre</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Fecha Registro:</span>
-                                    <span class="font-medium ml-2">20/01/2024</span>
+                                    <!-- Menores asociados -->
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 mb-2">
+                                            Menores asociados:
+                                        </p>
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for menor in tutor['menores'] %}
+                                            <span class="inline-flex items-center gap-1 px-3 py-1
+                                                         rounded-full text-xs bg-green-100 text-green-800">
+                                                <i data-lucide="user" class="w-3 h-3"></i>
+                                                {{ menor['nombre'] }}
+                                                ({{ menor['edad'] }} años)
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Menores asociados 
-                            <div>
-                                <h5 class="font-medium text-gray-900 mb-2">Menores Asociados:</h5>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        Carlos López Martínez (16 años)
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col space-y-2">
-                            <button onclick="verDetalleTutor('carmen')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
-                                Ver Detalles
-                            </button>
-                            <button onclick="editarTutor('carmen')" class="text-green-600 hover:text-green-800 text-sm">
-                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
-                                Editar
-                            </button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Tutor 3 
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <i data-lucide="user" class="w-6 h-6 text-purple-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-semibold text-gray-900">Miguel González Torres</h4>
-                                    <p class="text-gray-600">Tutor legal</p>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                                <div>
-                                    <span class="text-gray-600">Teléfono:</span>
-                                    <span class="font-medium ml-2">555-456-7890</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Email:</span>
-                                    <span class="font-medium ml-2">miguel.gonzalez@email.com</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Parentesco:</span>
-                                    <span class="font-medium ml-2">Tío</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">Fecha Registro:</span>
-                                    <span class="font-medium ml-2">25/01/2024</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Menores asociados 
-                            <div>
-                                <h5 class="font-medium text-gray-900 mb-2">Menores Asociados:</h5>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        Ana González Silva (14 años)
-                                    </span>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        Luis González Silva (12 años)
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col space-y-2">
-                            <button onclick="verDetalleTutor('miguel')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
-                                Ver Detalles
-                            </button>
-                            <button onclick="editarTutor('miguel')" class="text-green-600 hover:text-green-800 text-sm">
-                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
-                                Editar
-                            </button>
-                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-16 text-gray-400">
+                        <i data-lucide="users" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+                        <p>No se encontraron tutores.</p>
                     </div>
-                </div>-->
+                {% endif %}
             </div>
         </div>
 
-        <!-- Botón para registrar nuevo tutor -->
-        <div class="mt-8 text-center">
-            <button onclick="window.location.href='registro-tutor.html'" class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
-                <i data-lucide="user-plus" class="w-5 h-5 inline mr-2"></i>
-                Registrar Nuevo Tutor
-            </button>
-        </div>
     </main>
-
-    <script>
-        lucide.createIcons();
-
-        function buscarTutores() {
-            const nombre = document.getElementById('nombreTutor').value;
-            const menor = document.getElementById('nombreMenor').value;
-            const telefono = document.getElementById('telefono').value;
-
-            console.log('Buscando tutores:', { nombre, menor, telefono });
-            alert('Búsqueda de tutores realizada');
-        }
-
-        function verDetalleTutor(tutorId) {
-            alert(`Ver detalles completos del tutor: ${tutorId}`);
-        }
-
-        function editarTutor(tutorId) {
-            if (confirm('¿Desea editar la información de este tutor?')) {
-                alert(`Editando tutor: ${tutorId}`);
-            }
-        }
-
-        // Permitir búsqueda con Enter
-        document.getElementById('nombreTutor').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') buscarTutores();
-        });
-
-        document.getElementById('nombreMenor').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') buscarTutores();
-        });
-
-        document.getElementById('telefono').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') buscarTutores();
-        });
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
