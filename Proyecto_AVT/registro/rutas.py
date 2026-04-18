@@ -354,16 +354,21 @@ def guardarPersona():
             data.get('ocupacion', '').upper(),
             data.get('escolaridad', '').upper(),
             data.get('escuela', '').upper(),
+            data.get('telefono'),               # ← nuevo
+            data.get('celular'),                # ← nuevo
+            data.get('correo_electronico') or data.get('email'),  # ← nuevo
             data.get('enfermedades_cronicas', 'NINGUNA').upper(),
             data.get('medicamentos', 'NINGUNA').upper(),
             data.get('club', '').upper(),
             data.get('id_equipo') or None,
             data.get('categoria'),
+            data.get('rama'),                   # ← nuevo
             data.get('ligas_participa', '').upper(),
             ruta_foto,
             id_direccion
         )
 
+        # INSERT jugador actualizado
         if tipo == 'jugador':
             cur.execute("""
                 INSERT INTO jugador (
@@ -372,21 +377,15 @@ def guardarPersona():
                     fecha_nacimiento, lugar_nacimiento, nacionalidad,
                     peso, estatura, tipo_sangre,
                     ocupacion, escolaridad, escuela,
-                    enfermedades_cronicas, medicamentos,
-                    club, id_equipo, categoria, ligas_participa,
-                    fotografia, id_direccion,
                     telefono, celular, correo_electronico,
-                    fecha_registro
+                    enfermedades_cronicas, medicamentos,
+                    club, id_equipo, categoria, rama, ligas_participa,
+                    fotografia, id_direccion, fecha_registro
                 ) VALUES (
                     %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,NOW()
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW()
                 )
-            """, campos_comunes + (
-                data.get('telefono'),
-                data.get('celular'),
-                data.get('email')
-            ))
+            """, campos_comunes)
 
         elif tipo == 'entrenador':
             cur.execute("""
@@ -396,14 +395,14 @@ def guardarPersona():
                     fecha_nacimiento, lugar_nacimiento, nacionalidad,
                     peso, estatura, tipo_sangre,
                     ocupacion, escolaridad, escuela,
+                    telefono, celular, correo_electronico,
                     enfermedades_cronicas, medicamentos,
-                    club, id_equipo, categoria, ligas_participa,
+                    club, id_equipo, categoria, rama, ligas_participa,
                     fotografia, id_direccion,
-                    cedula, especialidad,
-                    fecha_registro
+                    cedula, especialidad, fecha_registro
                 ) VALUES (
                     %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
                     %s,%s,NOW()
                 )
             """, campos_comunes + (
@@ -419,14 +418,14 @@ def guardarPersona():
                     fecha_nacimiento, lugar_nacimiento, nacionalidad,
                     peso, estatura, tipo_sangre,
                     ocupacion, escolaridad, escuela,
+                    telefono, celular, correo_electronico,
                     enfermedades_cronicas, medicamentos,
-                    club, id_equipo, categoria, ligas_participa,
+                    club, id_equipo, categoria, rama, ligas_participa,
                     fotografia, id_direccion,
-                    licencia, zona,
-                    fecha_registro
+                    licencia, zona, fecha_registro
                 ) VALUES (
                     %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
                     %s,%s,NOW()
                 )
             """, campos_comunes + (

@@ -7,7 +7,8 @@
     <title>Registro de Persona</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
@@ -429,45 +430,75 @@
             event.preventDefault();
 
             const form = document.getElementById('formPersona');
-            const formData = new FormData(form);
+            const formData = new FormData();
 
-            // Agregar campos con id (no tienen name en el HTML actual)
-            const campos = [
-                'apellidoPaterno', 'apellidoMaterno', 'nombres',
-                'numeroRegistro', 'curpPersona', 'fechaNacimientoPersona',
-                'lugarNacimiento', 'nacionalidad', 'peso', 'estatura',
-                'tipoSangre', 'ocupacion', 'escolaridad', 'escuela',
-                'enfermedadesCronicas', 'medicamentos', 'club',
-                'equipoPersona', 'categoria', 'ligasParticipa',
-                'estadoResidencia', 'municipio', 'direccion',
-                'colonia', 'codigoPostal', 'telefono', 'celular', 'email',
-                'nombrePadre', 'celularPadre', 'emailPadre', 'firmaPadre',
-                'fotoPersona'
-            ];
-            const nombres_bd = [
-                'apellido_paterno', 'apellido_materno', 'nombres',
-                'numero_registro', 'curp', 'fecha_nacimiento',
-                'lugar_nacimiento', 'nacionalidad', 'peso', 'estatura',
-                'tipo_sangre', 'ocupacion', 'escolaridad', 'escuela',
-                'enfermedades_cronicas', 'medicamentos', 'club',
-                'id_equipo', 'categoria', 'ligas_participa',
-                'estado_residencia', 'municipio', 'calle',
-                'colonia', 'codigo_postal', 'telefono', 'celular', 'email',
-                'nombre_padre', 'celular_padre', 'email_padre', 'firma_padre',
-                'fotoPersona'
-            ];
+            // tipo_persona (radio) — tiene name, se toma directo
+            const tipoRadio = document.querySelector('input[name="tipo_persona"]:checked');
+            if (!tipoRadio) { alert('Selecciona el tipo de registro'); return; }
+            formData.append('tipo_persona', tipoRadio.value);
 
-            campos.forEach((id, i) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (el.type === 'file') {
-                    if (el.files[0]) formData.append(nombres_bd[i], el.files[0]);
-                } else {
-                    formData.append(nombres_bd[i], el.value);
-                }
+            // vigencia (checkboxes) — pueden ser múltiples
+            document.querySelectorAll('input[name="vigencia"]:checked').forEach(cb => {
+                formData.append('vigencia', cb.value);
             });
 
-            // tipo_persona viene del radio button — ya tiene name="tipo_persona"
+            // Mapa id_html → nombre_bd
+            const campos = {
+                'apellidoPaterno': 'apellido_paterno',
+                'apellidoMaterno': 'apellido_materno',
+                'nombres': 'nombres',
+                'numeroRegistro': 'numero_registro',
+                'curpPersona': 'curp',
+                'fechaNacimientoPersona': 'fecha_nacimiento',
+                'lugarNacimiento': 'lugar_nacimiento',
+                'nacionalidad': 'nacionalidad',
+                'peso': 'peso',
+                'estatura': 'estatura',
+                'tipoSangre': 'tipo_sangre',
+                'ocupacion': 'ocupacion',
+                'escolaridad': 'escolaridad',
+                'escuela': 'escuela',
+                'enfermedadesCronicas': 'enfermedades_cronicas',
+                'medicamentos': 'medicamentos',
+                // domicilio
+                'estadoResidencia': 'estado_residencia',
+                'municipio': 'municipio',
+                'direccion': 'calle',
+                'colonia': 'colonia',
+                'codigoPostal': 'codigo_postal',
+                'telefono': 'telefono',
+                'celular': 'celular',
+                'email': 'email',
+                // deportivo
+                'club': 'club',
+                'equipoPersona': 'id_equipo',
+                'categoria': 'categoria',
+                'rama': 'rama',
+                'ligasParticipa': 'ligas_participa',
+                // árbitro
+                'licencia': 'licencia',
+                'zona': 'zona',
+                // entrenador
+                'cedula': 'cedula',
+                'especialidad': 'especialidad',
+                // tutor
+                'nombrePadre': 'nombre_padre',
+                'celularPadre': 'celular_padre',
+                'emailPadre': 'email_padre',
+                'firmaPadre': 'firma_padre',
+            };
+
+            Object.entries(campos).forEach(([htmlId, bdName]) => {
+                const el = document.getElementById(htmlId);
+                if (!el) return;
+                formData.append(bdName, el.value);
+            });
+
+            // Fotografía (archivo)
+            const foto = document.getElementById('fotoPersona');
+            if (foto && foto.files[0]) {
+                formData.append('fotoPersona', foto.files[0]);
+            }
 
             fetch("{{ url_for('registro.guardarPersona') }}", {
                 method: 'POST',
@@ -478,6 +509,9 @@
                     if (data.ok) {
                         alert(`✓ ${data.mensaje}`);
                         form.reset();
+                        // Ocultar secciones específicas
+                        document.getElementById('camposArbitro').classList.add('hidden');
+                        document.getElementById('camposEntrenador').classList.add('hidden');
                     } else {
                         alert(`✗ Error: ${data.mensaje}`);
                     }
@@ -485,16 +519,13 @@
                 .catch(() => alert('Error de conexión'));
         }
 
-        // Mostrar/ocultar campos según tipo seleccionado
+        // Mostrar/ocultar campos según tipo
         document.querySelectorAll('input[name="tipo_persona"]').forEach(radio => {
             radio.addEventListener('change', function () {
-                const esArbitro = this.value === 'arbitro';
-                const esEntrenador = this.value === 'entrenador';
-
-                document.getElementById('camposArbitro')?.classList
-                    .toggle('hidden', !esArbitro);
-                document.getElementById('camposEntrenador')?.classList
-                    .toggle('hidden', !esEntrenador);
+                document.getElementById('camposArbitro')
+                    .classList.toggle('hidden', this.value !== 'arbitro');
+                document.getElementById('camposEntrenador')
+                    .classList.toggle('hidden', this.value !== 'entrenador');
             });
         });
     </script>
