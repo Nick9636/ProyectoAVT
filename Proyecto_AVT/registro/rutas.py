@@ -1,5 +1,8 @@
+# Adriana Nicole Guzman Ahuatzi
+#01/04/2026
+# Rutas para el módulo de registro: ligas, equipos, personas (jugadores, entrenadores, árbitros) y pagos
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
-from extensiones import mysql
+from extensiones import mysql, notificar
 import os
 from werkzeug.utils import secure_filename
 
@@ -57,6 +60,8 @@ def guardarLiga():
         """, (nombre, categoria))
         mysql.connection.commit()
         nuevo_id = cur.lastrowid
+        notificar(cur, session['id_usuario'], f"Liga '{nombre}' registrada.")
+        mysql.connection.commit()
         cur.close()
 
         return jsonify({
@@ -79,6 +84,8 @@ def eliminarLiga(id_liga):
     cur = mysql.connection.cursor()
     try:
         cur.execute("DELETE FROM liga WHERE id_liga = %s", (id_liga,))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'], f"Liga #{id_liga} eliminada.")
         mysql.connection.commit()
         cur.close()
         return jsonify({'ok': True})
@@ -143,9 +150,11 @@ def guardarEquipo():
         mysql.connection.commit()
         nuevo_id = cur.lastrowid
 
-        # Traer nombre de liga para devolverlo al frontend
         cur.execute("SELECT nombre_liga FROM liga WHERE id_liga = %s", (id_liga,))
         liga = cur.fetchone()
+        notificar(cur, session['id_usuario'],
+                  f"Equipo '{nombre}' registrado en liga '{liga['nombre_liga'] if liga else id_liga}'.")
+        mysql.connection.commit()
         cur.close()
 
         return jsonify({
@@ -169,6 +178,8 @@ def eliminarEquipo(id_equipo):
     cur = mysql.connection.cursor()
     try:
         cur.execute("DELETE FROM equipo WHERE id_equipo = %s", (id_equipo,))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'], f"Equipo #{id_equipo} eliminado.")
         mysql.connection.commit()
         cur.close()
         return jsonify({'ok': True})
@@ -208,51 +219,50 @@ def registroPago():
 @registro.route("/pago/guardar", methods=["POST"])
 @login_requerido
 def guardarPago():
-    id_persona   = request.form.get('id_persona')
-    tipo_persona = request.form.get('tipo_persona')
+    id_jugador   = request.form.get('id_jugador')
     fecha_pago   = request.form.get('fecha_pago')
     estatus      = request.form.get('estatus', 'Pendiente')
     metodo_pago  = request.form.get('metodo_pago', '').strip()
     referencia   = request.form.get('referencia', '').strip()
 
-    if not id_persona or not tipo_persona or not fecha_pago:
-        return jsonify({'ok': False, 'mensaje': 'Datos incompletos'}), 400
-
-    if tipo_persona not in ('jugador', 'entrenador', 'arbitro'):
-        return jsonify({'ok': False, 'mensaje': 'Tipo de persona inválido'}), 400
-
-    # Columna correcta según tipo
-    col = {
-        'jugador':    'id_jugador',
-        'entrenador': 'id_entrenador',
-        'arbitro':    'id_arbitro'
-    }
-
-    # Los otros dos van NULL
-    id_jugador    = id_persona if tipo_persona == 'jugador'    else None
-    id_entrenador = id_persona if tipo_persona == 'entrenador' else None
-    id_arbitro    = id_persona if tipo_persona == 'arbitro'    else None
+    if not id_jugador or not fecha_pago:
+        return jsonify({'ok': False, 'mensaje': 'Jugador y fecha son obligatorios'}), 400
 
     cur = mysql.connection.cursor()
     try:
+        # Buscar o crear afiliación para este jugador
         cur.execute("""
-            INSERT INTO pago
-                (id_jugador, id_entrenador, id_arbitro, tipo_persona,
-                 fecha_pago, estatus, metodo_pago, referencia)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            id_jugador, id_entrenador, id_arbitro, tipo_persona,
-            fecha_pago, estatus, metodo_pago, referencia
-        ))
+            SELECT id_afiliacion FROM afiliacion
+            WHERE id_jugador = %s
+            ORDER BY fecha_afiliacion DESC LIMIT 1
+        """, (id_jugador,))
+        afil = cur.fetchone()
+
+        if not afil:
+            # Crear afiliación básica si no existe
+            cur.execute("""
+                INSERT INTO afiliacion
+                    (id_jugador, id_club, id_vigencia, numero_registro,
+                     ano_vigencia, fecha_afiliacion, fecha_vencimiento, estatus)
+                VALUES (%s, 1, 1, %s, YEAR(NOW()), NOW(), DATE_ADD(NOW(), INTERVAL 1 YEAR), 'Activa')
+            """, (id_jugador, f'REG-{id_jugador}-{fecha_pago}'))
+            id_afiliacion = cur.lastrowid
+        else:
+            id_afiliacion = afil['id_afiliacion']
+
+        cur.execute("""
+            INSERT INTO pago (id_afiliacion, fecha_pago, estatus, metodo_pago, referencia)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (id_afiliacion, fecha_pago, estatus, metodo_pago or None, referencia or None))
+
         mysql.connection.commit()
         nuevo_id = cur.lastrowid
+        notificar(cur, session['id_usuario'],
+                  f"Pago registrado para jugador #{id_jugador} — estatus: {estatus}.")
+        mysql.connection.commit()
         cur.close()
 
-        return jsonify({
-            'ok':      True,
-            'mensaje': 'Pago registrado correctamente.',
-            'id':      nuevo_id
-        })
+        return jsonify({'ok': True, 'mensaje': 'Pago registrado correctamente.', 'id': nuevo_id})
 
     except Exception as e:
         mysql.connection.rollback()
@@ -269,9 +279,9 @@ def actualizarPago(id_pago):
 
     cur = mysql.connection.cursor()
     try:
-        cur.execute("""
-            UPDATE pago SET estatus = %s WHERE id_pago = %s
-        """, (estatus, id_pago))
+        cur.execute("UPDATE pago SET estatus = %s WHERE id_pago = %s", (estatus, id_pago))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'], f"Pago #{id_pago} actualizado a '{estatus}'.")
         mysql.connection.commit()
         cur.close()
         return jsonify({'ok': True})
@@ -323,131 +333,55 @@ def guardarPersona():
     cur = mysql.connection.cursor()
 
     try:
-        # Insertar dirección
+        # 1. Insertar jugador primero (única tabla que existe en la BD actual)
         cur.execute("""
-            INSERT INTO direccion
-                (id_municipio, calle, numero_exterior, colonia, codigo_postal)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO jugador (
+                apellido_paterno, apellido_materno, nombres,
+                curp, fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                peso, estatura, telefono, celular, correo_electronico,
+                enfermedades_cronicas, medicamentos, fotografia
+            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
-            data.get('municipio'),
-            data.get('calle'),
-            data.get('numero_exterior', ''),
-            data.get('colonia'),
-            data.get('codigo_postal')
-        ))
-        id_direccion = cur.lastrowid
-
-        # Campos comunes a los tres tipos
-        campos_comunes = (
             data.get('apellido_paterno', '').upper(),
             data.get('apellido_materno', '').upper(),
             data.get('nombres', '').upper(),
-            data.get('numero_registro'),
             data.get('curp', '').upper(),
-            vigencia,
             data.get('fecha_nacimiento'),
             data.get('lugar_nacimiento', '').upper(),
             data.get('nacionalidad', 'MEXICANA').upper(),
-            data.get('peso'),
-            data.get('estatura'),
-            data.get('tipo_sangre'),
-            data.get('ocupacion', '').upper(),
-            data.get('escolaridad', '').upper(),
-            data.get('escuela', '').upper(),
-            data.get('telefono'),               # ← nuevo
-            data.get('celular'),                # ← nuevo
-            data.get('correo_electronico') or data.get('email'),  # ← nuevo
+            data.get('peso') or None,
+            data.get('estatura') or None,
+            data.get('telefono') or None,
+            data.get('celular') or None,
+            data.get('correo_electronico') or data.get('email') or None,
             data.get('enfermedades_cronicas', 'NINGUNA').upper(),
             data.get('medicamentos', 'NINGUNA').upper(),
-            data.get('club', '').upper(),
-            data.get('id_equipo') or None,
-            data.get('categoria'),
-            data.get('rama'),                   # ← nuevo
-            data.get('ligas_participa', '').upper(),
             ruta_foto,
-            id_direccion
-        )
-
-        # INSERT jugador actualizado
-        if tipo == 'jugador':
-            cur.execute("""
-                INSERT INTO jugador (
-                    apellido_paterno, apellido_materno, nombres,
-                    numero_registro, curp, vigencia,
-                    fecha_nacimiento, lugar_nacimiento, nacionalidad,
-                    peso, estatura, tipo_sangre,
-                    ocupacion, escolaridad, escuela,
-                    telefono, celular, correo_electronico,
-                    enfermedades_cronicas, medicamentos,
-                    club, id_equipo, categoria, rama, ligas_participa,
-                    fotografia, id_direccion, fecha_registro
-                ) VALUES (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW()
-                )
-            """, campos_comunes)
-
-        elif tipo == 'entrenador':
-            cur.execute("""
-                INSERT INTO entrenador (
-                    apellido_paterno, apellido_materno, nombres,
-                    numero_registro, curp, vigencia,
-                    fecha_nacimiento, lugar_nacimiento, nacionalidad,
-                    peso, estatura, tipo_sangre,
-                    ocupacion, escolaridad, escuela,
-                    telefono, celular, correo_electronico,
-                    enfermedades_cronicas, medicamentos,
-                    club, id_equipo, categoria, rama, ligas_participa,
-                    fotografia, id_direccion,
-                    cedula, especialidad, fecha_registro
-                ) VALUES (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,NOW()
-                )
-            """, campos_comunes + (
-                data.get('cedula'),
-                data.get('especialidad')
-            ))
-
-        elif tipo == 'arbitro':
-            cur.execute("""
-                INSERT INTO arbitro (
-                    apellido_paterno, apellido_materno, nombres,
-                    numero_registro, curp, vigencia,
-                    fecha_nacimiento, lugar_nacimiento, nacionalidad,
-                    peso, estatura, tipo_sangre,
-                    ocupacion, escolaridad, escuela,
-                    telefono, celular, correo_electronico,
-                    enfermedades_cronicas, medicamentos,
-                    club, id_equipo, categoria, rama, ligas_participa,
-                    fotografia, id_direccion,
-                    licencia, zona, fecha_registro
-                ) VALUES (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,NOW()
-                )
-            """, campos_comunes + (
-                data.get('licencia'),
-                data.get('zona')
-            ))
+        ))
 
         id_persona = cur.lastrowid
 
-        # Crear expediente automáticamente
-        col_persona = {
-            'jugador':    'id_jugador',
-            'entrenador': 'id_entrenador',
-            'arbitro':    'id_arbitro'
-        }
-        cur.execute(f"""
-            INSERT INTO expediente
-                ({col_persona[tipo]}, tipo_persona, estatus, fecha_creacion)
-            VALUES (%s, %s, 'activo', NOW())
-        """, (id_persona, tipo))
+        # 2. Insertar dirección con id_jugador ya disponible
+        cur.execute("""
+            INSERT INTO direccion
+                (id_jugador, id_municipio, calle, numero_exterior, colonia, codigo_postal)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            id_persona,
+            1,  # municipio genérico hasta migración
+            data.get('calle', '').upper(),
+            data.get('numero_exterior', ''),
+            data.get('colonia', '').upper(),
+            data.get('codigo_postal', '')
+        ))
 
-        # Tutor si aplica
+        # 3. Expediente
+        cur.execute("""
+            INSERT INTO expediente (id_jugador, estatus, fecha_creacion)
+            VALUES (%s, 'activo', NOW())
+        """, (id_persona,))
+
+        # 4. Tutor si aplica
         nombre_padre = data.get('nombre_padre', '').strip()
         if nombre_padre and tipo == 'jugador':
             cur.execute("""
@@ -463,15 +397,16 @@ def guardarPersona():
                 data.get('curp_tutor', '').upper()
             ))
 
-        email_solicitante = data.get('email', '')
-        nombre_solicitante = f"{data.get('apellido_paterno','')} {data.get('nombres','')}".upper()
-
+        # 5. Autorización pendiente
         cur.execute("""
             INSERT INTO autorizacion_pendiente
-                (tipo_solicitud, id_referencia, fecha_solicitud,
-                estatus, email_solicitante, nombre_solicitante)
-            VALUES (%s, %s, NOW(), 'Pendiente', %s, %s)
-        """, (tipo, id_persona, email_solicitante, nombre_solicitante))
+                (tipo_solicitud, id_referencia, fecha_solicitud, estatus)
+            VALUES (%s, %s, NOW(), 'Pendiente')
+        """, (tipo, id_persona))
+
+        nombre_completo = f"{data.get('apellido_paterno','')} {data.get('nombres','')}".upper().strip()
+        notificar(cur, session['id_usuario'],
+                  f"Nuevo registro de {tipo}: {nombre_completo}. Solicitud de autorización creada.")
 
         mysql.connection.commit()
         cur.close()

@@ -1,0 +1,391 @@
+/* ADRIANA NICOLE GUZMAN AHUATZI
+    22/04/2026
+   registroExterno.css — Estilos para accesoExterno y registroExterno
+   Sigue la paleta y estilo glassmorphism del sistema AVT
+*/
+
+:root {
+    --vino:        #cb1313;
+    --vino-hover:  #5C0808;
+    --vino-claro:  #7f1313;
+    --red1:        #A8181B;
+    --red2:        #BE131B;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ── Fondo ───────────────────────────────────────────────── */
+body {
+    min-height: 100vh;
+    background-image: url('/static/img/fondo2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    padding: 20px 0;
+}
+
+/* ── Header externo (sin login) ──────────────────────────── */
+.ext-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--vino);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    justify-content: space-between;
+}
+
+.ext-header img {
+    height: 40px;
+    object-fit: contain;
+}
+
+.ext-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.3px;
+}
+
+.ext-header-user {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ── Contenedor principal ────────────────────────────────── */
+.ext-main {
+    padding-top: 80px;
+    max-width: 860px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 48px;
+}
+
+.ext-main-sm {
+    padding-top: 80px;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 48px;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ── Card glassmorphism ──────────────────────────────────── */
+.ext-card {
+    background: rgba(148, 9, 9, 0.457);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(168, 24, 27, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
+    padding: 40px;
+    width: 100%;
+}
+
+/* ── Logos ───────────────────────────────────────────────── */
+.ext-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.ext-logos img {
+    height: 60px;
+    object-fit: contain;
+}
+
+/* ── Títulos ─────────────────────────────────────────────── */
+.ext-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(#c31717);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.ext-subtitle {
+    font-size: 13px;
+    color: #e2e2e2;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.ext-user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--vino-claro);
+    border: 1px solid rgba(122,12,12,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    color: var(--vino);
+    font-weight: 500;
+    margin-bottom: 28px;
+}
+
+/* ── Secciones del formulario ────────────────────────────── */
+.form-section {
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.form-section-red     { background: rgba(253, 232, 233, 0.7); border: 1px solid rgba(168,24,27,0.15); }
+.form-section-blue    { background: rgba(219, 234, 254, 0.6); border: 1px solid rgba(37,99,235,0.15); }
+.form-section-green   { background: rgba(220, 252, 231, 0.6); border: 1px solid rgba(22,163,74,0.15); }
+.form-section-yellow  { background: rgba(254, 249, 195, 0.6); border: 1px solid rgba(202,138,4,0.15); }
+.form-section-purple  { background: rgba(243, 232, 255, 0.6); border: 1px solid rgba(147,51,234,0.15); }
+.form-section-teal    { background: rgba(204, 251, 241, 0.6); border: 1px solid rgba(13,148,136,0.15); }
+.form-section-gray    { background: rgba(243, 244, 246, 0.7); border: 1px solid rgba(107,114,128,0.15); }
+
+.form-section-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-section-title.red    { color: var(--vino); }
+.form-section-title.blue   { color: #1d4ed8; }
+.form-section-title.green  { color: #15803d; }
+.form-section-title.yellow { color: #92400e; }
+.form-section-title.purple { color: #7e22ce; }
+.form-section-title.teal   { color: #0f766e; }
+.form-section-title.gray   { color: #374151; }
+
+/* ── Grid helpers ────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-1 { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* ── Labels e inputs ─────────────────────────────────────── */
+.ext-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.ext-input,
+.ext-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #111827;
+    background: rgba(255,255,255,0.85);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.ext-input:focus,
+.ext-select:focus {
+    border-color: var(--vino);
+    box-shadow: 0 0 0 3px rgba(122,12,12,0.1);
+}
+
+.ext-input.uppercase { text-transform: uppercase; }
+
+/* ── Radio tipo persona ──────────────────────────────────── */
+.tipo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.tipo-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.7);
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.tipo-label:hover {
+    background: var(--vino-claro);
+    border-color: var(--vino);
+    color: var(--vino);
+}
+
+.tipo-label input[type="radio"] {
+    accent-color: var(--vino);
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Checkboxes vigencia ─────────────────────────────────── */
+.vigencia-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.vigencia-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.vigencia-label input[type="checkbox"] {
+    accent-color: var(--vino);
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Flash messages ──────────────────────────────────────── */
+.flash-success {
+    background: rgba(220,252,231,0.9);
+    border: 1px solid #86efac;
+    color: #166534;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.flash-error {
+    background: rgba(254,226,226,0.9);
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* ── Alerta resultado (JS) ───────────────────────────────── */
+.alerta-ok {
+    background: rgba(220,252,231,0.9);
+    border: 1px solid #86efac;
+    color: #166534;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.alerta-err {
+    background: rgba(254,226,226,0.9);
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* ── Botones ─────────────────────────────────────────────── */
+.btn-vino-ext {
+    background: var(--vino);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.3px;
+}
+
+.btn-vino-ext:hover  { background: var(--vino-hover); transform: translateY(-1px); }
+.btn-vino-ext:active { transform: translateY(0); }
+.btn-vino-ext:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-gray-ext {
+    background: #e5e7eb;
+    color: #374151;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.btn-gray-ext:hover { background: #d1d5db; }
+
+.btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+/* ── Link secundario ─────────────────────────────────────── */
+.ext-link {
+    color: var(--vino);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.ext-link:hover { color: var(--vino-hover); text-decoration: underline; }
+
+.ext-footer-text {
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 16px;
+}
+
+/* ── Byteers logo ────────────────────────────────────────── */
+.byteers-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.byteers-footer img {
+    height: 28px;
+    opacity: 0.45;
+}
+
+/* ── Sección oculta (árbitro/entrenador) ─────────────────── */
+.hidden-section { display: none; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .ext-card { padding: 24px 16px; }
+    .grid-3   { grid-template-columns: 1fr; }
+    .grid-2   { grid-template-columns: 1fr; }
+    .tipo-grid { grid-template-columns: 1fr; }
+    .btn-row  { flex-direction: column-reverse; }
+    .btn-vino-ext,
+    .btn-gray-ext { width: 100%; text-align: center; }
+}

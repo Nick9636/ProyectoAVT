@@ -1,54 +1,73 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#15/04/2026#}
+{# Descripción: Página de acceso externo. Solicita nombre y correo al usuario externo
+   para pre-llenar el formulario de registro SIRED. #}
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Registro de SIRED</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Externo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registroExterno.css') }}">
 </head>
-
 <body>
-    <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers Logo" class="logobyteers">
 
-    <div class="card-wrap">
-        <div class="card" role="main">
+    <div class="ext-main-sm">
+        <div class="ext-card">
 
-            <div class="card-logos">
+            <div class="ext-logos">
                 <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="Logo AVT">
                 <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="Logo FMVB">
             </div>
 
-            <h2>Registro de SIRED</h2>
+            <h2 class="ext-title">Registro Externo</h2>
+            <p class="ext-subtitle">Ingresa tu nombre y correo para continuar con el formulario de registro.</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="flash {{ category }}">{{ message }}</div>
+                    <div class="{{ 'flash-success' if category == 'success' else 'flash-error' }}">
+                        {{ message }}
+                    </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
-            <form method="POST" action="{{ url_for('registroExterno') }}">
-                <label for="email">Correo electrónico</label>
-                <div class="input-box">
-                    <input id="email" type="email" name="email" placeholder="Correo electrónico" required />
+            <form method="POST" action="{{ url_for('auth.accesoExterno') }}">
+
+                <div style="margin-bottom: 16px;">
+                    <label class="ext-label">Nombre Completo *</label>
+                    <input type="text" name="nombre_completo" required
+                        placeholder="Nombre Completo"
+                        class="ext-input">
                 </div>
 
-                <label for="nombre">Nombre</label>
-                <div class="input-box">
-                    <input id="nombre" type="text" name="nombre" placeholder="Nombre" required />
+                <div style="margin-bottom: 24px;">
+                    <label class="ext-label">Correo Electrónico *</label>
+                    <input type="email" name="email" required
+                        placeholder="tucorreo@ejemplo.com"
+                        class="ext-input">
                 </div>
 
-                <div class="btn-wrap">
-                    <button type="submit">Guardar</button>
-                </div>
+                <button type="submit" class="btn-vino-ext" style="width:100%;">
+                    Continuar al Formulario →
+                </button>
 
             </form>
+
+            <p class="ext-footer-text" style="margin-top: 20px;">
+                ¿Eres administrador?
+                <a href="{{ url_for('auth.iniciarSesion') }}" class="ext-link">Iniciar sesión</a>
+            </p>
+
+            <div class="byteers-footer">
+                <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers">
+            </div>
 
         </div>
     </div>
 
 </body>
-
 </html>

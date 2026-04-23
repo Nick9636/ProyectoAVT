@@ -1,3 +1,7 @@
+# Autor: Adriana Nicole Guzman Ahuatzi
+#23/03/2026
+# Descripción: Configuración general de la aplicación: conexión a la base de datos MySQL,
+#              clave secreta y parámetros del servidor de correo SMTP.
 import os
 class Config:
     MYSQL_HOST = 'localhost'

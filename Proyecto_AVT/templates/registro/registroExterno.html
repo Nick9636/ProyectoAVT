@@ -1,0 +1,422 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#15/04/2026#}
+{# Descripción: Formulario de registro externo SIRED para usuarios sin cuenta. Permite
+   capturar datos completos de jugadores, árbitros o entrenadores para su autorización. #}
+<!DOCTYPE html>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registroExterno.css') }}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+    <!-- Header externo -->
+    <header class="ext-header">
+        <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="AVT">
+        <span class="ext-header-title">Formulario de Registro</span>
+        <span class="ext-header-user">{{ ext_nombre }}</span>
+    </header>
+
+    <main class="ext-main">
+
+        <!-- Alerta resultado -->
+        <div id="alertaResultado" style="display:none;"></div>
+
+        <div class="ext-card">
+
+            <h2 class="ext-title">Formulario de Registro</h2>
+            <div style="display:flex; justify-content:center; margin-bottom:28px;">
+                <span class="ext-user-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                    {{ ext_nombre }} — {{ ext_email }}
+                </span>
+            </div>
+
+            <form id="formExterno" onsubmit="enviarFormulario(event)">
+
+                <!-- Tipo de Persona -->
+                <div style="margin-bottom: 8px;">
+                    <label class="ext-label" style="margin-bottom:12px; display:block;">Tipo de Registro *</label>
+                    <div class="tipo-grid">
+                        <label class="tipo-label">
+                            <input type="radio" name="tipo_persona" value="jugador" required
+                                onchange="cambiarTipo(this.value)">
+                            Jugador
+                        </label>
+                        <label class="tipo-label">
+                            <input type="radio" name="tipo_persona" value="arbitro"
+                                onchange="cambiarTipo(this.value)">
+                            Árbitro
+                        </label>
+                        <label class="tipo-label">
+                            <input type="radio" name="tipo_persona" value="entrenador"
+                                onchange="cambiarTipo(this.value)">
+                            Entrenador
+                        </label>
+                    </div>
+                </div>
+
+                <!-- DATOS PERSONALES -->
+                <div class="form-section form-section-red">
+                    <h3 class="form-section-title red">Datos Personales</h3>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Apellido Paterno *</label>
+                            <input type="text" id="apellidoPaterno" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Apellido Materno *</label>
+                            <input type="text" id="apellidoMaterno" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Nombre(s) *</label>
+                            <input type="text" id="nombres" required class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Número de Registro</label>
+                            <input type="text" id="numeroRegistro" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">CURP *</label>
+                            <input type="text" id="curpPersona" required maxlength="18" class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label class="ext-label">Año de Vigencia</label>
+                        <div class="vigencia-group" style="margin-top: 8px;">
+                            <label class="vigencia-label"><input type="checkbox" name="vigencia" value="2025"> 2025</label>
+                            <label class="vigencia-label"><input type="checkbox" name="vigencia" value="2026"> 2026</label>
+                            <label class="vigencia-label"><input type="checkbox" name="vigencia" value="2027"> 2027</label>
+                            <label class="vigencia-label"><input type="checkbox" name="vigencia" value="2028"> 2028</label>
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Fecha de Nacimiento *</label>
+                            <input type="date" id="fechaNacimiento" required class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Lugar de Nacimiento *</label>
+                            <input type="text" id="lugarNacimiento" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Nacionalidad *</label>
+                            <input type="text" id="nacionalidad" required value="MEXICANA" class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Peso (kg) *</label>
+                            <input type="number" id="peso" required step="0.1" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Estatura (m) *</label>
+                            <input type="number" id="estatura" required step="0.01" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Tipo de Sangre *</label>
+                            <select id="tipoSangre" required class="ext-select">
+                                <option value="">Seleccionar</option>
+                                <option>O+</option><option>O-</option>
+                                <option>A+</option><option>A-</option>
+                                <option>B+</option><option>B-</option>
+                                <option>AB+</option><option>AB-</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Ocupación</label>
+                            <input type="text" id="ocupacion" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Escolaridad</label>
+                            <input type="text" id="escolaridad" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Escuela</label>
+                            <input type="text" id="escuela" class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Enfermedades Crónicas</label>
+                            <input type="text" id="enfermedadesCronicas" value="NINGUNA" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Medicamentos</label>
+                            <input type="text" id="medicamentos" value="NINGUNA" class="ext-input uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOMICILIO -->
+                <div class="form-section form-section-blue">
+                    <h3 class="form-section-title blue">Domicilio</h3>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Estado de Residencia *</label>
+                            <input type="text" id="estadoResidencia" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Municipio *</label>
+                            <input type="text" id="municipio" required class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Calle *</label>
+                            <input type="text" id="calle" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Colonia *</label>
+                            <input type="text" id="colonia" required class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Código Postal *</label>
+                            <input type="text" id="codigoPostal" required maxlength="5" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Teléfono</label>
+                            <input type="tel" id="telefono" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Celular *</label>
+                            <input type="tel" id="celular" required class="ext-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN DEPORTIVA -->
+                <div class="form-section form-section-green">
+                    <h3 class="form-section-title green">Información Deportiva</h3>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Club y/o Escuela *</label>
+                            <input type="text" id="club" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Equipo</label>
+                            <select id="equipoPersona" class="ext-select">
+                                <option value="">Seleccionar equipo</option>
+                                {% for eq in equipos %}
+                                <option value="{{ eq['id_equipo'] }}">
+                                    {{ eq['nombre_equipo'] }} — {{ eq['categoria'] }} ({{ eq['nombre_liga'] }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Categoría *</label>
+                            <select id="categoria" required class="ext-select">
+                                <option value="">Seleccionar</option>
+                                <option>INFANTIL</option>
+                                <option>MENOR INFANTIL</option>
+                                <option>CADETE</option>
+                                <option>JUVENIL</option>
+                                <option>MAYOR</option>
+                                <option>MASTER</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="ext-label">Rama *</label>
+                            <select id="rama" required class="ext-select">
+                                <option value="">Seleccionar</option>
+                                <option>VARONIL</option>
+                                <option>FEMENIL</option>
+                                <option>MIXTO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="ext-label">Ligas en las que Participa *</label>
+                        <input type="text" id="ligasParticipa" required class="ext-input uppercase"
+                            placeholder="Ej: LIGA OFICIAL MUNICIPAL DE PANOTLA">
+                    </div>
+                </div>
+
+                <!-- ÁRBITRO -->
+                <div id="camposArbitro" class="form-section form-section-purple hidden-section">
+                    <h3 class="form-section-title purple">Datos de Árbitro</h3>
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Licencia</label>
+                            <input type="text" id="licencia" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Zona</label>
+                            <input type="text" id="zona" class="ext-input uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ENTRENADOR -->
+                <div id="camposEntrenador" class="form-section form-section-teal hidden-section">
+                    <h3 class="form-section-title teal">Datos de Entrenador</h3>
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Cédula</label>
+                            <input type="text" id="cedula" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Especialidad</label>
+                            <input type="text" id="especialidad" class="ext-input uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PADRE O TUTOR -->
+                <div class="form-section form-section-yellow">
+                    <h3 class="form-section-title yellow">
+                        Padre o Tutor
+                        <span style="font-size:13px; font-weight:400; color:#6b7280;">(En caso de ser menor de edad)</span>
+                    </h3>
+                    <div style="margin-bottom: 16px;">
+                        <label class="ext-label">Nombre Completo del Padre/Tutor</label>
+                        <input type="text" id="nombrePadre" class="ext-input uppercase">
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Celular del Padre/Tutor</label>
+                            <input type="tel" id="celularPadre" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Correo del Padre/Tutor</label>
+                            <input type="email" id="emailPadre" class="ext-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOTOGRAFÍA -->
+                <div class="form-section form-section-gray">
+                    <h3 class="form-section-title gray">Fotografía</h3>
+                    <input type="file" id="fotoPersona" accept=".png,.jpg,.jpeg" class="ext-input" style="padding: 8px;">
+                    <p style="font-size:12px; color:#6b7280; margin-top:6px;">Formato: PNG o JPG. Tamaño recomendado: foto tipo credencial.</p>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="btn-row">
+                    <a href="{{ url_for('auth.accesoExterno') }}" class="btn-gray-ext">Cancelar</a>
+                    <button type="submit" id="btnEnviar" class="btn-vino-ext">Enviar Registro</button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function cambiarTipo(valor) {
+            document.getElementById('camposArbitro').style.display    = valor === 'arbitro'    ? 'block' : 'none';
+            document.getElementById('camposEntrenador').style.display = valor === 'entrenador' ? 'block' : 'none';
+        }
+
+        function enviarFormulario(event) {
+            event.preventDefault();
+
+            const tipoRadio = document.querySelector('input[name="tipo_persona"]:checked');
+            if (!tipoRadio) { alert('Selecciona el tipo de registro'); return; }
+
+            const formData = new FormData();
+            formData.append('tipo_persona', tipoRadio.value);
+
+            document.querySelectorAll('input[name="vigencia"]:checked').forEach(cb => {
+                formData.append('vigencia', cb.value);
+            });
+
+            const campos = {
+                'apellidoPaterno':      'apellido_paterno',
+                'apellidoMaterno':      'apellido_materno',
+                'nombres':              'nombres',
+                'numeroRegistro':       'numero_registro',
+                'curpPersona':          'curp',
+                'fechaNacimiento':      'fecha_nacimiento',
+                'lugarNacimiento':      'lugar_nacimiento',
+                'nacionalidad':         'nacionalidad',
+                'peso':                 'peso',
+                'estatura':             'estatura',
+                'tipoSangre':           'tipo_sangre',
+                'ocupacion':            'ocupacion',
+                'escolaridad':          'escolaridad',
+                'escuela':              'escuela',
+                'enfermedadesCronicas': 'enfermedades_cronicas',
+                'medicamentos':         'medicamentos',
+                'estadoResidencia':     'estado_residencia',
+                'municipio':            'municipio',
+                'calle':                'calle',
+                'colonia':              'colonia',
+                'codigoPostal':         'codigo_postal',
+                'telefono':             'telefono',
+                'celular':              'celular',
+                'club':                 'club',
+                'equipoPersona':        'id_equipo',
+                'categoria':            'categoria',
+                'rama':                 'rama',
+                'ligasParticipa':       'ligas_participa',
+                'licencia':             'licencia',
+                'zona':                 'zona',
+                'cedula':               'cedula',
+                'especialidad':         'especialidad',
+                'nombrePadre':          'nombre_padre',
+                'celularPadre':         'celular_padre',
+                'emailPadre':           'email_padre',
+            };
+
+            Object.entries(campos).forEach(([htmlId, bdName]) => {
+                const el = document.getElementById(htmlId);
+                if (el) formData.append(bdName, el.value);
+            });
+
+            const foto = document.getElementById('fotoPersona');
+            if (foto && foto.files[0]) formData.append('fotoPersona', foto.files[0]);
+
+            const btn = document.getElementById('btnEnviar');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            fetch("{{ url_for('auth.guardarRegistroExterno') }}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                const alerta = document.getElementById('alertaResultado');
+                if (data.ok) {
+                    window.location.href = "{{ url_for('auth.registroExitoso') }}";
+                } else {
+                    alerta.className = 'alerta-err';
+                    alerta.innerHTML = '<strong>Error:</strong> ' + data.mensaje;
+                    alerta.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar Registro';
+                }
+            })
+            .catch(() => {
+                alert('Error de conexión. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.textContent = 'Enviar Registro';
+            });
+        }
+    </script>
+
+</body>
+</html>

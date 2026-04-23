@@ -1,11 +1,14 @@
-# auth/rutas.py
+# Adriana Nicole Guzman Ahuatzi
+#01/04/2026
+# Descripción: Rutas relacionadas con la autenticación de usuarios (inicio de sesión, registro, cierre de sesión).
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_mail import Mail, Message
-from extensiones import mysql, bcrypt, mail
+from extensiones import mysql, bcrypt, mail, notificar
 import secrets
 from datetime import datetime, timedelta
 
 auth = Blueprint('auth', __name__)
+
+ALLOWED_TIPOS = ('Jugador', 'Arbitro', 'Entrenador')
 
 # ── INICIO DE SESIÓN ──────────────────────────────
 @auth.route("/")
@@ -31,6 +34,11 @@ def iniciarSesion():
         session['nombre_usuario'] = usuario['nombre_usuario']
         session['nombre_completo'] = usuario['nombre_completo']
         session['rol'] = usuario['rol']
+        # Notificar inicio de sesión
+        cur2 = mysql.connection.cursor()
+        notificar(cur2, usuario['id_usuario'], f"Inicio de sesión desde el sistema.")
+        mysql.connection.commit()
+        cur2.close()
         return redirect(url_for("principal.paginaInicio"))
     else:
         flash("Usuario o contraseña incorrectos", "error")
@@ -56,6 +64,9 @@ def nuevoUsuario():
                 VALUES (%s, %s, %s, %s, %s, 1)
             """, (nombre_usuario, hashed, rol, nombre_completo, email))
             mysql.connection.commit()
+            nuevo_id = cur.lastrowid
+            notificar(cur, nuevo_id, f"Bienvenido al sistema AVT. Tu cuenta fue creada con rol: {rol}.")
+            mysql.connection.commit()
             cur.close()
             flash("Usuario registrado exitosamente", "success")
             return redirect(url_for("auth.iniciarSesion"))
@@ -65,138 +76,186 @@ def nuevoUsuario():
 
     return render_template("auth/nuevoUsuario.html")
 
-# ── RECORDAR CONTRASEÑA (VISTA PRINCIPAL) ─────────
-@auth.route("/recordarContrasena", methods=["GET"])
-def recordarContrasena():
-    return render_template("auth/recordarContrasena.html")
-
-# ── SOLICITAR CÓDIGO DE VERIFICACIÓN ──────────────
-@auth.route("/solicitarCodigo", methods=["POST"])
-def solicitarCodigo():
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        
-        if not email:
-            return jsonify({'success': False, 'message': 'Email requerido'}), 400
-        
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT id_usuario, email FROM usuario WHERE email = %s AND activo = 1", (email,))
-        usuario = cur.fetchone()
-        
-        if not usuario:
-            return jsonify({'success': True, 'message': 'Si el email existe, recibirás un código'})
-        
-        # Para desarrollo, usamos un código fijo
-        if app.debug:
-            token = "123456"  # Código fijo para pruebas
-        else:
-            token = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
-            
-        expiracion = datetime.now() + timedelta(minutes=15)
-        
-        cur.execute("""
-            UPDATE usuario 
-            SET reset_token = %s, reset_token_expira = %s 
-            WHERE id_usuario = %s
-        """, (token, expiracion, usuario['id_usuario']))
-        mysql.connection.commit()
-        cur.close()
-        
-        # En desarrollo, devolvemos el código en la respuesta
-        return jsonify({
-            'success': True, 
-            'message': 'Código enviado',
-            'debug_token': token if app.debug else None
-        })
-        
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'success': False, 'message': 'Error en el servidor'}), 500
-
-# ── VERIFICAR CÓDIGO ──────────────────────────────
-@auth.route("/verificarCodigo", methods=["POST"])
-def verificarCodigo():
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        token = data.get('token')
-        
-        if not email or not token:
-            return jsonify({'success': False, 'message': 'Email y código requeridos'}), 400
-        
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            SELECT id_usuario, reset_token_expira 
-            FROM usuario 
-            WHERE email = %s AND reset_token = %s AND activo = 1
-        """, (email, token))
-        
-        usuario = cur.fetchone()
-        cur.close()
-        
-        if not usuario:
-            return jsonify({'success': False, 'message': 'Código inválido'}), 400
-        
-        if datetime.now() > usuario['reset_token_expira']:
-            return jsonify({'success': False, 'message': 'El código ha expirado'}), 400
-        
-        return jsonify({'success': True, 'message': 'Código verificado correctamente'})
-        
-    except Exception as e:
-        print(f"Error al verificar código: {e}")
-        return jsonify({'success': False, 'message': 'Error en el servidor'}), 500
-
-# ── CAMBIAR CONTRASEÑA ────────────────────────────
-@auth.route("/cambiarPassword", methods=["POST"])
-def cambiarPassword():
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        token = data.get('token')
-        nueva_password = data.get('password')
-        
-        if not all([email, token, nueva_password]):
-            return jsonify({'success': False, 'message': 'Todos los campos son requeridos'}), 400
-        
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            SELECT id_usuario, reset_token_expira 
-            FROM usuario 
-            WHERE email = %s AND reset_token = %s AND activo = 1
-        """, (email, token))
-        
-        usuario = cur.fetchone()
-        
-        if not usuario:
-            cur.close()
-            return jsonify({'success': False, 'message': 'Código inválido'}), 400
-        
-        if datetime.now() > usuario['reset_token_expira']:
-            cur.close()
-            return jsonify({'success': False, 'message': 'El código ha expirado'}), 400
-        
-        # Hash de la nueva contraseña
-        hashed = bcrypt.generate_password_hash(nueva_password).decode('utf-8')
-        
-        # Actualizar contraseña y limpiar token
-        cur.execute("""
-            UPDATE usuario 
-            SET password = %s, reset_token = NULL, reset_token_expira = NULL 
-            WHERE id_usuario = %s
-        """, (hashed, usuario['id_usuario']))
-        
-        mysql.connection.commit()
-        cur.close()
-        
-        return jsonify({'success': True, 'message': 'Contraseña actualizada exitosamente'})
-        
-    except Exception as e:
-        print(f"Error al cambiar contraseña: {e}")
-        return jsonify({'success': False, 'message': 'Error en el servidor'}), 500
 
 # ── CERRAR SESIÓN ─────────────────────────────────
 @auth.route("/cerrarSesion")
 def cerrarSesion():
     session.clear()
     return redirect(url_for("auth.iniciarSesion"))
+
+
+# ── ACCESO EXTERNO ────────────────────────────────
+@auth.route("/accesoExterno", methods=["GET"])
+def accesoExterno():
+    return render_template("auth/accesoExterno.html")
+
+
+@auth.route("/accesoExterno", methods=["POST"])
+def accesoExternoPost():
+    nombre_completo = request.form.get('nombre_completo', '').strip()
+    email           = request.form.get('email', '').strip()
+
+    if not nombre_completo or not email:
+        flash("Nombre y correo son obligatorios.", "error")
+        return redirect(url_for("auth.accesoExterno"))
+
+    # Guardar en sesión para pre-llenar el formulario
+    session['ext_nombre'] = nombre_completo
+    session['ext_email']  = email
+    return redirect(url_for("auth.formularioExterno"))
+
+
+@auth.route("/registroExterno", methods=["GET"])
+def formularioExterno():
+    # Si no vino por accesoExterno, regresar
+    if 'ext_nombre' not in session:
+        return redirect(url_for("auth.accesoExterno"))
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT e.id_equipo, e.nombre_equipo, e.categoria, l.nombre_liga
+        FROM equipo e
+        JOIN liga l ON l.id_liga = e.id_liga
+        ORDER BY e.nombre_equipo
+    """)
+    equipos = cur.fetchall()
+    cur.close()
+
+    return render_template(
+        "registro/registroExterno.html",
+        equipos=equipos,
+        ext_nombre=session['ext_nombre'],
+        ext_email=session['ext_email']
+    )
+
+
+@auth.route("/registroExterno/guardar", methods=["POST"])
+def guardarRegistroExterno():
+    if 'ext_nombre' not in session:
+        return redirect(url_for("auth.accesoExterno"))
+
+    data        = request.form
+    tipo        = data.get('tipo_persona', '').strip()
+    email       = session.get('ext_email', '')
+    nombre_sol  = session.get('ext_nombre', '')
+
+    if tipo not in ('jugador', 'arbitro', 'entrenador'):
+        return jsonify({'ok': False, 'mensaje': 'Tipo de persona inválido'}), 400
+
+    import os
+    from werkzeug.utils import secure_filename
+
+    foto     = request.files.get('fotoPersona')
+    ruta_foto = None
+    if foto and foto.filename:
+        nombre_foto  = secure_filename(foto.filename)
+        carpeta_foto = os.path.join('static', 'uploads', 'fotos', tipo)
+        os.makedirs(carpeta_foto, exist_ok=True)
+        ruta_foto    = os.path.join(carpeta_foto, nombre_foto)
+        foto.save(ruta_foto)
+
+    vigencias = request.form.getlist('vigencia')
+    vigencia  = ','.join(vigencias) if vigencias else ''
+
+    cur = mysql.connection.cursor()
+    try:
+        # 1. Insertar persona primero para obtener su ID
+        campos_persona = (
+            data.get('apellido_paterno', '').upper(),
+            data.get('apellido_materno', '').upper(),
+            data.get('nombres', '').upper(),
+            data.get('curp', '').upper(),
+            data.get('fecha_nacimiento'),
+            data.get('lugar_nacimiento', '').upper(),
+            data.get('nacionalidad', 'MEXICANA').upper(),
+            data.get('peso') or None,
+            data.get('estatura') or None,
+            data.get('telefono') or None,
+            data.get('celular') or None,
+            email,
+            data.get('enfermedades_cronicas', 'NINGUNA').upper(),
+            data.get('medicamentos', 'NINGUNA').upper(),
+            ruta_foto,
+        )
+
+        # Solo jugador existe en la BD actual — entrenador/árbitro se insertan en jugador también
+        # hasta que se ejecute la migración
+        cur.execute("""
+            INSERT INTO jugador (
+                apellido_paterno, apellido_materno, nombres,
+                curp, fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                peso, estatura, telefono, celular, correo_electronico,
+                enfermedades_cronicas, medicamentos, fotografia
+            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """, campos_persona)
+
+        id_persona = cur.lastrowid
+
+        # 2. Insertar dirección con el id_jugador ya disponible
+        cur.execute("""
+            INSERT INTO direccion
+                (id_jugador, id_municipio, calle, numero_exterior, colonia, codigo_postal)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            id_persona,
+            1,  # municipio genérico hasta migración (cat_municipio)
+            data.get('calle', '').upper(),
+            data.get('numero_exterior', ''),
+            data.get('colonia', '').upper(),
+            data.get('codigo_postal', '')
+        ))
+
+        # 3. Expediente
+        cur.execute("""
+            INSERT INTO expediente (id_jugador, estatus, fecha_creacion)
+            VALUES (%s, 'activo', NOW())
+        """, (id_persona,))
+
+        # Tutor si aplica
+        nombre_padre = data.get('nombre_padre', '').strip()
+        if nombre_padre and tipo == 'jugador':
+            cur.execute("""
+                INSERT INTO tutor_padre
+                    (id_jugador, nombre_completo, celular, correo_electronico, curp_tutor)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_persona,
+                nombre_padre.upper(),
+                data.get('celular_padre'),
+                data.get('email_padre'),
+                data.get('curp_tutor', '').upper()
+            ))
+
+        # Autorización pendiente
+        cur.execute("""
+            INSERT INTO autorizacion_pendiente
+                (tipo_solicitud, id_referencia, fecha_solicitud, estatus)
+            VALUES (%s, %s, NOW(), 'Pendiente')
+        """, (tipo, id_persona))
+
+        # Notificar a todos los administradores activos
+        cur.execute("SELECT id_usuario FROM usuario WHERE activo = 1")
+        admins = cur.fetchall()
+        nombre_reg = f"{data.get('apellido_paterno','')} {data.get('nombres','')}".upper().strip()
+        for admin in admins:
+            notificar(cur, admin['id_usuario'],
+                      f"Nueva solicitud de registro externo: {nombre_reg} ({tipo}). Pendiente de autorización.")
+
+        mysql.connection.commit()
+        cur.close()
+
+        # Limpiar sesión externa
+        session.pop('ext_nombre', None)
+        session.pop('ext_email', None)
+
+        return jsonify({'ok': True, 'mensaje': f'{tipo.capitalize()} registrado correctamente.'})
+
+    except Exception as e:
+        mysql.connection.rollback()
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': str(e)}), 500
+
+
+@auth.route("/registroExitoso")
+def registroExitoso():
+    return render_template("registro/registroExitoso.html")

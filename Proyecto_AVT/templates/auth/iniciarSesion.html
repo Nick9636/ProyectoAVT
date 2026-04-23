@@ -1,10 +1,8 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#05/03/2026#}
+{# Descripción: Página de inicio de sesión del sistema AVT. Permite autenticarse con
+   usuario y contraseña, y acceder al formulario de registro externo SIRED. #}
 <!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio de sesión</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css', v=1) }}">
 </head>
 
@@ -33,11 +31,9 @@
                 <button type="submit">Iniciar sesión</button>
 
             </form>
+           
             <div class="forgot">
-                <a href="{{ url_for('auth.recordarContrasena') }}">Recordar contraseña</a>
-            </div>
-            <div class="forgot">
-                <a href="{{ url_for('accesoExterno') }}">Llenado de formato SIRED</a>
+                <a href="{{ url_for('auth.accesoExterno') }}">Llenado de formato SIRED</a>
             </div>
         </div>
     </div>

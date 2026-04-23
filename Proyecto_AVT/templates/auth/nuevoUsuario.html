@@ -1,103 +1,131 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#05/03/2026#}
+{# Descripción: Formulario para crear un nuevo usuario administrador del sistema.
+   Incluye validación de contraseñas y selección de rol. #}
 <!DOCTYPE html>
-<html lang="es">
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Nuevo Usuario</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
-<body>
+<body class="min-h-screen">
+
     {% include 'header.html' %}
 
-    <div class="card mt-12" role="main">
+    <main class="page-container">
 
-        <h2>Nuevo Usuario</h2>
+        <div class="card-ui form-card">
 
-        <!-- Mensajes flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
-
-            <label>Nombre de usuario</label>
-            <div class="input-box">
-                <input type="text" name="nombre_usuario" placeholder="Nombre de usuario" required>
+            <!-- Header -->
+            <div class="form-header">
+                <div class="icon-circle">
+                    <i data-lucide="user-plus" class="icon"></i>
+                </div>
+                <h2>Nuevo Administrador</h2>
             </div>
 
-            <label>Nombre completo</label>
-            <div class="input-box">
-                <input type="text" name="nombre_completo" placeholder="Nombre completo" required>
-            </div>
+            <!-- Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="{{ 'flash-ok' if category == 'success' else 'flash-err' }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-            <label>Correo electrónico</label>
-            <div class="input-box">
-                <input type="email" name="email" placeholder="correo@ejemplo.com" required>
-            </div>
+            <!-- Form -->
+            <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
 
-            <label>Rol</label>
-            <div class="input-box">
-                <select name="rol" required>
-                    <option value="">Seleccione un rol</option>
-                    <option value="Presidente">Presidente</option>
-                    <option value="Secretaria">Secretaria</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Delegado">Delegado</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label>Nombre de usuario *</label>
+                    <input type="text" name="nombre_usuario" required placeholder="usuario123">
+                </div>
 
-            <label>Contraseña</label>
-            <div class="input-box">
-                <input id="password" type="password" name="password" placeholder="Contraseña" required>
-                <div class="eye" onclick="togglePass('password')"></div>
-            </div>
+                <div class="form-group">
+                    <label>Nombre completo *</label>
+                    <input type="text" name="nombre_completo" required
+                        placeholder="Apellido Paterno Apellido Materno Nombre(s)">
+                </div>
 
-            <label>Confirmar contraseña</label>
-            <div class="input-box">
-                <input id="password2" type="password" placeholder="Confirmar contraseña" required>
-                <div class="eye" onclick="togglePass('password2')"></div>
-            </div>
+                <div class="form-group">
+                    <label>Correo electrónico *</label>
+                    <input type="email" name="email" required placeholder="correo@ejemplo.com">
+                </div>
 
-            <p id="error-pass" style="color:#fca5a5; display:none; font-size:13px; margin-top:-10px;">
-                Las contraseñas no coinciden
-            </p>
+                <div class="form-group">
+                    <label>Rol *</label>
+                    <select name="rol" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="Presidente">Presidente</option>
+                        <option value="Secretaria">Secretaria</option>
+                        <option value="Secretaria">Administrador</option>
+                        <option value="Secretaria">Delegado</option>
+                    </select>
+                </div>
 
-            <div class="btn-wrap">
-                <button type="submit">Registrar Usuario</button>
-            </div>
+                <div class="form-group password-group">
+                    <label>Contraseña *</label>
+                    <input id="password" type="password" name="password" required
+                        placeholder="Mínimo 8 caracteres">
 
-        </form>
+                    <button type="button" onclick="togglePass('password')" class="eye-btn">
+                        <i data-lucide="eye" id="ico-password"></i>
+                    </button>
+                </div>
 
-    </div>
+                <div class="form-group password-group">
+                    <label>Confirmar contraseña *</label>
+                    <input id="password2" type="password" required
+                        placeholder="Repite la contraseña">
 
+                    <button type="button" onclick="togglePass('password2')" class="eye-btn">
+                        <i data-lucide="eye" id="ico-password2"></i>
+                    </button>
+
+                    <p id="error-pass" class="err-msg">Las contraseñas no coinciden.</p>
+                </div>
+
+                <button type="submit" class="btn-submit">Registrar Usuario</button>
+
+            </form>
+        </div>
+    </main>
 
     <script>
+        lucide.createIcons();
+
         function togglePass(id) {
-            const p = document.getElementById(id);
-            p.type = (p.type === 'password') ? 'text' : 'password';
+            const input = document.getElementById(id);
+            const ico   = document.getElementById('ico-' + id);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                ico.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                ico.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
         }
 
         function validarForm() {
-            const p1 = document.getElementById('password').value;
-            const p2 = document.getElementById('password2').value;
-            const error = document.getElementById('error-pass');
+            const p1  = document.getElementById('password').value;
+            const p2  = document.getElementById('password2').value;
+            const err = document.getElementById('error-pass');
+
             if (p1 !== p2) {
-                error.style.display = 'block';
+                err.style.display = 'block';
                 return false;
             }
-            error.style.display = 'none';
+
+            err.style.display = 'none';
             return true;
         }
     </script>
-</body>
 
+</body>
 </html>

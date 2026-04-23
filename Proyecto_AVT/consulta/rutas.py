@@ -1,3 +1,6 @@
+# Adriana Nicole Guzman Ahuatzi
+#01/04/2026
+# Rutas para consultas generales: registros, afiliados, ligas, pagos, tutores
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from extensiones import mysql
 
@@ -65,11 +68,11 @@ def consultarRegistro():
         cur.execute(f"""
             SELECT {pk} AS id, tipo_tabla,
                    apellido_paterno, apellido_materno, nombres,
-                   curp, categoria, fecha_registro, '{tipo}' AS tipo
+                   curp, NULL AS categoria, NULL AS fecha_registro, '{tipo}' AS tipo
             FROM (
                 SELECT {pk}, '{tipo}' AS tipo_tabla,
                        apellido_paterno, apellido_materno, nombres,
-                       curp, categoria, fecha_registro
+                       curp
                 FROM {tabla}
                 {where}
             ) sub
@@ -106,78 +109,52 @@ def consultarRegistro():
 def consultarAfiliado():
     nombre = request.args.get('nombre', '').strip()
     curp   = request.args.get('curp',   '').strip()
-    rol    = request.args.get('rol',    '').strip()
 
     cur = mysql.connection.cursor()
-    condiciones_extra = []
-    valores           = []
+    condiciones = []
+    valores     = []
 
     if nombre:
-        condiciones_extra.append("""
-            CONCAT(p.apellido_paterno,' ',p.apellido_materno,' ',p.nombres) LIKE %s
+        condiciones.append("""
+            CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s
         """)
         valores.append(f'%{nombre}%')
     if curp:
-        condiciones_extra.append("p.curp LIKE %s")
+        condiciones.append("j.curp LIKE %s")
         valores.append(f'%{curp}%')
 
-    where_extra = f"AND {' AND '.join(condiciones_extra)}" if condiciones_extra else ""
+    where = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
 
-    resultados = []
-    tablas = {
-        'jugador':    ('jugador',    'id_jugador'),
-        'entrenador': ('entrenador', 'id_entrenador'),
-        'arbitro':    ('arbitro',    'id_arbitro'),
-    }
-    tipos_buscar = [rol] if rol in tablas else list(tablas.keys())
+    cur.execute(f"""
+        SELECT j.id_jugador AS id,
+               j.apellido_paterno, j.apellido_materno, j.nombres,
+               j.curp, NULL AS categoria, NULL AS fecha_registro,
+               e.id_expediente, e.estatus,
+               'jugador' AS tipo
+        FROM jugador j
+        JOIN expediente e ON e.id_jugador = j.id_jugador
+        WHERE e.estatus = 'activo'
+        {'AND ' + ' AND '.join(condiciones) if condiciones else ''}
+    """, valores)
+    resultados = cur.fetchall()
 
-    for tipo in tipos_buscar:
-        tabla, pk = tablas[tipo]
-        cur.execute(f"""
-            SELECT p.{pk} AS id,
-                   p.apellido_paterno, p.apellido_materno, p.nombres,
-                   p.curp, p.categoria, p.fecha_registro,
-                   e.id_expediente, e.estatus,
-                   '{tipo}' AS tipo
-            FROM {tabla} p
-            JOIN expediente e ON e.{pk} = p.{pk}
-            WHERE e.estatus = 'activo'
-            {where_extra}
-        """, valores)
-        resultados += cur.fetchall()
-
-    # Contadores de activos
     cur.execute("""
         SELECT COUNT(*) AS total FROM jugador j
         JOIN expediente e ON e.id_jugador = j.id_jugador
         WHERE e.estatus = 'activo'
     """)
     activos_j = cur.fetchone()['total']
-
-    cur.execute("""
-        SELECT COUNT(*) AS total FROM entrenador en
-        JOIN expediente e ON e.id_entrenador = en.id_entrenador
-        WHERE e.estatus = 'activo'
-    """)
-    activos_e = cur.fetchone()['total']
-
-    cur.execute("""
-        SELECT COUNT(*) AS total FROM arbitro a
-        JOIN expediente e ON e.id_arbitro = a.id_arbitro
-        WHERE e.estatus = 'activo'
-    """)
-    activos_a = cur.fetchone()['total']
     cur.close()
 
     return render_template(
         "consulta/consultarAfiliado.html",
         resultados=resultados,
         activos_jugadores=activos_j,
-        activos_entrenadores=activos_e,
-        activos_arbitros=activos_a,
+        activos_entrenadores=0,
+        activos_arbitros=0,
         filtro_nombre=nombre,
         filtro_curp=curp,
-        filtro_rol=rol
+        filtro_rol=''
     )
 
 
@@ -189,40 +166,31 @@ def consultarAfiliado():
 @login_requerido
 def consultarLigas():
     nombre = request.args.get('nombre', '').strip()
-    estado = request.args.get('estado', '').strip()
 
     cur = mysql.connection.cursor()
-
     condiciones = []
     valores     = []
     if nombre:
         condiciones.append("l.nombre_liga LIKE %s")
         valores.append(f'%{nombre}%')
-    if estado:
-        condiciones.append("l.estado = %s")
-        valores.append(estado)
 
     where = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
 
     cur.execute(f"""
         SELECT l.id_liga, l.nombre_liga, l.categoria,
-               l.estado, l.fecha_inicio,
                COUNT(DISTINCT e.id_equipo) AS total_equipos,
-               COUNT(DISTINCT j.id_jugador) AS total_jugadores
+               COUNT(DISTINCT jl.id_jugador) AS total_jugadores
         FROM liga l
-        LEFT JOIN equipo e ON e.id_liga = l.id_liga
-        LEFT JOIN jugador j ON j.id_equipo = e.id_equipo
+        LEFT JOIN equipo e  ON e.id_liga  = l.id_liga
+        LEFT JOIN jugador_liga jl ON jl.id_liga = l.id_liga
         {where}
         GROUP BY l.id_liga
         ORDER BY l.nombre_liga
     """, valores)
     ligas = cur.fetchall()
 
-    # Contadores
-    cur.execute("SELECT COUNT(*) AS t FROM liga WHERE estado='activo'")
-    activas = cur.fetchone()['t']
-    cur.execute("SELECT COUNT(*) AS t FROM liga WHERE estado='inactivo'")
-    inactivas = cur.fetchone()['t']
+    cur.execute("SELECT COUNT(*) AS t FROM liga")
+    total_ligas = cur.fetchone()['t']
     cur.execute("SELECT COUNT(*) AS t FROM equipo")
     total_equipos = cur.fetchone()['t']
     cur.execute("SELECT COUNT(*) AS t FROM jugador")
@@ -232,33 +200,26 @@ def consultarLigas():
     return render_template(
         "consulta/consultarLigas.html",
         ligas=ligas,
-        activas=activas,
-        inactivas=inactivas,
+        total_ligas=total_ligas,
         total_equipos=total_equipos,
         total_jugadores=total_jugadores,
-        filtro_nombre=nombre,
-        filtro_estado=estado
+        filtro_nombre=nombre
     )
 
 
 @consulta.route("/ligas/toggle/<int:id_liga>", methods=["POST"])
 @login_requerido
 def toggleEstadoLiga(id_liga):
+    # Liga no tiene columna estado en la BD actual — solo confirmar que existe
     cur = mysql.connection.cursor()
     try:
-        cur.execute("SELECT estado FROM liga WHERE id_liga = %s", (id_liga,))
-        liga = cur.fetchone()
-        if not liga:
+        cur.execute("SELECT id_liga FROM liga WHERE id_liga = %s", (id_liga,))
+        if not cur.fetchone():
             cur.close()
             return jsonify({'ok': False, 'mensaje': 'Liga no encontrada'}), 404
-
-        nuevo = 'inactivo' if liga['estado'] == 'activo' else 'activo'
-        cur.execute("UPDATE liga SET estado = %s WHERE id_liga = %s", (nuevo, id_liga))
-        mysql.connection.commit()
         cur.close()
-        return jsonify({'ok': True, 'nuevo_estado': nuevo})
+        return jsonify({'ok': True, 'mensaje': 'Operación no disponible en esta versión'})
     except Exception as e:
-        mysql.connection.rollback()
         cur.close()
         return jsonify({'ok': False, 'mensaje': str(e)}), 500
 
@@ -276,17 +237,12 @@ def consultarPagos():
     fecha_hasta = request.args.get('fecha_hasta', '').strip()
 
     cur = mysql.connection.cursor()
-
     condiciones = []
     valores     = []
 
     if nombre:
         condiciones.append("""
-            COALESCE(
-                CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres),
-                CONCAT(e.apellido_paterno,' ',e.apellido_materno,' ',e.nombres),
-                CONCAT(a.apellido_paterno,' ',a.apellido_materno,' ',a.nombres)
-            ) LIKE %s
+            CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s
         """)
         valores.append(f'%{nombre}%')
     if estatus:
@@ -303,25 +259,17 @@ def consultarPagos():
 
     cur.execute(f"""
         SELECT p.id_pago, p.fecha_pago, p.estatus,
-               p.metodo_pago, p.referencia, p.tipo_persona,
-               COALESCE(
-                   CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres),
-                   CONCAT(e.apellido_paterno,' ',e.apellido_materno,' ',e.nombres),
-                   CONCAT(a.apellido_paterno,' ',a.apellido_materno,' ',a.nombres)
-               ) AS nombre_persona,
-               COALESCE(j.numero_registro,
-                        e.numero_registro,
-                        a.numero_registro) AS numero_registro
+               p.metodo_pago, p.referencia,
+               CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) AS nombre_persona,
+               a.numero_registro
         FROM pago p
-        LEFT JOIN jugador    j ON j.id_jugador    = p.id_jugador
-        LEFT JOIN entrenador e ON e.id_entrenador = p.id_entrenador
-        LEFT JOIN arbitro    a ON a.id_arbitro    = p.id_arbitro
+        JOIN afiliacion a ON a.id_afiliacion = p.id_afiliacion
+        JOIN jugador j    ON j.id_jugador    = a.id_jugador
         {where}
         ORDER BY p.fecha_pago DESC
     """, valores)
     pagos = cur.fetchall()
 
-    # Contadores
     cur.execute("SELECT COUNT(*) AS t FROM pago WHERE estatus='Completado'")
     completados = cur.fetchone()['t']
     cur.execute("SELECT COUNT(*) AS t FROM pago WHERE estatus='Pendiente'")

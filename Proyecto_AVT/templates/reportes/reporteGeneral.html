@@ -1,84 +1,71 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#18/04/2026#}
+{# Descripción: Menú principal de reportes. Muestra resumen del sistema y accesos a
+   reportes de ingresos, inscripciones y estadísticas generales. #}
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generar reporte</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    {%include 'header.html'%}   
-    <!-- Contenido principal -->
+<body class="min-h-screen">
+    {% include 'header.html' %}
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Grid de opciones de reportes -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <!-- Reporte de Ingresos -->
-            <a href= "{{ url_for('reportes.reporteIngresos') }}"class="card cursor-pointer">
+
+        <!-- Resumen rápido -->
+        <div class="card p-8 mb-10">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">Resumen del Sistema</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center p-6 bg-blue-50 rounded-xl">
+                    <div class="text-3xl font-bold text-blue-600 mb-1">{{ total_jugadores }}</div>
+                    <div class="text-sm text-blue-700">Jugadores Registrados</div>
+                </div>
+                <div class="text-center p-6 bg-green-50 rounded-xl">
+                    <div class="text-3xl font-bold text-green-600 mb-1">{{ pagos_completados }}</div>
+                    <div class="text-sm text-green-700">Pagos Completados</div>
+                </div>
+                <div class="text-center p-6 bg-purple-50 rounded-xl">
+                    <div class="text-3xl font-bold text-purple-600 mb-1">{{ total_ligas }}</div>
+                    <div class="text-sm text-purple-700">Ligas Activas</div>
+                </div>
+                <div class="text-center p-6 bg-orange-50 rounded-xl">
+                    <div class="text-3xl font-bold text-orange-600 mb-1">{{ total_equipos }}</div>
+                    <div class="text-sm text-orange-700">Equipos Registrados</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opciones de reportes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <a href="{{ url_for('reportes.reporteIngresos') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-black mb-2">Reporte de Ingresos</h3>
-                    <p class="text-white">Análisis financiero y ingresos por liga</p>
+                    <p class="text-white text-sm">Pagos, afiliaciones y estado financiero</p>
                 </div>
             </a>
-
-            <!-- Reporte de Inscripción -->
             <a href="{{ url_for('reportes.reporteInscripcion') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="user-plus" class="w-8 h-8 text-blue-600"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-black mb-2">Reporte de Inscripción</h3>
-                    <p class="text-white">Estadísticas de jugadores afiliados</p>
+                    <p class="text-white text-sm">Jugadores registrados y expedientes</p>
                 </div>
             </a>
-
-            <!-- Reporte del Sistema -->
             <a href="{{ url_for('reportes.reporteSistema') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="bar-chart-3" class="w-8 h-8 text-purple-600"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-black mb-2">Reporte del Sistema</h3>
-                    <p class="text-white">Resumen general y estadísticas</p>
+                    <p class="text-white text-sm">Estadísticas generales y actividad</p>
                 </div>
             </a>
         </div>
-
-        <!-- Resumen rápido -->
-        <div class="card p-8 mt-12">
-            <h3 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Resumen Rápido</h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="text-center p-6 bg-green-50 rounded-lg">
-                    <div class="text-3xl font-bold text-green-600 mb-2">$0</div>
-                    <div class="text-sm text-green-700">Ingresos del Mes</div>
-                </div>
-                
-                <div class="text-center p-6 bg-blue-50 rounded-lg">
-                    <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
-                    <div class="text-sm text-blue-700">Jugadores Activos</div>
-                </div>
-                
-                <div class="text-center p-6 bg-purple-50 rounded-lg">
-                    <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
-                    <div class="text-sm text-purple-700">Ligas Activas</div>
-                </div>
-                
-                <div class="text-center p-6 bg-orange-50 rounded-lg">
-                    <div class="text-3xl font-bold text-orange-600 mb-2">0</div>
-                    <div class="text-sm text-orange-700">Equipos Registrados</div>
-                </div>
-            </div>
-        </div>
     </main>
-
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

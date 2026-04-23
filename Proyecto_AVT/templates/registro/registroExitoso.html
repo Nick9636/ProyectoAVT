@@ -1,0 +1,49 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#15/04/2026#}
+{# Descripción: Página de confirmación mostrada al usuario externo tras enviar su
+   registro correctamente. Indica que la solicitud está pendiente de revisión. #}
+<!DOCTYPE html>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registroExterno.css') }}">
+</head>
+<body>
+
+    <div class="ext-main-sm">
+        <div class="ext-card" style="text-align: center;">
+
+            <div class="ext-logos">
+                <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="Logo AVT">
+                <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="Logo FMVB">
+            </div>
+
+            <!-- Ícono de éxito -->
+            <div style="width:72px; height:72px; background:#dcfce7; border-radius:50%;
+                        display:flex; align-items:center; justify-content:center;
+                        margin: 0 auto 20px;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+                     stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+
+            <h2 class="ext-title" style="color: #15803d;">¡Registro Enviado!</h2>
+            <p style="font-size:14px; color:#6b7280; margin-bottom: 8px;">
+                Tu información ha sido recibida correctamente.
+            </p>
+            <p style="font-size:14px; color:#6b7280; margin-bottom: 32px;">
+                El equipo de AVT revisará tu solicitud y te notificará pronto.
+            </p>
+
+            <a href="{{ url_for('auth.iniciarSesion') }}" class="btn-vino-ext" style="display:inline-block;">
+                Volver al Inicio de Sesión
+            </a>
+
+            <div class="byteers-footer">
+                <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers">
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

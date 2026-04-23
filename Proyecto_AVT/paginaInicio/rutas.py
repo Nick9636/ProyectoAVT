@@ -1,5 +1,8 @@
+# Adriana Nicole Guzman Ahuatzi
+#01/04/2026
+# Rutas para la página de inicio: notificaciones, digitalización de documentos, expediente SIRED
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from extensiones import mysql
+from extensiones import mysql, notificar
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
@@ -34,7 +37,7 @@ def notificaciones():
 
     if fecha_filtro:
         cur.execute("""
-            SELECT id_notificacion, titulo, mensaje, fecha, leida
+            SELECT id_notificacion, mensaje, fecha, leida
             FROM notificacion
             WHERE id_usuario = %s
               AND DATE(fecha) = %s
@@ -42,7 +45,7 @@ def notificaciones():
         """, (session['id_usuario'], fecha_filtro))
     else:
         cur.execute("""
-            SELECT id_notificacion, titulo, mensaje, fecha, leida
+            SELECT id_notificacion, mensaje, fecha, leida
             FROM notificacion
             WHERE id_usuario = %s
             ORDER BY fecha DESC
@@ -54,7 +57,6 @@ def notificaciones():
     notifs = [
         {
             'id':      f['id_notificacion'],
-            'titulo':  f['titulo'],
             'mensaje': f['mensaje'],
             'leida':   bool(f['leida']),
             'fecha':   f['fecha'].strftime('%d/%m/%Y %H:%M') if f['fecha'] else ''
@@ -173,6 +175,9 @@ def subir_documento():
     """, (id_persona, nombre_seguro, ruta, tipo))
     mysql.connection.commit()
     nuevo_id = cur.lastrowid
+    notificar(cur, session['id_usuario'],
+              f"Documento '{nombre_seguro}' ({tipo}) digitalizado para {nombre_persona}.")
+    mysql.connection.commit()
     cur.close()
 
     return jsonify({
@@ -204,9 +209,9 @@ def eliminar_documento(id_doc):
     if os.path.exists(fila['ruta']):
         os.remove(fila['ruta'])
 
-    cur.execute("""
-        DELETE FROM formato_digital WHERE id_formato = %s
-    """, (id_doc,))
+    cur.execute("DELETE FROM formato_digital WHERE id_formato = %s", (id_doc,))
+    mysql.connection.commit()
+    notificar(cur, session['id_usuario'], f"Documento #{id_doc} eliminado del sistema.")
     mysql.connection.commit()
     cur.close()
     return jsonify({'ok': True})

@@ -1,14 +1,13 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#11/03/2026#}
+{# Descripción: Consulta de personas registradas (jugadores, entrenadores, árbitros).
+   Permite filtrar por nombre, CURP y tipo de persona. #}
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultar Registro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="gradient-bg min-h-screen">
+<body class="min-h-screen">
     {% include 'header.html' %}
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
