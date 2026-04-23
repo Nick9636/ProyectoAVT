@@ -198,7 +198,13 @@ def registroPago():
 
     cur.execute("""
         SELECT p.id_pago, p.fecha_pago, p.estatus,
-               p.metodo_pago, p.referencia, p.tipo_persona,
+               p.metodo_pago, p.referencia,
+               CASE
+                   WHEN j.id_jugador    IS NOT NULL THEN 'jugador'
+                   WHEN e.id_entrenador IS NOT NULL THEN 'entrenador'
+                   WHEN a.id_arbitro    IS NOT NULL THEN 'arbitro'
+                   ELSE '—'
+               END AS tipo_persona,
                COALESCE(
                    CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres),
                    CONCAT(e.apellido_paterno,' ',e.apellido_materno,' ',e.nombres),
