@@ -1,13 +1,41 @@
 {# Autor: Adriana Nicole Guzman Ahuatzi #}
-{#05/03/2026#}
+{#15/04/2026#}
 {# Descripción: Página de inicio de sesión del sistema AVT. Permite autenticarse con
-   usuario y contraseña, y acceder al formulario de registro externo SIRED. #}
+usuario y contraseña, y acceder al formulario de registro externo SIRED. #}
 <!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesión</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css', v=1) }}">
+    <style>
+        /* Mensaje de error de autenticación */
+        .flash-error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flash-error::before {
+            content: "✕";
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 
 <body>
 
+    <!-- Panel izquierdo con logos -->
     <div class="left">
         <div class="logo-container">
             <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers Logo" class="byteers">
@@ -15,23 +43,40 @@
         </div>
     </div>
 
+    <!-- Panel derecho con el formulario -->
     <div class="right">
         <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers Logo" class="avt-mobile">
+
         <div class="login-card">
+            <!-- Logos visibles en móvil -->
             <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="FMVB Logo" class="fmvv">
             <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" class="avt-mobile">
             <div class="card-logos-mobile">
                 <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="AVT Logo" class="avt-mobile">
                 <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="FMVB Logo" class="fmvv">
             </div>
+
             <h1>¡Bienvenido de nuevo!</h1>
+
+            <!-- Mensajes de error flash (usuario/contraseña incorrectos) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            {% if category == 'error' %}
+            <div class="flash-error">{{ message }}</div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Formulario de inicio de sesión -->
             <form method="POST" action="{{ url_for('auth.iniciarSesion') }}">
                 <input type="text" name="nombreUsuario" placeholder="Nombre de usuario" required>
                 <input type="password" name="password" placeholder="Contraseña" required>
                 <button type="submit">Iniciar sesión</button>
-
             </form>
-           
+
+            <!-- Enlace al registro externo SIRED -->
             <div class="forgot">
                 <a href="{{ url_for('auth.accesoExterno') }}">Llenado de formato SIRED</a>
             </div>

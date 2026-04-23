@@ -3,19 +3,28 @@
 {# Descripción: Menú principal del módulo de consultas. Muestra accesos directos a
    consulta de registros, ligas, afiliados, pagos y tutores. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body class="bg-gray-50 min-h-screen">
-    {%include 'header.html'%}
+
+    {% include 'header.html' %}
+
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        <!-- Grid de opciones de consulta -->
+
+        <!-- Tarjetas de acceso a cada sección de consulta -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <!-- Consultar Registro -->
-            <a href="{{ url_for('consulta.consultarRegistro') }}" class="card cursor-pointer hover:scale-105 transition-transform">
+
+            <!-- Buscar personas registradas en el sistema -->
+            <a href="{{ url_for('consulta.consultarRegistro') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="search" class="w-8 h-8 text-red-700"></i>
@@ -25,8 +34,9 @@
                 </div>
             </a>
 
-            <!-- Consultar Ligas -->
-            <a href="{{ url_for('consulta.consultarLigas') }}" class="card cursor-pointer hover:scale-105 transition-transform">
+            <!-- Ver información de ligas y equipos -->
+            <a href="{{ url_for('consulta.consultarLigas') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="trophy" class="w-8 h-8 text-red-700"></i>
@@ -36,8 +46,9 @@
                 </div>
             </a>
 
-            <!-- Consultar Afiliado -->
-            <a href="{{ url_for('consulta.consultarAfiliado') }}" class="card cursor-pointer hover:scale-105 transition-transform">
+            <!-- Ver detalles de afiliados y expedientes -->
+            <a href="{{ url_for('consulta.consultarAfiliado') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="user-check" class="w-8 h-8 text-red-700"></i>
@@ -47,8 +58,9 @@
                 </div>
             </a>
 
-            <!-- Consultar Pagos -->
-            <a href="{{ url_for('consulta.consultarPagos') }}" class="card cursor-pointer hover:scale-105 transition-transform">
+            <!-- Revisar estado de pagos e inscripciones -->
+            <a href="{{ url_for('consulta.consultarPagos') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="credit-card" class="w-8 h-8 text-red-700"></i>
@@ -58,8 +70,9 @@
                 </div>
             </a>
 
-            <!-- Consultar Tutor -->
-            <a href="{{ url_for('consulta.consultarTutor') }}" class="card cursor-pointer hover:scale-105 transition-transform">
+            <!-- Ver información de tutores registrados -->
+            <a href="{{ url_for('consulta.consultarTutor') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="users" class="w-8 h-8 text-red-700"></i>
@@ -68,11 +81,14 @@
                     <p class="text-white">Ver información de tutores registrados</p>
                 </div>
             </a>
+
         </div>
     </main>
 
     <script>
+        /* Inicializa los íconos de Lucide */
         lucide.createIcons();
     </script>
+
 </body>
 </html>

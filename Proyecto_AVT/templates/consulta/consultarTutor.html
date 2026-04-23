@@ -3,6 +3,11 @@
 {# Descripción: Consulta de tutores registrados. Muestra datos del tutor y los menores
    asociados, con filtros por nombre, nombre del menor y teléfono. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Tutores</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -11,6 +16,7 @@
     {% include 'header.html' %}
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        <!-- Filtros de búsqueda por nombre del tutor, menor y teléfono -->
         <form method="GET" action="{{ url_for('consulta.consultarTutor') }}">
         <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Tutor</h2>
@@ -50,7 +56,7 @@
         </div>
         </form>
 
-        <!-- Contadores -->
+        <!-- Contadores: tutores registrados, menores con/sin tutor -->
         <div class="grid grid-cols-3 gap-4 mb-6">
             <div class="bg-white rounded-xl shadow-md p-4 text-center">
                 <div class="text-2xl font-bold text-blue-600">{{ total_tutores }}</div>
@@ -66,7 +72,7 @@
             </div>
         </div>
 
-        <!-- Lista de tutores -->
+        <!-- Lista de tutores con sus menores asociados -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b flex items-center justify-between">
                 <h3 class="text-xl font-semibold text-gray-900">Tutores Registrados</h3>

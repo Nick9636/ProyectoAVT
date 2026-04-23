@@ -16,12 +16,12 @@ bcrypt.init_app(app)
 mail.init_app(app)
 
 # IMPORTAR TODOS LOS BLUEPRINTS
-from auth.rutas import auth
-from autorizar.rutas import autorizar
-from consulta.rutas import consulta
-from registro.rutas import registro
-from reportes.rutas import reportes
-from paginaInicio.rutas import principal
+from auth.auth import auth
+from autorizar.autorizar import autorizar
+from consulta.consulta import consulta
+from registro.registro import registro
+from reportes.reportes import reportes
+from paginaInicio.paginaInicio import principal
 
 # REGISTRAR BLUEPRINTS
 app.register_blueprint(auth)

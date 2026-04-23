@@ -3,19 +3,26 @@
 {# Descripción: Menú principal del módulo de registro. Muestra accesos a registro de
    personas, ligas, equipos, pagos y autorización de solicitudes. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-
 <body class="bg-gray-50 min-h-screen">
+
     {% include 'header.html' %}
 
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
+        <!-- Tarjetas de acceso a cada tipo de registro -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
+            <!-- Registro de personas: jugadores, árbitros, entrenadores -->
             <a href="{{ url_for('registro.registroPersona') }}"
                class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
@@ -27,6 +34,7 @@
                 </div>
             </a>
 
+            <!-- Registro y gestión de ligas deportivas -->
             <a href="{{ url_for('registro.registroLiga') }}"
                class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
@@ -38,6 +46,7 @@
                 </div>
             </a>
 
+            <!-- Registro de equipos y asignación a ligas -->
             <a href="{{ url_for('registro.registroEquipo') }}"
                class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
@@ -49,6 +58,7 @@
                 </div>
             </a>
 
+            <!-- Gestión de pagos de inscripciones -->
             <a href="{{ url_for('registro.registroPago') }}"
                class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
@@ -60,6 +70,7 @@
                 </div>
             </a>
 
+            <!-- Autorización de solicitudes pendientes -->
             <a href="{{ url_for('autorizar.autorizarRegistro') }}"
                class="card cursor-pointer hover:scale-105 transition-transform">
                 <div class="p-6 text-center">
@@ -75,7 +86,9 @@
     </main>
 
     <script>
+        /* Inicializa los íconos de Lucide */
         lucide.createIcons();
     </script>
+
 </body>
 </html>

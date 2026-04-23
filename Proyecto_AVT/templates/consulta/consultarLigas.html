@@ -3,6 +3,11 @@
 {# Descripción: Consulta de ligas registradas. Muestra nombre, categoría, estado,
    equipos y jugadores por liga, con opción de cambiar estado. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Ligas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -11,6 +16,7 @@
     {% include 'header.html' %}
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        <!-- Formulario de búsqueda por nombre y estado -->
         <form method="GET" action="{{ url_for('consulta.consultarLigas') }}">
         <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Ligas</h2>
@@ -45,7 +51,7 @@
         </div>
         </form>
 
-        <!-- Contadores -->
+        <!-- Contadores generales de ligas, equipos y jugadores -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white rounded-xl shadow-md p-4 text-center">
                 <div class="text-2xl font-bold text-green-600">{{ activas }}</div>
@@ -65,7 +71,7 @@
             </div>
         </div>
 
-        <!-- Tabla -->
+        <!-- Tabla de ligas con opción de cambiar estado -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b">
                 <h3 class="text-xl font-semibold text-gray-900">Ligas Registradas</h3>
@@ -136,6 +142,7 @@
     <script>
         lucide.createIcons();
 
+        // Cambia el estado de una liga (activo/inactivo) y actualiza el badge visualmente
         function toggleEstado(id) {
             if (!confirm('¿Cambiar el estado de esta liga?')) return;
             fetch(`/consulta/ligas/toggle/${id}`, { method: 'POST' })
@@ -144,10 +151,10 @@
                     if (!data.ok) { alert(data.mensaje); return; }
                     const badge = document.getElementById(`badge-${id}`);
                     if (data.nuevo_estado === 'activo') {
-                        badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700';
+                        badge.className  = 'text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700';
                         badge.textContent = 'Activo';
                     } else {
-                        badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700';
+                        badge.className  = 'text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700';
                         badge.textContent = 'Inactivo';
                     }
                 });

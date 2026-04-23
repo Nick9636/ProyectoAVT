@@ -3,29 +3,32 @@
 {# Descripción: Plantilla base del sistema. Define la estructura HTML común (head, header, main)
    que heredan todas las páginas internas mediante bloques Jinja2. #}
 <!DOCTYPE html>
-
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarioContraseña.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
-
 <body>
 
     {% include 'header.html' %}
-    
+
+    <!-- Contenido principal de cada página -->
     <main class="pt-20">
         {% block content %}
         {% endblock %}
     </main>
 
     <script>
+        /* Inicializa los íconos de Lucide en toda la página */
         lucide.createIcons();
     </script>
 
 </body>
-
 </html>

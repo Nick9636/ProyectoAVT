@@ -3,6 +3,11 @@
 {# Descripción: Formulario de registro de pagos. Permite buscar una persona, capturar
    fecha, método y referencia del pago, y actualizar el estatus de pagos existentes. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Pago</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -12,7 +17,7 @@
 
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
-        <!-- Formulario -->
+        <!-- Formulario para registrar un nuevo pago -->
         <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
             <h2 class="text-xl font-semibold text-white mb-6">Registrar Pago</h2>
 
@@ -123,7 +128,7 @@
         <!-- Alertas -->
         <div id="alertas" class="mb-6"></div>
 
-        <!-- Lista de pagos -->
+        <!-- Lista de pagos registrados con selector de estatus -->
         <div class="bg-red-800 rounded-xl shadow-md p-8">
             <h2 class="text-xl font-semibold text-white mb-6">
                 Pagos Registrados
@@ -189,7 +194,7 @@
     <script>
         lucide.createIcons();
 
-        // ── Buscar persona ────────────────────────
+        // Busca una persona por nombre o número de registro para asociarla al pago
         function buscarPersonaPago() {
             const termino = document.getElementById('buscarPago').value.trim();
             if (!termino) return;
@@ -205,11 +210,12 @@
                         lucide.createIcons();
                         return;
                     }
+                    // Tomar el primer resultado y mostrar sus datos
                     const p = data.resultados[0];
-                    document.getElementById('idPersonaPago').value          = p.id_persona;
-                    document.getElementById('tipoPersonaPagoHidden').value  = p.tipo;
+                    document.getElementById('idPersonaPago').value           = p.id_persona;
+                    document.getElementById('tipoPersonaPagoHidden').value   = p.tipo;
                     document.getElementById('nombrePersonaPago').textContent = p.nombre;
-                    document.getElementById('tipoPersonaPago').textContent  =
+                    document.getElementById('tipoPersonaPago').textContent   =
                         p.tipo.charAt(0).toUpperCase() + p.tipo.slice(1) +
                         ' — Reg: ' + p.numero_registro;
                     document.getElementById('personaPagoSeleccionada').classList.remove('hidden');
@@ -217,25 +223,27 @@
                 });
         }
 
+        // Permite buscar presionando Enter en el campo de búsqueda
         document.getElementById('buscarPago').addEventListener('keydown', e => {
             if (e.key === 'Enter') buscarPersonaPago();
         });
 
+        // Limpia la persona seleccionada del formulario
         function limpiarPersonaPago() {
-            document.getElementById('idPersonaPago').value          = '';
-            document.getElementById('tipoPersonaPagoHidden').value  = '';
-            document.getElementById('buscarPago').value             = '';
+            document.getElementById('idPersonaPago').value         = '';
+            document.getElementById('tipoPersonaPagoHidden').value = '';
+            document.getElementById('buscarPago').value            = '';
             document.getElementById('personaPagoSeleccionada').classList.add('hidden');
         }
 
-        // ── Guardar pago ──────────────────────────
+        // Envía el formulario para registrar un nuevo pago
         function guardarPago() {
             const idPersona   = document.getElementById('idPersonaPago').value;
             const tipoPersona = document.getElementById('tipoPersonaPagoHidden').value;
             const fecha       = document.getElementById('fechaPago').value;
 
             if (!idPersona || !fecha) {
-                mostrarAlerta('error','Campos requeridos',
+                mostrarAlerta('error', 'Campos requeridos',
                     'Selecciona una persona y una fecha de pago.');
                 return;
             }
@@ -248,40 +256,47 @@
             form.append('metodo_pago',  document.getElementById('metodoPago').value);
             form.append('referencia',   document.getElementById('referenciaPago').value);
 
-            fetch("{{ url_for('registro.guardarPago') }}", { method:'POST', body:form })
+            fetch("{{ url_for('registro.guardarPago') }}", { method: 'POST', body: form })
                 .then(r => r.json())
                 .then(data => {
                     if (data.ok) {
-                        mostrarAlerta('success','Pago registrado', data.mensaje);
+                        mostrarAlerta('success', 'Pago registrado', data.mensaje);
                         limpiarPersonaPago();
                         document.getElementById('fechaPago').value      = '';
                         document.getElementById('referenciaPago').value = '';
+                        // Recargar para mostrar el nuevo pago en la lista
                         setTimeout(() => location.reload(), 1500);
                     } else {
-                        mostrarAlerta('error','Error', data.mensaje);
+                        mostrarAlerta('error', 'Error', data.mensaje);
                     }
                 });
         }
 
-        // ── Actualizar estatus ────────────────────
+        // Actualiza el estatus de un pago existente desde el selector de la lista
         function actualizarPago(id, estatus) {
             const form = new FormData();
             form.append('estatus', estatus);
-            fetch(`/registro/pago/actualizar/${id}`, { method:'POST', body:form })
+            fetch(`/registro/pago/actualizar/${id}`, { method: 'POST', body: form })
                 .then(r => r.json())
                 .then(data => {
-                    if (!data.ok) mostrarAlerta('error','Error', data.mensaje);
+                    if (!data.ok) mostrarAlerta('error', 'Error', data.mensaje);
                 });
         }
 
+        // Muestra una alerta temporal de éxito o error
         function mostrarAlerta(tipo, titulo, mensaje) {
-            const estilos = { success:'bg-green-50 border-green-200 text-green-800',
-                              error:'bg-red-50 border-red-200 text-red-800' };
-            const iconos  = { success:'check-circle', error:'x-circle' };
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
             document.getElementById('alertas').innerHTML = `
                 <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
                     <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
-                    <div><p class="font-medium">${titulo}</p><p class="text-sm">${mensaje}</p></div>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
                 </div>`;
             lucide.createIcons();
             setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);

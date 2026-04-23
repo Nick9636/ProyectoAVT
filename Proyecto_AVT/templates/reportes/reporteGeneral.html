@@ -3,16 +3,23 @@
 {# Descripción: Menú principal de reportes. Muestra resumen del sistema y accesos a
    reportes de ingresos, inscripciones y estadísticas generales. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes — AVT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body class="min-h-screen">
+
     {% include 'header.html' %}
+
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-        <!-- Resumen rápido -->
+        <!-- Resumen con contadores globales del sistema -->
         <div class="card p-8 mb-10">
             <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">Resumen del Sistema</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -35,8 +42,10 @@
             </div>
         </div>
 
-        <!-- Opciones de reportes -->
+        <!-- Tarjetas de acceso a cada tipo de reporte -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <!-- Reporte de ingresos y pagos -->
             <a href="{{ url_for('reportes.reporteIngresos') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -46,6 +55,8 @@
                     <p class="text-white text-sm">Pagos, afiliaciones y estado financiero</p>
                 </div>
             </a>
+
+            <!-- Reporte de inscripciones y expedientes -->
             <a href="{{ url_for('reportes.reporteInscripcion') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -55,6 +66,8 @@
                     <p class="text-white text-sm">Jugadores registrados y expedientes</p>
                 </div>
             </a>
+
+            <!-- Reporte estadístico general del sistema -->
             <a href="{{ url_for('reportes.reporteSistema') }}" class="card cursor-pointer">
                 <div class="p-8 text-center">
                     <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -64,8 +77,14 @@
                     <p class="text-white text-sm">Estadísticas generales y actividad</p>
                 </div>
             </a>
+
         </div>
     </main>
-    <script>lucide.createIcons();</script>
+
+    <script>
+        /* Inicializa los íconos de Lucide */
+        lucide.createIcons();
+    </script>
+
 </body>
 </html>

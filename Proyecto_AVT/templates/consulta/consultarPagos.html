@@ -3,6 +3,11 @@
 {# Descripción: Consulta del historial de pagos. Permite filtrar por nombre, estatus
    y rango de fechas, mostrando método, referencia y estado de cada pago. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Pagos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -11,6 +16,7 @@
     {% include 'header.html' %}
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        <!-- Filtros de búsqueda: nombre, estatus y rango de fechas -->
         <form method="GET" action="{{ url_for('consulta.consultarPagos') }}">
         <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Filtros de Búsqueda</h2>
@@ -55,7 +61,7 @@
         </div>
         </form>
 
-        <!-- Contadores -->
+        <!-- Contadores de pagos por estatus -->
         <div class="grid grid-cols-3 gap-4 mb-6">
             <div class="bg-white rounded-xl shadow-md p-4 text-center">
                 <div class="text-2xl font-bold text-green-600">{{ completados }}</div>
@@ -71,7 +77,7 @@
             </div>
         </div>
 
-        <!-- Tabla -->
+        <!-- Tabla de historial de pagos -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b flex items-center justify-between">
                 <h3 class="text-xl font-semibold text-gray-900">Historial de Pagos</h3>

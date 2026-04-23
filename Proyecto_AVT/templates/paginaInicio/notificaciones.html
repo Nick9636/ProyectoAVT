@@ -3,6 +3,11 @@
 {# Descripción: Vista de notificaciones del usuario. Permite filtrar por fecha, marcar
    como leídas individualmente o todas a la vez. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +19,7 @@
 
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
-        <!-- Controles superiores -->
+        <!-- Barra superior: filtro por fecha y botón marcar todas como leídas -->
         <div class="bg-red-800 rounded-xl shadow-md p-6 mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
 
@@ -160,7 +165,7 @@
     <script>
         lucide.createIcons();
 
-        // Filtro por fecha — recarga la página con el parámetro
+        // Recarga la página con el filtro de fecha seleccionado
         document.getElementById('filtroFecha').addEventListener('change', function () {
             const fecha = this.value;
             if (fecha) {
@@ -168,11 +173,12 @@
             }
         });
 
+        // Elimina el filtro de fecha y muestra todas las notificaciones
         function limpiarFiltro() {
             window.location.href = "{{ url_for('principal.notificaciones') }}";
         }
 
-        // Marcar una notificación como leída
+        // Marca una notificación individual como leída y actualiza su apariencia
         function marcarLeida(id) {
             fetch(`/notificaciones/marcar/${id}`, { method: 'POST' })
                 .then(r => r.json())
@@ -181,11 +187,11 @@
                     const el = document.getElementById(`notif-${id}`);
                     if (!el) return;
 
-                    // Cambiar estilos a "leída"
+                    // Cambiar estilos visuales a "leída"
                     el.classList.remove('card', 'border-red-500', 'notif-unread');
                     el.classList.add('bg-gray-100', 'border-gray-300');
 
-                    // Cambiar ícono
+                    // Cambiar ícono de campana a check
                     const icono = el.querySelector('[data-lucide="bell"]');
                     if (icono) {
                         icono.setAttribute('data-lucide', 'check');
@@ -198,25 +204,25 @@
                         circulo.classList.add('bg-gray-200');
                     }
 
-                    // Cambiar badge
+                    // Actualizar badge de estado
                     const badge = el.querySelector('.badge-unread');
                     if (badge) { badge.className = 'badge-read'; badge.textContent = 'Leída'; }
 
-                    // Cambiar título y mensaje
+                    // Cambiar color del título y mensaje
                     const titulo = el.querySelector('h3');
                     if (titulo) { titulo.classList.remove('text-gray-900'); titulo.classList.add('text-gray-600'); }
 
                     const msg = el.querySelector('p.text-sm');
                     if (msg) { msg.classList.remove('text-gray-600'); msg.classList.add('text-gray-400'); }
 
-                    // Quitar botón
+                    // Quitar el botón "Marcar como leída"
                     el.querySelector('button[onclick^="marcarLeida"]')?.remove();
 
                     lucide.createIcons();
                 });
         }
 
-        // Marcar todas como leídas
+        // Marca todas las notificaciones no leídas como leídas
         function marcarTodasLeidas() {
             fetch("{{ url_for('principal.marcar_todas_leidas') }}", { method: 'POST' })
                 .then(r => r.json())

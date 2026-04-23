@@ -3,6 +3,11 @@
 {# Descripción: Formulario de registro de ligas deportivas. Permite crear nuevas ligas
    con nombre y categoría, y eliminar las existentes. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Liga</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -12,7 +17,7 @@
 
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
-        <!-- Formulario -->
+        <!-- Formulario para registrar una nueva liga -->
         <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
             <h2 class="text-xl font-semibold text-white mb-6">Registrar Liga</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -52,7 +57,7 @@
         <!-- Alertas -->
         <div id="alertas" class="mb-6"></div>
 
-        <!-- Lista de ligas -->
+        <!-- Lista de ligas existentes con opción de eliminar -->
         <div class="bg-red-800 rounded-xl shadow-md p-8">
             <h2 class="text-xl font-semibold text-white mb-6">
                 Ligas Registradas
@@ -99,29 +104,35 @@
     <script>
         lucide.createIcons();
 
+        // Envía el formulario para guardar una nueva liga
         function guardarLiga() {
             const nombre    = document.getElementById('nombreLiga').value.trim();
             const categoria = document.getElementById('categoriaLiga').value;
-            if (!nombre) { mostrarAlerta('error','Campo requerido','Ingresa el nombre de la liga.'); return; }
+            if (!nombre) {
+                mostrarAlerta('error', 'Campo requerido', 'Ingresa el nombre de la liga.');
+                return;
+            }
 
             const form = new FormData();
             form.append('nombre_liga', nombre);
             form.append('categoria',   categoria);
 
-            fetch("{{ url_for('registro.guardarLiga') }}", { method:'POST', body:form })
+            fetch("{{ url_for('registro.guardarLiga') }}", { method: 'POST', body: form })
                 .then(r => r.json())
                 .then(data => {
                     if (data.ok) {
-                        mostrarAlerta('success','Liga registrada', data.mensaje);
+                        mostrarAlerta('success', 'Liga registrada', data.mensaje);
                         agregarLigaALista(data);
+                        // Limpiar campos del formulario
                         document.getElementById('nombreLiga').value    = '';
                         document.getElementById('categoriaLiga').value = '';
                     } else {
-                        mostrarAlerta('error','Error', data.mensaje);
+                        mostrarAlerta('error', 'Error', data.mensaje);
                     }
                 });
         }
 
+        // Inserta la nueva liga al inicio de la lista sin recargar la página
         function agregarLigaALista(data) {
             document.getElementById('vaciLigas')?.remove();
             document.getElementById('listaLigas').insertAdjacentHTML('afterbegin', `
@@ -144,24 +155,31 @@
             lucide.createIcons();
         }
 
+        // Elimina una liga tras confirmación del usuario
         function eliminarLiga(id) {
             if (!confirm('¿Eliminar esta liga? Se eliminarán también sus equipos.')) return;
-            fetch(`/registro/liga/eliminar/${id}`, { method:'POST' })
+            fetch(`/registro/liga/eliminar/${id}`, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
                     if (data.ok) document.getElementById(`liga-${id}`)?.remove();
-                    else mostrarAlerta('error','Error', data.mensaje);
+                    else mostrarAlerta('error', 'Error', data.mensaje);
                 });
         }
 
+        // Muestra una alerta temporal de éxito o error
         function mostrarAlerta(tipo, titulo, mensaje) {
-            const estilos = { success:'bg-green-50 border-green-200 text-green-800',
-                              error:'bg-red-50 border-red-200 text-red-800' };
-            const iconos  = { success:'check-circle', error:'x-circle' };
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
             document.getElementById('alertas').innerHTML = `
                 <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
                     <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
-                    <div><p class="font-medium">${titulo}</p><p class="text-sm">${mensaje}</p></div>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
                 </div>`;
             lucide.createIcons();
             setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);

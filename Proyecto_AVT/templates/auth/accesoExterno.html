@@ -14,9 +14,11 @@
 </head>
 <body>
 
+    <!-- Tarjeta central de acceso externo -->
     <div class="ext-main-sm">
         <div class="ext-card">
 
+            <!-- Logos institucionales -->
             <div class="ext-logos">
                 <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="Logo AVT">
                 <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="Logo FMVB">
@@ -25,6 +27,7 @@
             <h2 class="ext-title">Registro Externo</h2>
             <p class="ext-subtitle">Ingresa tu nombre y correo para continuar con el formulario de registro.</p>
 
+            <!-- Mensajes flash de error o éxito -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -35,6 +38,7 @@
                 {% endif %}
             {% endwith %}
 
+            <!-- Formulario: nombre y correo para pre-llenar el registro -->
             <form method="POST" action="{{ url_for('auth.accesoExterno') }}">
 
                 <div style="margin-bottom: 16px;">
@@ -57,11 +61,13 @@
 
             </form>
 
+            <!-- Enlace para administradores -->
             <p class="ext-footer-text" style="margin-top: 20px;">
                 ¿Eres administrador?
                 <a href="{{ url_for('auth.iniciarSesion') }}" class="ext-link">Iniciar sesión</a>
             </p>
 
+            <!-- Logo Byteers al pie -->
             <div class="byteers-footer">
                 <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers">
             </div>

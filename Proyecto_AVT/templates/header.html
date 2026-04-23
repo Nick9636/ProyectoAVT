@@ -4,11 +4,12 @@
    menú de usuario con cierre de sesión y panel lateral responsive para móviles. #}
 <style>
     :root {
-    --vino: #7A0C0C;       /* rojo vino principal */
-    --vino-hover: #5C0808; /* más oscuro para hover */
-    --vino-claro: #FDECEC; /* fondo suave */
-}
-    /* NAV limpio y moderno */
+        --vino:       #7A0C0C; /* rojo vino principal */
+        --vino-hover: #5C0808; /* más oscuro para hover */
+        --vino-claro: #FDECEC; /* fondo suave */
+    }
+
+    /* Navegación limpia con línea animada en hover */
     .nav-clean {
         display: flex;
         align-items: center;
@@ -19,13 +20,13 @@
         position: relative;
         font-size: 14px;
         font-weight: 500;
-        color: rgba(255,255,255,0.8);
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
         padding: 4px 2px;
         transition: color 0.25s ease;
     }
 
-    /* Línea animada */
+    /* Línea animada debajo del enlace activo */
     .nav-clean a::after {
         content: "";
         position: absolute;
@@ -38,15 +39,10 @@
         border-radius: 2px;
     }
 
-    .nav-clean a:hover {
-        color: #ffffff;
-    }
+    .nav-clean a:hover { color: #ffffff; }
+    .nav-clean a:hover::after { width: 100%; }
 
-    .nav-clean a:hover::after {
-        width: 100%;
-    }
-
-    /*panel lateral*/
+    /* Overlay oscuro detrás del panel lateral */
     .side-overlay {
         display: none;
         position: fixed;
@@ -61,6 +57,7 @@
         background: rgba(0, 0, 0, 0.4);
     }
 
+    /* Panel lateral deslizable desde la derecha */
     .side-panel {
         position: fixed;
         top: 0;
@@ -76,9 +73,7 @@
         box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
     }
 
-    .side-panel.open {
-        transform: translateX(0);
-    }
+    .side-panel.open { transform: translateX(0); }
 
     .side-panel-header {
         height: 64px;
@@ -111,9 +106,7 @@
         transition: background 0.2s;
     }
 
-    .side-close-btn:hover {
-        background: rgba(255, 255, 255, 0.35);
-    }
+    .side-close-btn:hover { background: rgba(255, 255, 255, 0.35); }
 
     .side-user-section {
         display: flex;
@@ -133,10 +126,7 @@
         justify-content: center;
     }
 
-    .side-nav-links {
-        flex: 1;
-        padding: 8px 0;
-    }
+    .side-nav-links { flex: 1; padding: 8px 0; }
 
     .side-nav-link {
         display: flex;
@@ -144,14 +134,14 @@
         gap: 12px;
         padding: 13px 20px;
         font-size: 14px;
-        color: rgba(255,255,255,0.85);
+        color: rgba(255, 255, 255, 0.85);
         text-decoration: none;
         border-left: 3px solid transparent;
         transition: all 0.18s;
     }
 
     .side-nav-link:hover {
-        background: rgba(255,255,255,0.08);
+        background: rgba(255, 255, 255, 0.08);
         color: #ffffff;
         border-left-color: #ffffff;
     }
@@ -159,7 +149,7 @@
     .side-nav-icon {
         width: 32px;
         height: 32px;
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         display: flex;
         align-items: center;
@@ -168,16 +158,14 @@
         transition: background 0.18s;
     }
 
-    .side-nav-link:hover .side-nav-icon {
-        background: rgba(255,255,255,0.2);
-    }
+    .side-nav-link:hover .side-nav-icon { background: rgba(255, 255, 255, 0.2); }
 
     .side-panel-footer {
         padding: 16px 20px;
         border-top: 1px solid #F3F4F6;
     }
 
-    /* Animación del botón hamburguesa → X */
+    /* Barras del botón hamburguesa */
     .hamburger-bar {
         display: block;
         width: 22px;
@@ -187,67 +175,60 @@
     }
 </style>
 
+<!-- Barra de navegación fija en la parte superior -->
 <header class="shadow-md fixed w-full top-0 z-50" style="background: var(--vino);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-2">
+
+            <!-- Logo AVT -->
             <div class="rounded-lg flex items-center justify-center">
-                <img class="w-12 h-12 object-contain" src="{{ url_for('static', filename='img/logoAVT_vector.png') }}"
-                    alt="Logo AVT">
+                <img class="w-12 h-12 object-contain"
+                     src="{{ url_for('static', filename='img/logoAVT_vector.png') }}"
+                     alt="Logo AVT">
             </div>
 
+            <!-- Navegación principal (oculta en móvil) -->
             <nav class="hidden md:flex">
                 <div class="nav-clean">
                     <a href="{{ url_for('principal.paginaInicio') }}"
-                        class="text-white/80 hover:text-white transition-colors">
-                        Home
-                    </a>
+                       class="text-white/80 hover:text-white transition-colors">Home</a>
                     <a href="{{ url_for('registro.registroGeneral') }}"
-                        class="text-white/80 hover:text-white transition-colors">
-                        Registro
-                    </a>
+                       class="text-white/80 hover:text-white transition-colors">Registro</a>
                     <a href="{{ url_for('consulta.consultaGeneral') }}"
-                        class="text-white/80 hover:text-white transition-colors">
-                        Consultar
-                    </a>
+                       class="text-white/80 hover:text-white transition-colors">Consultar</a>
                     <a href="{{ url_for('reportes.reporteGeneral') }}"
-                        class="text-white/80 hover:text-white transition-colors">
-                        Reportes
-                    </a>
+                       class="text-white/80 hover:text-white transition-colors">Reportes</a>
                 </div>
             </nav>
 
-            <!-- Usuario + botón hamburguesa -->
+            <!-- Menú de usuario y botón hamburguesa -->
             <div class="flex items-center space-x-3">
+
+                <!-- Dropdown de usuario (solo escritorio) -->
                 <div class="relative hidden md:flex" id="userMenuContainer">
-
-                    <!-- Botón usuario -->
                     <button onclick="toggleUserMenu()" class="flex items-center space-x-2 focus:outline-none">
-
                         <div class="usuario text-white hidden sm:block">
                             Hola, {{ session['nombre_usuario'] }}
                         </div>
-
                         <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
                             <i data-lucide="user" class="w-5 h-5 text-white"></i>
                         </div>
-
                     </button>
 
-                    <!-- Dropdown -->
+                    <!-- Menú desplegable con opción de cerrar sesión -->
                     <div id="userDropdown"
-                        class="absolute right-0 mt-3 w-48 bg-red-900 rounded-xl shadow-lg border border-gray-100 hidden overflow-hidden">
-
+                         class="absolute right-0 mt-3 w-48 bg-red-900 rounded-xl shadow-lg
+                                border border-gray-100 hidden overflow-hidden">
                         <a href="{{ url_for('auth.cerrarSesion') }}"
-                            class="flex items-center gap-2 px-4 py-3 text-sm text-white hover:bg-white/10 transition">
+                           class="flex items-center gap-2 px-4 py-3 text-sm text-white
+                                  hover:bg-white/10 transition">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                             Cerrar sesión
                         </a>
-
                     </div>
-
                 </div>
 
-                <!-- Botón hamburguesa animado -->
+                <!-- Botón hamburguesa (solo móvil) -->
                 <button id="hamBtn" onclick="toggleSidePanel()" class="md:hidden flex flex-col gap-1.5 p-1">
                     <span class="hamburger-bar"></span>
                     <span class="hamburger-bar"></span>
@@ -259,10 +240,10 @@
     </div>
 </header>
 
-<!-- Overlay oscuro -->
+<!-- Overlay oscuro al abrir el panel lateral -->
 <div class="side-overlay" id="sideOverlay" onclick="closeSidePanel()"></div>
 
-<!-- Panel lateral -->
+<!-- Panel lateral para navegación en móvil -->
 <div class="side-panel" id="sidePanel">
 
     <div class="side-panel-header">
@@ -270,6 +251,7 @@
         <button class="side-close-btn" onclick="closeSidePanel()">✕</button>
     </div>
 
+    <!-- Saludo al usuario en el panel lateral -->
     <div class="side-user-section">
         <div class="side-avatar">
             <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
@@ -279,6 +261,7 @@
         </div>
     </div>
 
+    <!-- Enlaces de navegación del panel lateral -->
     <div class="side-nav-links">
         <a href="{{ url_for('principal.paginaInicio') }}" class="side-nav-link">
             <div class="side-nav-icon">
@@ -306,8 +289,10 @@
         </a>
     </div>
 
+    <!-- Botón de cerrar sesión al pie del panel -->
     <div class="side-panel-footer">
-        <a href="{{ url_for('auth.cerrarSesion') }}" class="side-nav-link" style="color:#B91C1C; border-radius:8px; background:#FEF2F2;">
+        <a href="{{ url_for('auth.cerrarSesion') }}" class="side-nav-link"
+           style="color:#B91C1C; border-radius:8px; background:#FEF2F2;">
             <div class="side-nav-icon" style="background:#FEE2E2;">
                 <i data-lucide="log-out" class="w-4 h-4 text-red-700"></i>
             </div>
@@ -317,36 +302,44 @@
 </div>
 
 <script>
-    // ── Panel lateral ───────────────────────────────────────
+    /* ── Panel lateral ─────────────────────────────────── */
+
+    // Alterna el estado del panel lateral
     function toggleSidePanel() {
         const open = document.getElementById('sidePanel').classList.contains('open');
         open ? closeSidePanel() : openSidePanel();
     }
+
+    // Abre el panel lateral y muestra el overlay
     function openSidePanel() {
         document.getElementById('sidePanel').classList.add('open');
         document.getElementById('sideOverlay').classList.add('visible');
         document.getElementById('hamBtn').classList.add('ham-open');
     }
+
+    // Cierra el panel lateral y oculta el overlay
     function closeSidePanel() {
         document.getElementById('sidePanel').classList.remove('open');
         document.getElementById('sideOverlay').classList.remove('visible');
         document.getElementById('hamBtn').classList.remove('ham-open');
     }
 
-    // ── Lucide icons ─────────────────────────────────────────
+    /* ── Íconos Lucide ─────────────────────────────────── */
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
+    /* ── Dropdown de usuario ───────────────────────────── */
+
+    // Muestra u oculta el menú desplegable del usuario
     function toggleUserMenu() {
-    const menu = document.getElementById("userDropdown");
-    menu.classList.toggle("hidden");
-}
-
-// cerrar al hacer click fuera
-document.addEventListener("click", function (e) {
-    const container = document.getElementById("userMenuContainer");
-
-    if (!container.contains(e.target)) {
-        document.getElementById("userDropdown").classList.add("hidden");
+        const menu = document.getElementById('userDropdown');
+        menu.classList.toggle('hidden');
     }
-});
+
+    // Cierra el dropdown al hacer clic fuera de él
+    document.addEventListener('click', function (e) {
+        const container = document.getElementById('userMenuContainer');
+        if (!container.contains(e.target)) {
+            document.getElementById('userDropdown').classList.add('hidden');
+        }
+    });
 </script>

@@ -1,8 +1,13 @@
 {# Autor: Adriana Nicole Guzman Ahuatzi #}
-{#15/04/2026#}
+{#06/04/2026#}
 {# Descripción: Formulario de registro externo SIRED para usuarios sin cuenta. Permite
    capturar datos completos de jugadores, árbitros o entrenadores para su autorización. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/registroExterno.css') }}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -18,7 +23,7 @@
 
     <main class="ext-main">
 
-        <!-- Alerta resultado -->
+        <!-- Alerta de resultado (éxito o error al enviar el formulario) -->
         <div id="alertaResultado" style="display:none;"></div>
 
         <div class="ext-card">
@@ -33,7 +38,7 @@
 
             <form id="formExterno" onsubmit="enviarFormulario(event)">
 
-                <!-- Tipo de Persona -->
+                <!-- Selector de tipo de persona a registrar -->
                 <div style="margin-bottom: 8px;">
                     <label class="ext-label" style="margin-bottom:12px; display:block;">Tipo de Registro *</label>
                     <div class="tipo-grid">
@@ -55,7 +60,7 @@
                     </div>
                 </div>
 
-                <!-- DATOS PERSONALES -->
+                <!-- Sección de datos personales -->
                 <div class="form-section form-section-red">
                     <h3 class="form-section-title red">Datos Personales</h3>
 
@@ -158,7 +163,7 @@
                     </div>
                 </div>
 
-                <!-- DOMICILIO -->
+                <!-- Sección de domicilio -->
                 <div class="form-section form-section-blue">
                     <h3 class="form-section-title blue">Domicilio</h3>
 
@@ -200,7 +205,7 @@
                     </div>
                 </div>
 
-                <!-- INFORMACIÓN DEPORTIVA -->
+                <!-- Sección de información deportiva -->
                 <div class="form-section form-section-green">
                     <h3 class="form-section-title green">Información Deportiva</h3>
 
@@ -253,7 +258,7 @@
                     </div>
                 </div>
 
-                <!-- ÁRBITRO -->
+                <!-- Campos adicionales visibles solo si el tipo es árbitro -->
                 <div id="camposArbitro" class="form-section form-section-purple hidden-section">
                     <h3 class="form-section-title purple">Datos de Árbitro</h3>
                     <div class="grid-2">
@@ -268,7 +273,7 @@
                     </div>
                 </div>
 
-                <!-- ENTRENADOR -->
+                <!-- Campos adicionales visibles solo si el tipo es entrenador -->
                 <div id="camposEntrenador" class="form-section form-section-teal hidden-section">
                     <h3 class="form-section-title teal">Datos de Entrenador</h3>
                     <div class="grid-2">
@@ -283,7 +288,7 @@
                     </div>
                 </div>
 
-                <!-- PADRE O TUTOR -->
+                <!-- Datos del tutor (requerido si el registrado es menor de edad) -->
                 <div class="form-section form-section-yellow">
                     <h3 class="form-section-title yellow">
                         Padre o Tutor
@@ -305,14 +310,14 @@
                     </div>
                 </div>
 
-                <!-- FOTOGRAFÍA -->
+                <!-- Carga de fotografía tipo credencial -->
                 <div class="form-section form-section-gray">
                     <h3 class="form-section-title gray">Fotografía</h3>
                     <input type="file" id="fotoPersona" accept=".png,.jpg,.jpeg" class="ext-input" style="padding: 8px;">
                     <p style="font-size:12px; color:#6b7280; margin-top:6px;">Formato: PNG o JPG. Tamaño recomendado: foto tipo credencial.</p>
                 </div>
 
-                <!-- BOTONES -->
+                <!-- Botones de cancelar y enviar -->
                 <div class="btn-row">
                     <a href="{{ url_for('auth.accesoExterno') }}" class="btn-gray-ext">Cancelar</a>
                     <button type="submit" id="btnEnviar" class="btn-vino-ext">Enviar Registro</button>
@@ -325,11 +330,13 @@
     <script>
         lucide.createIcons();
 
+        // Muestra u oculta los campos específicos según el tipo de persona seleccionado
         function cambiarTipo(valor) {
             document.getElementById('camposArbitro').style.display    = valor === 'arbitro'    ? 'block' : 'none';
             document.getElementById('camposEntrenador').style.display = valor === 'entrenador' ? 'block' : 'none';
         }
 
+        // Recopila todos los campos del formulario y los envía al servidor
         function enviarFormulario(event) {
             event.preventDefault();
 
@@ -339,10 +346,12 @@
             const formData = new FormData();
             formData.append('tipo_persona', tipoRadio.value);
 
+            // Agregar años de vigencia seleccionados
             document.querySelectorAll('input[name="vigencia"]:checked').forEach(cb => {
                 formData.append('vigencia', cb.value);
             });
 
+            // Mapa de IDs de campos HTML a nombres de columnas en la BD
             const campos = {
                 'apellidoPaterno':      'apellido_paterno',
                 'apellidoMaterno':      'apellido_materno',
@@ -381,40 +390,42 @@
                 'emailPadre':           'email_padre',
             };
 
+            // Agregar cada campo al FormData
             Object.entries(campos).forEach(([htmlId, bdName]) => {
                 const el = document.getElementById(htmlId);
                 if (el) formData.append(bdName, el.value);
             });
 
+            // Agregar fotografía si fue seleccionada
             const foto = document.getElementById('fotoPersona');
             if (foto && foto.files[0]) formData.append('fotoPersona', foto.files[0]);
 
+            // Deshabilitar botón mientras se procesa
             const btn = document.getElementById('btnEnviar');
-            btn.disabled = true;
+            btn.disabled    = true;
             btn.textContent = 'Enviando...';
 
-            fetch("{{ url_for('auth.guardarRegistroExterno') }}", {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                const alerta = document.getElementById('alertaResultado');
-                if (data.ok) {
-                    window.location.href = "{{ url_for('auth.registroExitoso') }}";
-                } else {
-                    alerta.className = 'alerta-err';
-                    alerta.innerHTML = '<strong>Error:</strong> ' + data.mensaje;
-                    alerta.style.display = 'block';
-                    btn.disabled = false;
+            fetch("{{ url_for('auth.guardarRegistroExterno') }}", { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    const alerta = document.getElementById('alertaResultado');
+                    if (data.ok) {
+                        // Redirigir a la página de registro exitoso
+                        window.location.href = "{{ url_for('auth.registroExitoso') }}";
+                    } else {
+                        // Mostrar mensaje de error
+                        alerta.className = 'alerta-err';
+                        alerta.innerHTML = '<strong>Error:</strong> ' + data.mensaje;
+                        alerta.style.display = 'block';
+                        btn.disabled    = false;
+                        btn.textContent = 'Enviar Registro';
+                    }
+                })
+                .catch(() => {
+                    alert('Error de conexión. Intenta de nuevo.');
+                    btn.disabled    = false;
                     btn.textContent = 'Enviar Registro';
-                }
-            })
-            .catch(() => {
-                alert('Error de conexión. Intenta de nuevo.');
-                btn.disabled = false;
-                btn.textContent = 'Enviar Registro';
-            });
+                });
         }
     </script>
 

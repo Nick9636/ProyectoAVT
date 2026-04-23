@@ -1,24 +1,25 @@
 {# Autor: Adriana Nicole Guzman Ahuatzi #}
-{#05/03/2026#}
+{#15/04/2026#}
 {# Descripción: Formulario para crear un nuevo usuario administrador del sistema.
    Incluye validación de contraseñas y selección de rol. #}
 <!DOCTYPE html>
-
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Usuario</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-
 <body class="min-h-screen">
 
     {% include 'header.html' %}
 
     <main class="page-container">
-
         <div class="card-ui form-card">
 
-            <!-- Header -->
+            <!-- Ícono y título del formulario -->
             <div class="form-header">
                 <div class="icon-circle">
                     <i data-lucide="user-plus" class="icon"></i>
@@ -26,7 +27,7 @@
                 <h2>Nuevo Administrador</h2>
             </div>
 
-            <!-- Flash -->
+            <!-- Mensajes flash de éxito o error -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -37,7 +38,7 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- Form -->
+            <!-- Formulario de registro de usuario administrador -->
             <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
 
                 <div class="form-group">
@@ -56,36 +57,35 @@
                     <input type="email" name="email" required placeholder="correo@ejemplo.com">
                 </div>
 
+                <!-- Selector de rol del nuevo usuario -->
                 <div class="form-group">
                     <label>Rol *</label>
                     <select name="rol" required>
                         <option value="">Seleccione un rol</option>
                         <option value="Presidente">Presidente</option>
                         <option value="Secretaria">Secretaria</option>
-                        <option value="Secretaria">Administrador</option>
-                        <option value="Secretaria">Delegado</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Delegado">Delegado</option>
                     </select>
                 </div>
 
+                <!-- Campo contraseña con toggle de visibilidad -->
                 <div class="form-group password-group">
                     <label>Contraseña *</label>
                     <input id="password" type="password" name="password" required
                         placeholder="Mínimo 8 caracteres">
-
                     <button type="button" onclick="togglePass('password')" class="eye-btn">
                         <i data-lucide="eye" id="ico-password"></i>
                     </button>
                 </div>
 
+                <!-- Confirmación de contraseña -->
                 <div class="form-group password-group">
                     <label>Confirmar contraseña *</label>
-                    <input id="password2" type="password" required
-                        placeholder="Repite la contraseña">
-
+                    <input id="password2" type="password" required placeholder="Repite la contraseña">
                     <button type="button" onclick="togglePass('password2')" class="eye-btn">
                         <i data-lucide="eye" id="ico-password2"></i>
                     </button>
-
                     <p id="error-pass" class="err-msg">Las contraseñas no coinciden.</p>
                 </div>
 
@@ -98,6 +98,7 @@
     <script>
         lucide.createIcons();
 
+        // Alterna visibilidad del campo de contraseña
         function togglePass(id) {
             const input = document.getElementById(id);
             const ico   = document.getElementById('ico-' + id);
@@ -112,6 +113,7 @@
             lucide.createIcons();
         }
 
+        // Valida que ambas contraseñas coincidan antes de enviar
         function validarForm() {
             const p1  = document.getElementById('password').value;
             const p2  = document.getElementById('password2').value;

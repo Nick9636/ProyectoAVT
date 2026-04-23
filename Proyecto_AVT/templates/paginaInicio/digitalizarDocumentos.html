@@ -3,6 +3,11 @@
 {# Descripción: Módulo de digitalización de documentos. Permite buscar una persona,
    seleccionar el tipo de documento, subir archivos y gestionar los documentos almacenados. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitalizar Documentos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +18,7 @@
 
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
-        <!-- Subir documento -->
+        <!-- Formulario para buscar persona y subir documento -->
         <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
             <h2 class="text-xl font-semibold text-white mb-6">Subir Nuevo Documento</h2>
 
@@ -162,7 +167,7 @@
         <!-- Alertas -->
         <div id="alertas" class="space-y-4 mb-6"></div>
 
-        <!-- Lista de documentos -->
+        <!-- Lista de documentos almacenados en el sistema -->
         <div class="bg-red-800 rounded-xl shadow-md p-8">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-semibold text-white">Documentos Almacenados</h2>
@@ -228,24 +233,33 @@
         const dropZone  = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
+        // Resalta la zona al arrastrar un archivo sobre ella
         dropZone.addEventListener('dragover', e => {
             e.preventDefault();
             dropZone.classList.add('border-white');
         });
+
+        // Quita el resaltado al salir de la zona
         dropZone.addEventListener('dragleave', () => {
             dropZone.classList.remove('border-white');
         });
+
+        // Procesa el archivo soltado en la zona drag & drop
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.classList.remove('border-white');
             if (e.dataTransfer.files[0]) manejarArchivo(e.dataTransfer.files[0]);
         });
+
+        // Procesa el archivo seleccionado desde el explorador de archivos
         fileInput.addEventListener('change', e => {
             if (e.target.files[0]) manejarArchivo(e.target.files[0]);
         });
+
+        // Habilita/deshabilita el botón al cambiar el tipo de documento
         document.getElementById('tipoDocumento').addEventListener('change', actualizarBoton);
 
-        // ── Buscar persona ────────────────────────────
+        // Busca una persona por nombre o número de registro para asociarla al documento
         function buscarPersonaDocumento() {
             const termino = document.getElementById('buscarPersona').value.trim();
             if (!termino) return;
@@ -261,12 +275,12 @@
                         lucide.createIcons();
                         return;
                     }
-                    // Tomar el primer resultado
+                    // Tomar el primer resultado y mostrar sus datos
                     const p = data.resultados[0];
-                    document.getElementById('idPersona').value    = p.id_persona;
-                    document.getElementById('tipoPersona').value  = p.tipo;
+                    document.getElementById('idPersona').value   = p.id_persona;
+                    document.getElementById('tipoPersona').value = p.tipo;
                     document.getElementById('nombrePersonaSeleccionada').textContent = p.nombre;
-                    document.getElementById('tipoPersonaSeleccionada').textContent  =
+                    document.getElementById('tipoPersonaSeleccionada').textContent   =
                         p.tipo.charAt(0).toUpperCase() + p.tipo.slice(1) +
                         ' — Reg: ' + p.numero_registro;
                     document.getElementById('resultadoPersona').classList.remove('hidden');
@@ -279,22 +293,23 @@
                 });
         }
 
-        // Buscar con Enter
+        // Permite buscar presionando Enter en el campo de búsqueda
         document.getElementById('buscarPersona').addEventListener('keydown', e => {
             if (e.key === 'Enter') buscarPersonaDocumento();
         });
 
+        // Limpia la persona seleccionada del formulario
         function limpiarPersona() {
-            document.getElementById('idPersona').value   = '';
-            document.getElementById('tipoPersona').value = '';
+            document.getElementById('idPersona').value    = '';
+            document.getElementById('tipoPersona').value  = '';
             document.getElementById('buscarPersona').value = '';
             document.getElementById('resultadoPersona').classList.add('hidden');
             actualizarBoton();
         }
 
-        // ── Archivo ───────────────────────────────────
+        // Valida el archivo y lo muestra como seleccionado
         function manejarArchivo(archivo) {
-            const tipos = ['image/png','image/jpeg','image/jpg','application/pdf'];
+            const tipos = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
             if (!tipos.includes(archivo.type)) {
                 mostrarAlerta('error', 'Formato no válido', 'Solo PNG, JPG y PDF.');
                 return;
@@ -310,6 +325,7 @@
             actualizarBoton();
         }
 
+        // Elimina el archivo seleccionado del formulario
         function removerArchivo() {
             archivoSeleccionado = null;
             document.getElementById('archivoSeleccionado').classList.add('hidden');
@@ -317,21 +333,20 @@
             actualizarBoton();
         }
 
+        // Habilita el botón de subir solo si hay archivo, tipo y persona seleccionados
         function actualizarBoton() {
             const btn  = document.getElementById('btnSubir');
             const tipo = document.getElementById('tipoDocumento').value;
             const id   = document.getElementById('idPersona').value;
             const ok   = archivoSeleccionado && tipo && id;
             btn.disabled  = !ok;
-            btn.className = ok
-                ? 'btn-vino'
-                : 'btn-vino opacity-50 cursor-not-allowed';
+            btn.className = ok ? 'btn-vino' : 'btn-vino opacity-50 cursor-not-allowed';
         }
 
-        // ── Subir ─────────────────────────────────────
+        // Sube el documento al servidor con barra de progreso simulada
         function subirDocumento() {
-            const tipo      = document.getElementById('tipoDocumento').value;
-            const idPersona = document.getElementById('idPersona').value;
+            const tipo        = document.getElementById('tipoDocumento').value;
+            const idPersona   = document.getElementById('idPersona').value;
             const tipoPersona = document.getElementById('tipoPersona').value;
 
             if (!archivoSeleccionado || !tipo || !idPersona) return;
@@ -344,6 +359,8 @@
 
             document.getElementById('progreso').classList.remove('hidden');
             let p = 0;
+
+            // Simula el progreso de subida con un intervalo
             const iv = setInterval(() => {
                 p += Math.random() * 15;
                 if (p > 90) p = 90;
@@ -353,33 +370,32 @@
                 else document.getElementById('estadoProgreso').textContent = 'Guardando...';
             }, 200);
 
-            fetch("{{ url_for('principal.subir_documento') }}", {
-                method: 'POST', body: form
-            })
-            .then(r => r.json())
-            .then(data => {
-                clearInterval(iv);
-                document.getElementById('barraProgreso').style.width = '100%';
-                document.getElementById('porcentaje').textContent = '100%';
-                setTimeout(() => {
-                    document.getElementById('progreso').classList.add('hidden');
-                    if (data.ok) {
-                        mostrarAlerta('success', 'Documento subido', 'Guardado correctamente.');
-                        agregarDocumentoALista(data);
-                        document.getElementById('tipoDocumento').value = '';
-                        removerArchivo();
-                        limpiarPersona();
-                    } else {
-                        mostrarAlerta('error', 'Error', data.mensaje);
-                    }
-                }, 400);
-            })
-            .catch(() => {
-                clearInterval(iv);
-                mostrarAlerta('error', 'Error', 'No se pudo subir.');
-            });
+            fetch("{{ url_for('principal.subir_documento') }}", { method: 'POST', body: form })
+                .then(r => r.json())
+                .then(data => {
+                    clearInterval(iv);
+                    document.getElementById('barraProgreso').style.width = '100%';
+                    document.getElementById('porcentaje').textContent = '100%';
+                    setTimeout(() => {
+                        document.getElementById('progreso').classList.add('hidden');
+                        if (data.ok) {
+                            mostrarAlerta('success', 'Documento subido', 'Guardado correctamente.');
+                            agregarDocumentoALista(data);
+                            document.getElementById('tipoDocumento').value = '';
+                            removerArchivo();
+                            limpiarPersona();
+                        } else {
+                            mostrarAlerta('error', 'Error', data.mensaje);
+                        }
+                    }, 400);
+                })
+                .catch(() => {
+                    clearInterval(iv);
+                    mostrarAlerta('error', 'Error', 'No se pudo subir.');
+                });
         }
 
+        // Agrega el documento recién subido al inicio de la lista sin recargar
         function agregarDocumentoALista(data) {
             const esPdf = data.nombre.endsWith('.pdf');
             const html = `
@@ -415,6 +431,7 @@
             lucide.createIcons();
         }
 
+        // Elimina un documento del sistema tras confirmación
         function eliminarDocumento(id) {
             if (!confirm('¿Eliminar este documento?')) return;
             fetch(`/digitalizarDocumentos/eliminar/${id}`, { method: 'POST' })
@@ -425,6 +442,7 @@
                 });
         }
 
+        // Muestra una alerta temporal de éxito, error o advertencia
         function mostrarAlerta(tipo, titulo, mensaje) {
             const estilos = {
                 success: 'bg-green-50 border-green-200 text-green-800',
@@ -448,6 +466,7 @@
             setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
         }
 
+        // Convierte bytes a una unidad legible (KB, MB, etc.)
         function formatearTamano(bytes) {
             if (!bytes) return '0 Bytes';
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];

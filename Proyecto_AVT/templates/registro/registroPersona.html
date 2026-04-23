@@ -3,6 +3,11 @@
 {# Descripción: Formulario completo de registro de personas (jugadores, árbitros, entrenadores).
    Captura datos personales, domicilio, información deportiva, tutor y fotografía. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Persona</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -25,7 +30,7 @@
 
             <form id="formPersona" onsubmit="guardarPersona(event)">
 
-                <!-- TIPO -->
+                <!-- Selector de tipo: jugador, árbitro o entrenador -->
                 <div class="mb-6">
                     <label class="block text-gray-700 font-semibold mb-3">Tipo de Registro *</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -47,7 +52,7 @@
                     </div>
                 </div>
 
-                <!-- DATOS PERSONALES -->
+                <!-- Sección de datos personales generales -->
                 <div class="bg-red-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-red-800 mb-4">Datos Personales</h3>
 
@@ -166,7 +171,7 @@
                     </div>
                 </div>
 
-                <!-- DOMICILIO -->
+                <!-- Sección de domicilio -->
                 <div class="bg-blue-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-blue-800 mb-4">Domicilio</h3>
 
@@ -221,7 +226,7 @@
                     </div>
                 </div>
 
-                <!-- INFORMACIÓN DEPORTIVA -->
+                <!-- Sección de información deportiva: club, equipo, categoría -->
                 <div class="bg-green-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-green-800 mb-4">Información Deportiva</h3>
 
@@ -279,7 +284,7 @@
                     </div>
                 </div>
 
-                <!-- ÁRBITRO -->
+                <!-- Campos adicionales visibles solo si el tipo es árbitro -->
                 <div id="camposArbitro" class="hidden bg-purple-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-purple-800 mb-4">Datos de Árbitro</h3>
                     <div class="grid grid-cols-2 gap-4">
@@ -296,7 +301,7 @@
                     </div>
                 </div>
 
-                <!-- ENTRENADOR -->
+                <!-- Campos adicionales visibles solo si el tipo es entrenador -->
                 <div id="camposEntrenador" class="hidden bg-teal-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-teal-800 mb-4">Datos de Entrenador</h3>
                     <div class="grid grid-cols-2 gap-4">
@@ -313,7 +318,7 @@
                     </div>
                 </div>
 
-                <!-- PADRE O TUTOR -->
+                <!-- Datos del tutor o padre (obligatorio si es menor de edad) -->
                 <div class="bg-yellow-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-yellow-800 mb-4">
                         Padre o Tutor
@@ -338,7 +343,7 @@
                     </div>
                 </div>
 
-                <!-- FOTOGRAFÍA -->
+                <!-- Carga de fotografía tipo credencial -->
                 <div class="bg-gray-50 p-6 rounded-lg mb-6">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">Fotografía</h3>
                     <input type="file" id="fotoPersona" accept=".png,.jpg,.jpeg"
@@ -346,7 +351,7 @@
                     <p class="text-sm text-gray-500 mt-1">Formato: PNG o JPG. Tamaño recomendado: foto tipo credencial.</p>
                 </div>
 
-                <!-- BOTONES -->
+                <!-- Botón de envío del formulario -->
                 <div class="flex gap-4 justify-end">
                     <button type="submit" id="btnGuardar"
                         class="bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-8 rounded-lg shadow transition-colors">
@@ -361,11 +366,13 @@
     <script>
         lucide.createIcons();
 
+        // Muestra u oculta los campos específicos según el tipo de persona seleccionado
         function cambiarTipo(valor) {
             document.getElementById('camposArbitro').classList.toggle('hidden', valor !== 'arbitro');
             document.getElementById('camposEntrenador').classList.toggle('hidden', valor !== 'entrenador');
         }
 
+        // Recopila todos los campos del formulario y los envía al servidor
         function guardarPersona(event) {
             event.preventDefault();
 
@@ -375,59 +382,64 @@
             const formData = new FormData();
             formData.append('tipo_persona', tipoRadio.value);
 
+            // Agregar años de vigencia seleccionados
             document.querySelectorAll('input[name="vigencia"]:checked').forEach(cb => {
                 formData.append('vigencia', cb.value);
             });
 
+            // Mapa de IDs de campos HTML a nombres de columnas en la BD
             const campos = {
-                'apellidoPaterno':       'apellido_paterno',
-                'apellidoMaterno':       'apellido_materno',
-                'nombres':               'nombres',
-                'numeroRegistro':        'numero_registro',
-                'curpPersona':           'curp',
-                'fechaNacimientoPersona':'fecha_nacimiento',
-                'lugarNacimiento':       'lugar_nacimiento',
-                'nacionalidad':          'nacionalidad',
-                'peso':                  'peso',
-                'estatura':              'estatura',
-                'tipoSangre':            'tipo_sangre',
-                'ocupacion':             'ocupacion',
-                'escolaridad':           'escolaridad',
-                'escuela':               'escuela',
-                'enfermedadesCronicas':  'enfermedades_cronicas',
-                'medicamentos':          'medicamentos',
-                'estadoResidencia':      'estado_residencia',
-                'municipio':             'municipio',
-                'calle':                 'calle',
-                'colonia':               'colonia',
-                'codigoPostal':          'codigo_postal',
-                'telefono':              'telefono',
-                'celular':               'celular',
-                'email':                 'email',
-                'club':                  'club',
-                'equipoPersona':         'id_equipo',
-                'categoria':             'categoria',
-                'rama':                  'rama',
-                'ligasParticipa':        'ligas_participa',
-                'licencia':              'licencia',
-                'zona':                  'zona',
-                'cedula':                'cedula',
-                'especialidad':          'especialidad',
-                'nombrePadre':           'nombre_padre',
-                'celularPadre':          'celular_padre',
-                'emailPadre':            'email_padre',
+                'apellidoPaterno':        'apellido_paterno',
+                'apellidoMaterno':        'apellido_materno',
+                'nombres':                'nombres',
+                'numeroRegistro':         'numero_registro',
+                'curpPersona':            'curp',
+                'fechaNacimientoPersona': 'fecha_nacimiento',
+                'lugarNacimiento':        'lugar_nacimiento',
+                'nacionalidad':           'nacionalidad',
+                'peso':                   'peso',
+                'estatura':               'estatura',
+                'tipoSangre':             'tipo_sangre',
+                'ocupacion':              'ocupacion',
+                'escolaridad':            'escolaridad',
+                'escuela':                'escuela',
+                'enfermedadesCronicas':   'enfermedades_cronicas',
+                'medicamentos':           'medicamentos',
+                'estadoResidencia':       'estado_residencia',
+                'municipio':              'municipio',
+                'calle':                  'calle',
+                'colonia':                'colonia',
+                'codigoPostal':           'codigo_postal',
+                'telefono':               'telefono',
+                'celular':                'celular',
+                'email':                  'email',
+                'club':                   'club',
+                'equipoPersona':          'id_equipo',
+                'categoria':              'categoria',
+                'rama':                   'rama',
+                'ligasParticipa':         'ligas_participa',
+                'licencia':               'licencia',
+                'zona':                   'zona',
+                'cedula':                 'cedula',
+                'especialidad':           'especialidad',
+                'nombrePadre':            'nombre_padre',
+                'celularPadre':           'celular_padre',
+                'emailPadre':             'email_padre',
             };
 
+            // Agregar cada campo al FormData
             Object.entries(campos).forEach(([htmlId, bdName]) => {
                 const el = document.getElementById(htmlId);
                 if (el) formData.append(bdName, el.value);
             });
 
+            // Agregar fotografía si fue seleccionada
             const foto = document.getElementById('fotoPersona');
             if (foto && foto.files[0]) formData.append('fotoPersona', foto.files[0]);
 
+            // Deshabilitar botón mientras se procesa
             const btn = document.getElementById('btnGuardar');
-            btn.disabled = true;
+            btn.disabled    = true;
             btn.textContent = 'Guardando...';
 
             fetch("{{ url_for('registro.guardarPersona') }}", { method: 'POST', body: formData })
@@ -435,7 +447,8 @@
                 .then(data => {
                     const alerta = document.getElementById('alertaPersona');
                     if (data.ok) {
-                        alerta.className = 'mb-4 p-4 rounded-lg text-sm bg-green-100 text-green-800 border border-green-200';
+                        // Mostrar éxito, limpiar formulario y volver al inicio
+                        alerta.className  = 'mb-4 p-4 rounded-lg text-sm bg-green-100 text-green-800 border border-green-200';
                         alerta.textContent = '✓ ' + data.mensaje;
                         alerta.classList.remove('hidden');
                         document.getElementById('formPersona').reset();
@@ -443,16 +456,17 @@
                         document.getElementById('camposEntrenador').classList.add('hidden');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else {
-                        alerta.className = 'mb-4 p-4 rounded-lg text-sm bg-red-100 text-red-800 border border-red-200';
+                        // Mostrar mensaje de error
+                        alerta.className  = 'mb-4 p-4 rounded-lg text-sm bg-red-100 text-red-800 border border-red-200';
                         alerta.textContent = '✗ Error: ' + data.mensaje;
                         alerta.classList.remove('hidden');
                     }
-                    btn.disabled = false;
+                    btn.disabled    = false;
                     btn.textContent = 'Guardar Registro';
                 })
                 .catch(() => {
                     alert('Error de conexión');
-                    btn.disabled = false;
+                    btn.disabled    = false;
                     btn.textContent = 'Guardar Registro';
                 });
         }

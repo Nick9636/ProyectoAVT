@@ -3,6 +3,11 @@
 {# Descripción: Vista de autorización de registros. Muestra solicitudes pendientes de
    jugadores, entrenadores y árbitros con opciones para aprobar o rechazar. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autorizar Registro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -12,7 +17,7 @@
 
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- Contadores -->
+        <!-- Tarjetas con contadores de solicitudes -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-xl shadow-md p-6 text-center">
                 <div class="text-3xl font-bold text-yellow-600 mb-2">
@@ -34,16 +39,16 @@
             </div>
         </div>
 
-        <!-- Alertas -->
+        <!-- Zona de alertas dinámicas (éxito/error tras aprobar o rechazar) -->
         <div id="alertas" class="mb-6"></div>
 
-        <!-- Lista de solicitudes -->
+        <!-- Lista de solicitudes con filtros por estatus -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b flex items-center justify-between">
                 <h2 class="text-xl font-semibold text-gray-900">
                     Solicitudes de Autorización
                 </h2>
-                <!-- Filtro de estatus -->
+                <!-- Botones de filtro por estatus -->
                 <div class="flex gap-2">
                     <button onclick="filtrar('todas')"
                             class="filtro-btn active px-3 py-1 rounded-lg text-sm
@@ -228,7 +233,7 @@
         lucide.createIcons();
         let idSolicitudActual = null;
 
-        // ── Filtrar por estatus ───────────────────
+        // Filtra las solicitudes visibles según el estatus seleccionado
         function filtrar(estatus) {
             document.querySelectorAll('.solicitud-item').forEach(el => {
                 el.style.display = (estatus === 'todas' || el.dataset.estatus === estatus)
@@ -236,7 +241,7 @@
             });
         }
 
-        // ── Aprobar ───────────────────────────────
+        // Aprueba una solicitud y actualiza su estado visualmente sin recargar
         function aprobar(id) {
             if (!confirm('¿Autorizar esta solicitud? Se enviará correo al solicitante.')) return;
 
@@ -245,17 +250,16 @@
                 .then(data => {
                     if (data.ok) {
                         mostrarAlerta('success', 'Solicitud autorizada', data.mensaje);
-                        // Actualizar visualmente sin recargar
                         const el = document.getElementById(`sol-${id}`);
                         el.dataset.estatus = 'Autorizado';
-                        const badges = el.querySelectorAll('span.text-xs');
-                        badges.forEach(b => {
-                            if (['Pendiente','Autorizado','Rechazado'].includes(b.textContent.trim())) {
-                                b.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-800';
+                        // Actualizar badge de estatus
+                        el.querySelectorAll('span.text-xs').forEach(b => {
+                            if (['Pendiente', 'Autorizado', 'Rechazado'].includes(b.textContent.trim())) {
+                                b.className  = 'text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-800';
                                 b.textContent = 'Autorizado';
                             }
                         });
-                        // Quitar botones
+                        // Quitar botones de acción
                         el.querySelector('.flex.gap-2.flex-shrink-0')?.remove();
                         lucide.createIcons();
                     } else {
@@ -264,18 +268,20 @@
                 });
         }
 
-        // ── Modal rechazo ─────────────────────────
+        // Abre el modal de rechazo para la solicitud indicada
         function abrirModalRechazo(id) {
             idSolicitudActual = id;
             document.getElementById('comentarioRechazo').value = '';
             document.getElementById('modalRechazo').classList.remove('hidden');
         }
 
+        // Cierra el modal de rechazo y limpia el ID guardado
         function cerrarModal() {
             document.getElementById('modalRechazo').classList.add('hidden');
             idSolicitudActual = null;
         }
 
+        // Confirma el rechazo enviando el comentario al servidor
         function confirmarRechazo() {
             const comentario = document.getElementById('comentarioRechazo').value.trim();
             if (!comentario) {
@@ -286,7 +292,7 @@
             const form = new FormData();
             form.append('comentario', comentario);
 
-            fetch(`/autorizar/rechazar/${idSolicitudActual}`, { method:'POST', body:form })
+            fetch(`/autorizar/rechazar/${idSolicitudActual}`, { method: 'POST', body: form })
                 .then(r => r.json())
                 .then(data => {
                     cerrarModal();
@@ -294,10 +300,10 @@
                         mostrarAlerta('success', 'Solicitud rechazada', data.mensaje);
                         const el = document.getElementById(`sol-${idSolicitudActual}`);
                         el.dataset.estatus = 'Rechazado';
-                        const badges = el.querySelectorAll('span.text-xs');
-                        badges.forEach(b => {
-                            if (['Pendiente','Autorizado','Rechazado'].includes(b.textContent.trim())) {
-                                b.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-800';
+                        // Actualizar badge de estatus
+                        el.querySelectorAll('span.text-xs').forEach(b => {
+                            if (['Pendiente', 'Autorizado', 'Rechazado'].includes(b.textContent.trim())) {
+                                b.className  = 'text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-800';
                                 b.textContent = 'Rechazado';
                             }
                         });
@@ -309,13 +315,13 @@
                 });
         }
 
-        // ── Alerta ────────────────────────────────
+        // Muestra una alerta temporal de éxito o error en la zona de alertas
         function mostrarAlerta(tipo, titulo, mensaje) {
             const estilos = {
                 success: 'bg-green-50 border-green-200 text-green-800',
                 error:   'bg-red-50 border-red-200 text-red-800'
             };
-            const iconos = { success:'check-circle', error:'x-circle' };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
             document.getElementById('alertas').innerHTML = `
                 <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
                     <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>

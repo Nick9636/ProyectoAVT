@@ -3,22 +3,26 @@
 {# Descripción: Página de inicio del sistema. Muestra accesos directos a notificaciones,
    generación de expedientes SIRED, digitalización de documentos y nuevo administrador. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
-
 <body class="min-h-screen flex flex-col">
+
     {% include 'header.html' %}
-    <!-- CONTENIDO -->
+
+    <!-- Contenido principal: tarjetas de acceso a módulos -->
     <main class="flex-1 flex items-center justify-center px-3 py-12 pt-24">
         <div class="w-full max-w-5xl">
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-                <!-- NOTIFICACIONES -->
-                <a href="{{ url_for('principal.notificaciones') }}"
-                    class="card cursor-pointer block">
+                <!-- Acceso a notificaciones del sistema -->
+                <a href="{{ url_for('principal.notificaciones') }}" class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="bell" class="w-8 h-8 text-red-700"></i>
@@ -28,9 +32,8 @@
                     </div>
                 </a>
 
-                <!-- EXPEDIENTES -->
-                <a href="{{ url_for('principal.expedientes') }}"
-                    class="card cursor-pointer block">
+                <!-- Acceso a generación de expedientes SIRED -->
+                <a href="{{ url_for('principal.expedientes') }}" class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="file-text" class="w-8 h-8 text-red-700"></i>
@@ -40,9 +43,8 @@
                     </div>
                 </a>
 
-                <!-- DIGITALIZAR -->
-                <a href="{{ url_for('principal.digitalizar') }}"
-                    class="card cursor-pointer block">
+                <!-- Acceso a digitalización de documentos -->
+                <a href="{{ url_for('principal.digitalizar') }}" class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="upload" class="w-8 h-8 text-red-700"></i>
@@ -51,9 +53,9 @@
                         <p class="text-white">Subir y almacenar archivos digitales</p>
                     </div>
                 </a>
-                <!-- NUEVO ADMINISTRADOR -->
-                <a href="{{ url_for('auth.nuevoUsuario') }}"
-                    class="card cursor-pointer block">
+
+                <!-- Acceso a creación de nuevo administrador -->
+                <a href="{{ url_for('auth.nuevoUsuario') }}" class="card cursor-pointer block">
                     <div class="p-8 text-center">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="user-plus" class="w-8 h-8 text-red-700"></i>
@@ -70,21 +72,19 @@
     <script>
         lucide.createIcons();
 
+        // Alterna visibilidad del menú móvil
         function toggleMenu() {
-            const menu = document.getElementById("mobileMenu");
-            if (menu) {
-                menu.classList.toggle("hidden");
-            }
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.classList.toggle('hidden');
         }
 
-        document.addEventListener("click", function (event) {
-            const menu = document.getElementById("mobileMenu");
+        // Cierra el menú móvil al hacer clic fuera de él
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('mobileMenu');
             if (!menu) return;
-
-            const button = event.target.closest("button");
-
+            const button = event.target.closest('button');
             if (!menu.contains(event.target) && !button) {
-                menu.classList.add("hidden");
+                menu.classList.add('hidden');
             }
         });
     </script>

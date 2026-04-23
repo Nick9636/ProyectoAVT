@@ -3,6 +3,11 @@
 {# Descripción: Reporte general del sistema. Muestra estadísticas de usuarios, ligas,
    equipos, pagos, solicitudes pendientes, documentos y distribución por rol. #}
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte del Sistema — AVT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,7 +17,7 @@
     {% include 'header.html' %}
     <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-        <!-- Resumen general -->
+        <!-- Tarjetas con métricas globales del sistema -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-xl shadow-md p-6 text-center">
                 <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -44,6 +49,7 @@
             </div>
         </div>
 
+        <!-- Gráficas de estado de pagos y actividad reciente -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
             <!-- Estado de pagos -->
@@ -116,7 +122,7 @@
             </div>
         </div>
 
-        <!-- Usuarios por rol -->
+        <!-- Distribución de administradores por rol -->
         {% if usuarios_rol %}
         <div class="bg-white rounded-xl shadow-md p-6 mb-8">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Administradores por Rol</h3>
@@ -131,7 +137,7 @@
         </div>
         {% endif %}
 
-        <!-- Ligas -->
+        <!-- Tabla de ligas con equipos y jugadores -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b">
                 <h3 class="text-lg font-semibold text-gray-900">Ligas Registradas</h3>
