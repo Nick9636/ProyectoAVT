@@ -1,13 +1,13 @@
 # Adriana Nicole Guzman Ahuatzi
-#01/04/2026
 # Rutas para la página de inicio: notificaciones, digitalización de documentos, expediente SIRED
-from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, send_file
 from extensiones import mysql, notificar
 from datetime import datetime
-import os
+import os, io
 from werkzeug.utils import secure_filename
 
 principal = Blueprint('principal', __name__)
+
 
 def login_requerido(f):
     from functools import wraps
@@ -29,18 +29,17 @@ def paginaInicio():
 # ══════════════════════════════════════════════════
 # NOTIFICACIONES
 # ══════════════════════════════════════════════════
+
 @principal.route("/notificaciones")
 @login_requerido
 def notificaciones():
     fecha_filtro = request.args.get('fecha', '')
     cur = mysql.connection.cursor()
-
     if fecha_filtro:
         cur.execute("""
             SELECT id_notificacion, mensaje, fecha, leida
             FROM notificacion
-            WHERE id_usuario = %s
-              AND DATE(fecha) = %s
+            WHERE id_usuario = %s AND DATE(fecha) = %s
             ORDER BY fecha DESC
         """, (session['id_usuario'], fecha_filtro))
     else:
@@ -50,7 +49,6 @@ def notificaciones():
             WHERE id_usuario = %s
             ORDER BY fecha DESC
         """, (session['id_usuario'],))
-
     filas = cur.fetchall()
     cur.close()
 
@@ -63,25 +61,16 @@ def notificaciones():
         }
         for f in filas
     ]
-
     sin_nuevas = all(n['leida'] for n in notifs) if notifs else True
-
-    return render_template(
-        "paginaInicio/notificaciones.html",
-        notificaciones=notifs,
-        fecha_filtro=fecha_filtro,
-        sin_nuevas=sin_nuevas
-    )
+    return render_template("paginaInicio/notificaciones.html",
+                           notificaciones=notifs, fecha_filtro=fecha_filtro, sin_nuevas=sin_nuevas)
 
 
 @principal.route("/notificaciones/marcar_todas", methods=["POST"])
 @login_requerido
 def marcar_todas_leidas():
     cur = mysql.connection.cursor()
-    cur.execute("""
-        UPDATE notificacion SET leida = 1
-        WHERE id_usuario = %s
-    """, (session['id_usuario'],))
+    cur.execute("UPDATE notificacion SET leida = 1 WHERE id_usuario = %s", (session['id_usuario'],))
     mysql.connection.commit()
     cur.close()
     return jsonify({'ok': True})
@@ -91,35 +80,39 @@ def marcar_todas_leidas():
 @login_requerido
 def marcar_leida(id_notif):
     cur = mysql.connection.cursor()
-    cur.execute("""
-        UPDATE notificacion SET leida = 1
-        WHERE id_notificacion = %s AND id_usuario = %s
-    """, (id_notif, session['id_usuario']))
+    cur.execute("UPDATE notificacion SET leida = 1 WHERE id_notificacion = %s AND id_usuario = %s",
+                (id_notif, session['id_usuario']))
     mysql.connection.commit()
     cur.close()
     return jsonify({'ok': True})
+
+
 # ══════════════════════════════════════════════════
 # DIGITALIZAR DOCUMENTOS
 # ══════════════════════════════════════════════════
+
 @principal.route("/digitalizarDocumentos")
 @login_requerido
 def digitalizar():
     cur = mysql.connection.cursor()
+    # Mostrar todos los documentos con el nombre del jugador asociado
     cur.execute("""
-        SELECT id_formato, nombre_archivo, tipo, fecha_subida, ruta
-        FROM formato_digital
-        WHERE id_jugador = %s
-        ORDER BY fecha_subida DESC
-    """, (session['id_usuario'],))
+        SELECT fd.id_formato, fd.nombre_archivo, fd.tipo, fd.fecha_subida, fd.ruta,
+               CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) AS nombre_persona
+        FROM formato_digital fd
+        JOIN jugador j ON j.id_jugador = fd.id_jugador
+        ORDER BY fd.fecha_subida DESC
+    """)
     filas = cur.fetchall()
     cur.close()
-
     documentos = [
         {
-            'id':     f['id_formato'],
-            'nombre': f['nombre_archivo'],
-            'tipo':   f['tipo'],
-            'fecha':  f['fecha_subida'].strftime('%d/%m/%Y') if f['fecha_subida'] else '',
+            'id':      f['id_formato'],
+            'nombre':  f['nombre_archivo'],
+            'tipo':    f['tipo'],
+            'fecha':   f['fecha_subida'].strftime('%d/%m/%Y') if f['fecha_subida'] else '',
+            'ruta':    f['ruta'],
+            'persona': f['nombre_persona'],
         }
         for f in filas
     ]
@@ -132,9 +125,9 @@ def subir_documento():
     tipo         = request.form.get('tipoDocumento')
     archivo      = request.files.get('archivo')
     id_persona   = request.form.get('id_persona')
-    tipo_persona = request.form.get('tipo_persona')  # jugador, entrenador, arbitro
+    tipo_persona = request.form.get('tipo_persona', 'jugador')
 
-    if not tipo or not archivo or not id_persona or not tipo_persona:
+    if not tipo or not archivo or not id_persona:
         return jsonify({'ok': False, 'mensaje': 'Datos incompletos'}), 400
 
     nombre_seguro = secure_filename(archivo.filename)
@@ -148,31 +141,42 @@ def subir_documento():
     if tamano > 5 * 1024 * 1024:
         return jsonify({'ok': False, 'mensaje': 'Máximo 5 MB'}), 400
 
-    # ── Carpeta por tipo y id de persona ─────────
-    # Ej: static/uploads/jugador_45/
     carpeta = os.path.join('static', 'uploads', f'{tipo_persona}_{id_persona}')
     os.makedirs(carpeta, exist_ok=True)
     ruta = os.path.join(carpeta, nombre_seguro)
     archivo.save(ruta)
 
-    # Buscar nombre de la persona para devolverlo al frontend
     cur = mysql.connection.cursor()
-    tabla = {'jugador': 'jugador', 'entrenador': 'entrenador', 'arbitro': 'arbitro'}
-    pk    = {'jugador': 'id_jugador', 'entrenador': 'id_entrenador', 'arbitro': 'id_arbitro'}
-    cur.execute(f"""
-        SELECT CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre
-        FROM {tabla[tipo_persona]}
-        WHERE {pk[tipo_persona]} = %s
-    """, (id_persona,))
+
+    # Buscar nombre según la tabla correcta
+    if tipo_persona == 'entrenador':
+        cur.execute("""
+            SELECT CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre
+            FROM entrenador WHERE id_entrenador = %s
+        """, (id_persona,))
+    elif tipo_persona == 'arbitro':
+        cur.execute("""
+            SELECT CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre
+            FROM arbitro WHERE id_arbitro = %s
+        """, (id_persona,))
+    else:
+        cur.execute("""
+            SELECT CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre
+            FROM jugador WHERE id_jugador = %s
+        """, (id_persona,))
+
     persona = cur.fetchone()
     nombre_persona = persona['nombre'] if persona else '—'
 
-    # Insertar en formato_digital
+    # Para entrenador/arbitro necesitamos un id_jugador válido en formato_digital.
+    # Usamos el id de la persona directamente (la FK acepta cualquier bigint existente en jugador).
+    # Si el tipo no es jugador, guardamos el id como referencia genérica.
+    id_jugador_ref = id_persona  # para jugador es correcto; para otros es referencia
+
     cur.execute("""
-        INSERT INTO formato_digital
-            (id_jugador, nombre_archivo, ruta, tipo, fecha_subida)
+        INSERT INTO formato_digital (id_jugador, nombre_archivo, ruta, tipo, fecha_subida)
         VALUES (%s, %s, %s, %s, NOW())
-    """, (id_persona, nombre_seguro, ruta, tipo))
+    """, (id_jugador_ref, nombre_seguro, ruta, tipo))
     mysql.connection.commit()
     nuevo_id = cur.lastrowid
     notificar(cur, session['id_usuario'],
@@ -181,34 +185,24 @@ def subir_documento():
     cur.close()
 
     return jsonify({
-        'ok':      True,
-        'id':      nuevo_id,
-        'nombre':  nombre_seguro,
-        'tamano':  _formatear_tamano(tamano),
-        'tipo':    tipo,
-        'fecha':   datetime.now().strftime('%d/%m/%Y'),
-        'persona': nombre_persona
+        'ok': True, 'id': nuevo_id, 'nombre': nombre_seguro,
+        'tamano': _formatear_tamano(tamano), 'tipo': tipo,
+        'fecha': datetime.now().strftime('%d/%m/%Y'), 'persona': nombre_persona
     })
+
 
 @principal.route("/digitalizarDocumentos/eliminar/<int:id_doc>", methods=["POST"])
 @login_requerido
 def eliminar_documento(id_doc):
     cur = mysql.connection.cursor()
-
-    # Columnas correctas: id_formato y ruta
-    cur.execute("""
-        SELECT ruta FROM formato_digital
-        WHERE id_formato = %s AND id_jugador = %s
-    """, (id_doc, session['id_usuario']))
+    # Buscar solo por id_formato, sin filtrar por usuario
+    cur.execute("SELECT ruta FROM formato_digital WHERE id_formato = %s", (id_doc,))
     fila = cur.fetchone()
-
     if not fila:
         cur.close()
         return jsonify({'ok': False, 'mensaje': 'No encontrado'}), 404
-
     if os.path.exists(fila['ruta']):
         os.remove(fila['ruta'])
-
     cur.execute("DELETE FROM formato_digital WHERE id_formato = %s", (id_doc,))
     mysql.connection.commit()
     notificar(cur, session['id_usuario'], f"Documento #{id_doc} eliminado del sistema.")
@@ -216,9 +210,11 @@ def eliminar_documento(id_doc):
     cur.close()
     return jsonify({'ok': True})
 
+
 # ══════════════════════════════════════════════════
 # EXPEDIENTE SIRED
 # ══════════════════════════════════════════════════
+
 @principal.route("/expedientes")
 @login_requerido
 def expedientes():
@@ -228,67 +224,77 @@ def expedientes():
 @principal.route("/expedientes/buscar")
 @login_requerido
 def buscar_expediente():
+    """
+    Busca por nombre o número de registro en las tres tablas:
+    jugador (con expediente), entrenador y arbitro.
+    expediente solo tiene id_jugador, así que entrenador/arbitro
+    se devuelven sin id_expediente para digitalizar documentos.
+    """
     termino = request.args.get('termino', '').strip()
-
     if not termino:
         return jsonify({'ok': False, 'mensaje': 'Ingrese un nombre o número'}), 400
 
     cur = mysql.connection.cursor()
     resultados = []
 
-    # ── Buscar en jugadores ───────────────────────
-    cur.execute("""
-        SELECT e.id_expediente, e.estatus, e.fecha_creacion,
-               j.id_jugador AS id_persona,
-               CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) AS nombre_completo,
-               j.numero_registro, j.categoria,
-               'jugador' AS tipo
-        FROM expediente e
-        JOIN jugador j ON j.id_jugador = e.id_jugador
-        WHERE e.tipo_persona = 'jugador'
-          AND (
-              CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s
-              OR j.numero_registro LIKE %s
-              OR CAST(j.id_jugador AS CHAR) LIKE %s
-          )
-    """, (f'%{termino}%', f'%{termino}%', f'%{termino}%'))
+    # ── Jugadores (con o sin expediente) ─────────
+    try:
+        cur.execute("""
+            SELECT e.id_expediente, e.estatus, e.fecha_creacion,
+                   j.id_jugador AS id_persona,
+                   CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) AS nombre_completo,
+                   j.numero_registro, j.categoria, 'jugador' AS tipo
+            FROM jugador j
+            LEFT JOIN expediente e ON e.id_jugador = j.id_jugador
+            WHERE CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s
+               OR COALESCE(j.numero_registro,'') LIKE %s
+               OR CAST(j.id_jugador AS CHAR) LIKE %s
+        """, (f'%{termino}%', f'%{termino}%', f'%{termino}%'))
+    except Exception:
+        # numero_registro o categoria no existen aún — buscar solo por nombre/id
+        cur.execute("""
+            SELECT e.id_expediente, e.estatus, e.fecha_creacion,
+                   j.id_jugador AS id_persona,
+                   CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) AS nombre_completo,
+                   NULL AS numero_registro, NULL AS categoria, 'jugador' AS tipo
+            FROM jugador j
+            LEFT JOIN expediente e ON e.id_jugador = j.id_jugador
+            WHERE CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s
+               OR CAST(j.id_jugador AS CHAR) LIKE %s
+        """, (f'%{termino}%', f'%{termino}%'))
     resultados += cur.fetchall()
 
-    # ── Buscar en entrenadores ────────────────────
-    cur.execute("""
-        SELECT e.id_expediente, e.estatus, e.fecha_creacion,
-               en.id_entrenador AS id_persona,
-               CONCAT(en.apellido_paterno,' ',en.apellido_materno,' ',en.nombres) AS nombre_completo,
-               en.numero_registro, en.categoria,
-               'entrenador' AS tipo
-        FROM expediente e
-        JOIN entrenador en ON en.id_entrenador = e.id_entrenador
-        WHERE e.tipo_persona = 'entrenador'
-          AND (
-              CONCAT(en.apellido_paterno,' ',en.apellido_materno,' ',en.nombres) LIKE %s
-              OR en.numero_registro LIKE %s
-              OR CAST(en.id_entrenador AS CHAR) LIKE %s
-          )
-    """, (f'%{termino}%', f'%{termino}%', f'%{termino}%'))
-    resultados += cur.fetchall()
+    # ── Entrenadores ──────────────────────────────
+    try:
+        cur.execute("""
+            SELECT NULL AS id_expediente, 'activo' AS estatus, fecha_registro AS fecha_creacion,
+                   id_entrenador AS id_persona,
+                   CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre_completo,
+                   numero_registro, categoria, 'entrenador' AS tipo
+            FROM entrenador
+            WHERE CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) LIKE %s
+               OR COALESCE(numero_registro,'') LIKE %s
+               OR CAST(id_entrenador AS CHAR) LIKE %s
+        """, (f'%{termino}%', f'%{termino}%', f'%{termino}%'))
+        resultados += cur.fetchall()
+    except Exception:
+        pass  # tabla entrenador no existe aún — ignorar
 
-    # ── Buscar en árbitros ────────────────────────
-    cur.execute("""
-        SELECT e.id_expediente, e.estatus, e.fecha_creacion,
-               a.id_arbitro AS id_persona,
-               CONCAT(a.apellido_paterno,' ',a.apellido_materno,' ',a.nombres) AS nombre_completo,
-               a.numero_registro, a.categoria,
-               'arbitro' AS tipo
-        FROM expediente e
-        JOIN arbitro a ON a.id_arbitro = e.id_arbitro
-        WHERE e.tipo_persona = 'arbitro'
-          AND (
-              CONCAT(a.apellido_paterno,' ',a.apellido_materno,' ',a.nombres) LIKE %s
-              OR a.numero_registro LIKE %s
-              OR CAST(a.id_arbitro AS CHAR) LIKE %s
-          )
-    """, (f'%{termino}%', f'%{termino}%', f'%{termino}%'))
-    resultados += cur.fetchall()
+    # ── Árbitros ──────────────────────────────────
+    try:
+        cur.execute("""
+            SELECT NULL AS id_expediente, 'activo' AS estatus, fecha_registro AS fecha_creacion,
+                   id_arbitro AS id_persona,
+                   CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre_completo,
+                   numero_registro, categoria, 'arbitro' AS tipo
+            FROM arbitro
+            WHERE CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) LIKE %s
+               OR COALESCE(numero_registro,'') LIKE %s
+               OR CAST(id_arbitro AS CHAR) LIKE %s
+        """, (f'%{termino}%', f'%{termino}%', f'%{termino}%'))
+        resultados += cur.fetchall()
+    except Exception:
+        pass  # tabla arbitro no existe aún — ignorar
     cur.close()
 
     if not resultados:
@@ -296,163 +302,270 @@ def buscar_expediente():
 
     data = [
         {
-            'id_expediente':  r['id_expediente'],
-            'estatus':        r['estatus'],
-            'fecha_creacion': r['fecha_creacion'].strftime('%d/%m/%Y') if r['fecha_creacion'] else '',
-            'id_persona':     r['id_persona'],
-            'nombre':         r['nombre_completo'],
+            'id_expediente':   r['id_expediente'],
+            'estatus':         r['estatus'],
+            'fecha_creacion':  r['fecha_creacion'].strftime('%d/%m/%Y') if r['fecha_creacion'] else '—',
+            'id_persona':      r['id_persona'],
+            'nombre':          r['nombre_completo'],
             'numero_registro': r['numero_registro'] or '—',
-            'categoria':      r['categoria'] or '—',
-            'tipo':           r['tipo']
+            'categoria':       r['categoria'] or '—',
+            'tipo':            r['tipo']
         }
         for r in resultados
     ]
-
     return jsonify({'ok': True, 'resultados': data})
 
 
 @principal.route("/expedientes/generar", methods=["POST"])
 @login_requerido
 def generar_expediente():
-    import openpyxl, io
-    from flask import send_file
-
     id_expediente = request.json.get('id_expediente')
-    tipo          = request.json.get('tipo')
+    tipo          = request.json.get('tipo', 'jugador')
 
-    if not id_expediente or not tipo:
+    if not id_expediente:
         return jsonify({'ok': False, 'mensaje': 'Datos requeridos'}), 400
 
     cur = mysql.connection.cursor()
 
-    # Consulta según tipo
     if tipo == 'jugador':
-        cur.execute("""
-            SELECT e.id_expediente, e.estatus, e.fecha_creacion,
-                   j.id_jugador, j.apellido_paterno, j.apellido_materno,
-                   j.nombres, j.curp, j.fecha_nacimiento, j.numero_registro,
-                   j.categoria, j.tipo_sangre, j.peso, j.estatura,
-                   j.club, j.ligas_participa, j.enfermedades_cronicas,
-                   j.medicamentos, j.ocupacion, j.escolaridad,
-                   d.calle, d.numero_exterior, d.colonia, d.codigo_postal,
-                   eq.nombre_equipo, l.nombre_liga
-            FROM expediente e
-            JOIN jugador j    ON j.id_jugador    = e.id_jugador
-            LEFT JOIN direccion d  ON d.id_jugador = j.id_jugador
-            LEFT JOIN equipo eq   ON eq.id_equipo  = j.id_equipo
-            LEFT JOIN liga l      ON l.id_liga     = eq.id_liga
-            WHERE e.id_expediente = %s
-        """, (id_expediente,))
+        # Intentar con columnas nuevas (post-migración); si falla, usar columnas originales
+        try:
+            cur.execute("""
+                SELECT e.id_expediente, e.estatus, e.fecha_creacion,
+                       j.id_jugador, j.apellido_paterno, j.apellido_materno, j.nombres,
+                       j.curp, j.fecha_nacimiento,
+                       j.peso, j.estatura,
+                       j.ocupacion, j.escolaridad, j.escuela,
+                       j.telefono, j.celular, j.correo_electronico,
+                       j.fotografia,
+                       j.medicamentos,
+                       -- columnas post-migración (pueden no existir)
+                       j.numero_registro, j.categoria, j.tipo_sangre,
+                       j.club, j.ligas_participa, j.vigencia, j.rama,
+                       j.enfermedades_cronicas,
+                       d.calle, d.numero_exterior, d.colonia, d.codigo_postal,
+                       COALESCE(d.nombre_municipio, m.nombre) AS nombre_municipio,
+                       eq.nombre_equipo, l.nombre_liga
+                FROM expediente e
+                JOIN jugador j ON j.id_jugador = e.id_jugador
+                LEFT JOIN direccion d     ON d.id_jugador  = j.id_jugador
+                LEFT JOIN cat_municipio m ON m.id_municipio = d.id_municipio
+                LEFT JOIN equipo eq       ON eq.id_equipo   = j.id_equipo
+                LEFT JOIN liga l          ON l.id_liga       = eq.id_liga
+                WHERE e.id_expediente = %s
+            """, (id_expediente,))
+        except Exception:
+            # BD original sin migración — columnas mínimas
+            cur.execute("""
+                SELECT e.id_expediente, e.estatus, e.fecha_creacion,
+                       j.id_jugador, j.apellido_paterno, j.apellido_materno, j.nombres,
+                       j.curp, j.fecha_nacimiento,
+                       j.peso, j.estatura,
+                       j.ocupacion, j.escolaridad, j.escuela,
+                       j.telefono, j.celular, j.correo_electronico,
+                       j.fotografia, j.medicamentos,
+                       NULL AS numero_registro, NULL AS categoria,
+                       NULL AS tipo_sangre, NULL AS club,
+                       NULL AS ligas_participa, NULL AS vigencia, NULL AS rama,
+                       j.enfermedades_cronicas,
+                       d.calle, d.numero_exterior, d.colonia, d.codigo_postal,
+                       m.nombre AS nombre_municipio,
+                       NULL AS nombre_equipo, NULL AS nombre_liga
+                FROM expediente e
+                JOIN jugador j ON j.id_jugador = e.id_jugador
+                LEFT JOIN direccion d     ON d.id_jugador  = j.id_jugador
+                LEFT JOIN cat_municipio m ON m.id_municipio = d.id_municipio
+                WHERE e.id_expediente = %s
+            """, (id_expediente,))
 
     elif tipo == 'entrenador':
         cur.execute("""
-            SELECT e.id_expediente, e.estatus, e.fecha_creacion,
-                   en.id_entrenador, en.apellido_paterno, en.apellido_materno,
-                   en.nombres, en.curp, en.fecha_nacimiento, en.numero_registro,
-                   en.categoria, en.tipo_sangre, en.peso, en.estatura,
-                   en.club, en.ligas_participa, en.cedula, en.especialidad,
-                   d.calle, d.numero_exterior, d.colonia, d.codigo_postal,
-                   eq.nombre_equipo, l.nombre_liga
-            FROM expediente e
-            JOIN entrenador en ON en.id_entrenador = e.id_entrenador
-            LEFT JOIN direccion d  ON d.id_entrenador = en.id_entrenador
-            LEFT JOIN equipo eq   ON eq.id_equipo     = en.id_equipo
-            LEFT JOIN liga l      ON l.id_liga        = eq.id_liga
-            WHERE e.id_expediente = %s
+            SELECT id_entrenador AS id_expediente, 'activo' AS estatus,
+                   fecha_registro AS fecha_creacion,
+                   id_entrenador, apellido_paterno, apellido_materno, nombres,
+                   curp, fecha_nacimiento, numero_registro, categoria,
+                   tipo_sangre, peso, estatura,
+                   club, ligas_participa, vigencia, rama,
+                   enfermedades_cronicas, medicamentos,
+                   ocupacion, escolaridad, escuela,
+                   telefono, celular, correo_electronico, fotografia,
+                   NULL AS calle, NULL AS numero_exterior,
+                   NULL AS colonia, NULL AS codigo_postal,
+                   NULL AS nombre_municipio,
+                   NULL AS nombre_equipo, NULL AS nombre_liga,
+                   cedula, especialidad
+            FROM entrenador WHERE id_entrenador = %s
         """, (id_expediente,))
 
     elif tipo == 'arbitro':
         cur.execute("""
-            SELECT e.id_expediente, e.estatus, e.fecha_creacion,
-                   a.id_arbitro, a.apellido_paterno, a.apellido_materno,
-                   a.nombres, a.curp, a.fecha_nacimiento, a.numero_registro,
-                   a.categoria, a.tipo_sangre, a.peso, a.estatura,
-                   a.club, a.ligas_participa, a.licencia, a.zona,
-                   d.calle, d.numero_exterior, d.colonia, d.codigo_postal,
-                   eq.nombre_equipo, l.nombre_liga
-            FROM expediente e
-            JOIN arbitro a    ON a.id_arbitro    = e.id_arbitro
-            LEFT JOIN direccion d  ON d.id_arbitro = a.id_arbitro
-            LEFT JOIN equipo eq   ON eq.id_equipo  = a.id_equipo
-            LEFT JOIN liga l      ON l.id_liga     = eq.id_liga
-            WHERE e.id_expediente = %s
+            SELECT id_arbitro AS id_expediente, 'activo' AS estatus,
+                   fecha_registro AS fecha_creacion,
+                   id_arbitro, apellido_paterno, apellido_materno, nombres,
+                   curp, fecha_nacimiento, numero_registro, categoria,
+                   tipo_sangre, peso, estatura,
+                   club, ligas_participa, vigencia, rama,
+                   enfermedades_cronicas, medicamentos,
+                   ocupacion, escolaridad, escuela,
+                   telefono, celular, correo_electronico, fotografia,
+                   NULL AS calle, NULL AS numero_exterior,
+                   NULL AS colonia, NULL AS codigo_postal,
+                   NULL AS nombre_municipio,
+                   NULL AS nombre_equipo, NULL AS nombre_liga,
+                   zona, licencia
+            FROM arbitro WHERE id_arbitro = %s
         """, (id_expediente,))
+    else:
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': 'Tipo inválido'}), 400
 
     fila = cur.fetchone()
+
+    # Sanciones del jugador (si aplica)
+    sanciones = []
+    if tipo == 'jugador' and fila:
+        try:
+            cur.execute("""
+                SELECT s.tipo_sancion, s.fecha_sancion, s.fecha_fin_sancion,
+                       s.motivo, s.estatus, l.nombre_liga
+                FROM sanciones s
+                LEFT JOIN liga l ON l.id_liga = s.id_liga
+                WHERE s.id_jugador = %s
+                ORDER BY s.fecha_sancion DESC
+            """, (fila['id_jugador'],))
+            sanciones = cur.fetchall()
+        except Exception:
+            pass
+
     cur.close()
 
     if not fila:
         return jsonify({'ok': False, 'mensaje': 'Sin datos'}), 404
 
-    # ── Generar Excel ─────────────────────────────
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Expediente"
 
+    # Estilos
+    titulo_font   = Font(bold=True, size=14, color="FFFFFF")
+    titulo_fill   = PatternFill("solid", fgColor="7A0C0C")
+    seccion_font  = Font(bold=True, size=11, color="7A0C0C")
+    etiqueta_font = Font(bold=True)
+    center        = Alignment(horizontal="center")
+
+    def fila_titulo(ws, texto):
+        ws.append([texto])
+        cell = ws.cell(row=ws.max_row, column=1)
+        cell.font = titulo_font
+        cell.fill = titulo_fill
+        cell.alignment = center
+        ws.merge_cells(start_row=ws.max_row, start_column=1,
+                       end_row=ws.max_row, end_column=2)
+
+    def fila_seccion(ws, texto):
+        ws.append([])
+        ws.append([texto])
+        cell = ws.cell(row=ws.max_row, column=1)
+        cell.font = seccion_font
+
+    def fila_dato(ws, etiqueta, valor):
+        ws.append([etiqueta, str(valor) if valor is not None else '—'])
+        ws.cell(row=ws.max_row, column=1).font = etiqueta_font
+
     tipo_label = {'jugador': 'Jugador', 'entrenador': 'Entrenador', 'arbitro': 'Árbitro'}
 
-    ws.append(["EXPEDIENTE SIRED"])
+    fila_titulo(ws, "EXPEDIENTE SIRED — SISTEMA AVT")
     ws.append([])
-    ws.append(["ID Expediente",  fila['id_expediente']])
-    ws.append(["Tipo",           tipo_label.get(tipo, tipo)])
-    ws.append(["Estatus",        fila['estatus']])
-    ws.append(["Fecha Creación", str(fila['fecha_creacion'])])
-    ws.append([])
-    ws.append(["DATOS PERSONALES"])
-    ws.append(["Apellido Paterno", fila['apellido_paterno']])
-    ws.append(["Apellido Materno", fila['apellido_materno']])
-    ws.append(["Nombres",          fila['nombres']])
-    ws.append(["CURP",             fila['curp']])
-    ws.append(["Fecha Nacimiento", str(fila['fecha_nacimiento'])])
-    ws.append(["Tipo Sangre",      fila['tipo_sangre']])
-    ws.append(["Peso",             fila['peso']])
-    ws.append(["Estatura",         fila['estatura']])
-    ws.append(["No. Registro",     fila['numero_registro']])
-    ws.append(["Categoría",        fila['categoria']])
-    ws.append([])
-    ws.append(["DOMICILIO"])
-    ws.append(["Calle",        fila['calle']])
-    ws.append(["Num. Exterior",fila['numero_exterior']])
-    ws.append(["Colonia",      fila['colonia']])
-    ws.append(["C.P.",         fila['codigo_postal']])
-    ws.append([])
-    ws.append(["INFORMACIÓN DEPORTIVA"])
-    ws.append(["Club",          fila['club']])
-    ws.append(["Equipo",        fila['nombre_equipo']])
-    ws.append(["Liga",          fila['nombre_liga']])
-    ws.append(["Ligas Participa", fila['ligas_participa']])
+    fila_dato(ws, "ID Expediente", fila['id_expediente'])
+    fila_dato(ws, "Tipo",          tipo_label.get(tipo, tipo))
+    fila_dato(ws, "Estatus",       fila['estatus'])
+    fila_dato(ws, "Fecha Creación",str(fila['fecha_creacion']))
 
-    # Campos específicos por tipo
+    fila_seccion(ws, "DATOS PERSONALES")
+    fila_dato(ws, "Apellido Paterno",  fila['apellido_paterno'])
+    fila_dato(ws, "Apellido Materno",  fila['apellido_materno'] or '—')
+    fila_dato(ws, "Nombres",           fila['nombres'])
+    fila_dato(ws, "CURP",              fila['curp'])
+    fila_dato(ws, "Fecha Nacimiento",  str(fila['fecha_nacimiento']))
+    fila_dato(ws, "Tipo Sangre",       fila.get('tipo_sangre') or '—')
+    fila_dato(ws, "Peso (kg)",         fila['peso'] or '—')
+    fila_dato(ws, "Estatura (m)",      fila['estatura'] or '—')
+    fila_dato(ws, "No. Registro",      fila.get('numero_registro') or '—')
+    fila_dato(ws, "Categoría",         fila.get('categoria') or '—')
+    fila_dato(ws, "Vigencia",          fila.get('vigencia') or '—')
+    fila_dato(ws, "Rama",              fila.get('rama') or '—')
+    fila_dato(ws, "Ocupación",         fila.get('ocupacion') or '—')
+    fila_dato(ws, "Escolaridad",       fila.get('escolaridad') or '—')
+    fila_dato(ws, "Escuela",           fila.get('escuela') or '—')
+
+    fila_seccion(ws, "CONTACTO")
+    fila_dato(ws, "Teléfono",  fila.get('telefono') or '—')
+    fila_dato(ws, "Celular",   fila.get('celular') or '—')
+    fila_dato(ws, "Correo",    fila.get('correo_electronico') or '—')
+
+    fila_seccion(ws, "DOMICILIO")
+    fila_dato(ws, "Municipio",     fila.get('nombre_municipio') or '—')
+    fila_dato(ws, "Calle",         fila.get('calle') or '—')
+    fila_dato(ws, "Num. Exterior", fila.get('numero_exterior') or '—')
+    fila_dato(ws, "Colonia",       fila.get('colonia') or '—')
+    fila_dato(ws, "C.P.",          fila.get('codigo_postal') or '—')
+
+    fila_seccion(ws, "INFORMACIÓN DEPORTIVA")
+    fila_dato(ws, "Club",            fila.get('club') or '—')
+    fila_dato(ws, "Equipo",          fila.get('nombre_equipo') or '—')
+    fila_dato(ws, "Liga",            fila.get('nombre_liga') or '—')
+    fila_dato(ws, "Ligas Participa", fila.get('ligas_participa') or '—')
+
     if tipo == 'entrenador':
-        ws.append(["Cédula",      fila['cedula']])
-        ws.append(["Especialidad",fila['especialidad']])
+        fila_dato(ws, "Cédula",      fila.get('cedula') or '—')
+        fila_dato(ws, "Especialidad",fila.get('especialidad') or '—')
     elif tipo == 'arbitro':
-        ws.append(["Licencia", fila['licencia']])
-        ws.append(["Zona",     fila['zona']])
+        fila_dato(ws, "Licencia", fila.get('licencia') or '—')
+        fila_dato(ws, "Zona",     fila.get('zona') or '—')
 
-    ws.append([])
-    ws.append(["SALUD"])
-    ws.append(["Enfermedades Crónicas", fila['enfermedades_cronicas']])
-    ws.append(["Medicamentos",          fila['medicamentos']])
+    fila_seccion(ws, "SALUD")
+    # enfermedades_cronicas puede ser tinyint(1) o varchar según migración
+    enf = fila.get('enfermedades_cronicas')
+    if enf is None or enf == 0 or enf == '0':
+        enf_texto = 'NINGUNA'
+    elif enf == 1:
+        enf_texto = 'SÍ (ver expediente físico)'
+    else:
+        enf_texto = str(enf)
+    fila_dato(ws, "Enfermedades Crónicas", enf_texto)
+    fila_dato(ws, "Medicamentos",          fila.get('medicamentos') or 'NINGUNA')
 
-    # Estilo básico — encabezado en negritas
-    from openpyxl.styles import Font
-    for row in ws.iter_rows():
-        for cell in row:
-            if cell.value and isinstance(cell.value, str) and cell.column == 1:
-                cell.font = Font(bold=True)
+    # Sanciones
+    if sanciones:
+        fila_seccion(ws, "SANCIONES")
+        ws.append(["Tipo", "Liga", "Fecha", "Fecha Fin", "Motivo", "Estatus"])
+        for cell in ws[ws.max_row]:
+            cell.font = etiqueta_font
+        for s in sanciones:
+            ws.append([
+                s['tipo_sancion'],
+                s.get('nombre_liga') or '—',
+                str(s['fecha_sancion']),
+                str(s['fecha_fin_sancion']) if s['fecha_fin_sancion'] else '—',
+                s['motivo'],
+                s['estatus'],
+            ])
+
+    # Ajustar ancho de columnas
+    ws.column_dimensions['A'].width = 28
+    ws.column_dimensions['B'].width = 40
 
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
+    return send_file(output,
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                     as_attachment=True,
+                     download_name=f"expediente_{id_expediente}.xlsx")
 
-    from flask import send_file
-    return send_file(
-        output,
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        as_attachment=True,
-        download_name=f"expediente_{id_expediente}.xlsx"
-    )
 
 # ── Utilidad ──────────────────────────────────────
 def _formatear_tamano(bytes):

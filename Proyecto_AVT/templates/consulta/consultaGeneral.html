@@ -82,6 +82,17 @@
                 </div>
             </a>
 
+             <!-- Ver información de equipos registrados -->
+            <a href="{{ url_for('consulta.consultarEquipo') }}"
+               class="card cursor-pointer hover:scale-105 transition-transform">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="users" class="w-8 h-8 text-red-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-black mb-2">Consultar Equipo</h3>
+                    <p class="text-white">Ver información de equipos registrados</p>
+                </div>
+            </a>
         </div>
     </main>
 

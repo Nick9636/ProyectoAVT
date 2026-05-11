@@ -55,9 +55,8 @@ def consultarRegistro():
         valores     = []
 
         if nombre:
-            condiciones.append("""
-                CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) LIKE %s
-            """)
+            condiciones.append(
+                "CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) LIKE %s")
             valores.append(f'%{nombre}%')
         if curp:
             condiciones.append("curp LIKE %s")
@@ -65,18 +64,33 @@ def consultarRegistro():
 
         where = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
 
-        cur.execute(f"""
-            SELECT {pk} AS id, tipo_tabla,
-                   apellido_paterno, apellido_materno, nombres,
-                   curp, NULL AS categoria, NULL AS fecha_registro, '{tipo}' AS tipo
-            FROM (
-                SELECT {pk}, '{tipo}' AS tipo_tabla,
+        # Intentar leer categoria de la tabla; si no existe (BD sin migrar), usar NULL
+        if tipo == 'jugador':
+            col_categoria = 'categoria'   # existe tras ejecutar agregar_categoria_jugador.sql
+            col_fecha_reg = 'NULL AS fecha_registro'
+        else:
+            col_categoria = 'categoria'
+            col_fecha_reg = 'fecha_registro'
+
+        try:
+            cur.execute(f"""
+                SELECT {pk} AS id,
                        apellido_paterno, apellido_materno, nombres,
-                       curp
+                       curp, {col_categoria}, {col_fecha_reg},
+                       '{tipo}' AS tipo
                 FROM {tabla}
                 {where}
-            ) sub
-        """, valores)
+            """, valores)
+        except Exception:
+            # Fallback: columna categoria no existe aún en esta tabla
+            cur.execute(f"""
+                SELECT {pk} AS id,
+                       apellido_paterno, apellido_materno, nombres,
+                       curp, NULL AS categoria, NULL AS fecha_registro,
+                       '{tipo}' AS tipo
+                FROM {tabla}
+                {where}
+            """, valores)
         resultados += cur.fetchall()
 
     # Contadores totales
@@ -115,27 +129,37 @@ def consultarAfiliado():
     valores     = []
 
     if nombre:
-        condiciones.append("""
-            CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s
-        """)
+        condiciones.append(
+            "CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) LIKE %s")
         valores.append(f'%{nombre}%')
     if curp:
         condiciones.append("j.curp LIKE %s")
         valores.append(f'%{curp}%')
 
-    where = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
+    extra = ('AND ' + ' AND '.join(condiciones)) if condiciones else ''
 
-    cur.execute(f"""
-        SELECT j.id_jugador AS id,
-               j.apellido_paterno, j.apellido_materno, j.nombres,
-               j.curp, NULL AS categoria, NULL AS fecha_registro,
-               e.id_expediente, e.estatus,
-               'jugador' AS tipo
-        FROM jugador j
-        JOIN expediente e ON e.id_jugador = j.id_jugador
-        WHERE e.estatus = 'activo'
-        {'AND ' + ' AND '.join(condiciones) if condiciones else ''}
-    """, valores)
+    # Intentar leer j.categoria; si la columna no existe aún (BD sin migrar),
+    # el except devuelve NULL y la pantalla muestra '—' hasta que se ejecute el ALTER.
+    try:
+        cur.execute(f"""
+            SELECT j.id_jugador AS id,
+                   j.apellido_paterno, j.apellido_materno, j.nombres,
+                   j.curp, j.categoria,
+                   e.id_expediente, e.estatus, 'jugador' AS tipo
+            FROM jugador j
+            JOIN expediente e ON e.id_jugador = j.id_jugador
+            WHERE e.estatus = 'activo' {extra}
+        """, valores)
+    except Exception:
+        cur.execute(f"""
+            SELECT j.id_jugador AS id,
+                   j.apellido_paterno, j.apellido_materno, j.nombres,
+                   j.curp, NULL AS categoria,
+                   e.id_expediente, e.estatus, 'jugador' AS tipo
+            FROM jugador j
+            JOIN expediente e ON e.id_jugador = j.id_jugador
+            WHERE e.estatus = 'activo' {extra}
+        """, valores)
     resultados = cur.fetchall()
 
     cur.execute("""
@@ -150,12 +174,170 @@ def consultarAfiliado():
         "consulta/consultarAfiliado.html",
         resultados=resultados,
         activos_jugadores=activos_j,
-        activos_entrenadores=0,
-        activos_arbitros=0,
-        filtro_nombre=nombre,
-        filtro_curp=curp,
-        filtro_rol=''
+        activos_entrenadores=0, activos_arbitros=0,
+        filtro_nombre=nombre, filtro_curp=curp, filtro_rol=''
     )
+
+
+# ── Detalle de un afiliado (modal) ────────────────
+@consulta.route("/afiliado/<int:id_jugador>")
+@login_requerido
+def detalleAfiliado(id_jugador):
+    from extensiones import notificar
+    cur = mysql.connection.cursor()
+
+    # Datos del jugador — leer categoria directamente; fallback si no existe
+    try:
+        cur.execute("""
+            SELECT j.id_jugador, j.apellido_paterno, j.apellido_materno, j.nombres,
+                   j.curp, j.fecha_nacimiento, j.celular, j.telefono,
+                   j.correo_electronico, j.categoria,
+                   e.id_expediente, e.estatus AS estatus_expediente
+            FROM jugador j
+            JOIN expediente e ON e.id_jugador = j.id_jugador
+            WHERE j.id_jugador = %s
+            LIMIT 1
+        """, (id_jugador,))
+    except Exception:
+        cur.execute("""
+            SELECT j.id_jugador, j.apellido_paterno, j.apellido_materno, j.nombres,
+                   j.curp, j.fecha_nacimiento, j.celular, j.telefono,
+                   j.correo_electronico, NULL AS categoria,
+                   e.id_expediente, e.estatus AS estatus_expediente
+            FROM jugador j
+            JOIN expediente e ON e.id_jugador = j.id_jugador
+            WHERE j.id_jugador = %s
+            LIMIT 1
+        """, (id_jugador,))
+    jugador = cur.fetchone()
+
+    if not jugador:
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': 'Jugador no encontrado'}), 404
+
+    # Sanciones activas
+    try:
+        cur.execute("""
+            SELECT s.id_sancion, s.tipo_sancion, s.fecha_sancion,
+                   s.fecha_fin_sancion, s.motivo, s.estatus,
+                   l.nombre_liga
+            FROM sanciones s
+            LEFT JOIN liga l ON l.id_liga = s.id_liga
+            WHERE s.id_jugador = %s
+            ORDER BY s.fecha_sancion DESC
+        """, (id_jugador,))
+        sanciones = cur.fetchall()
+    except Exception:
+        sanciones = []
+
+    # Ligas disponibles para nueva sanción
+    cur.execute("SELECT id_liga, nombre_liga FROM liga ORDER BY nombre_liga")
+    ligas = cur.fetchall()
+    cur.close()
+
+    # Serializar fechas
+    def fmt(d):
+        return d.strftime('%Y-%m-%d') if d else None
+
+    data_jugador = {k: (fmt(v) if hasattr(v, 'strftime') else v)
+                    for k, v in jugador.items()}
+    data_sanciones = [
+        {k: (fmt(v) if hasattr(v, 'strftime') else v) for k, v in s.items()}
+        for s in sanciones
+    ]
+
+    return jsonify({
+        'ok':       True,
+        'jugador':  data_jugador,
+        'sanciones': data_sanciones,
+        'ligas':    ligas,
+    })
+
+
+# ── Cambiar categoría ─────────────────────────────
+@consulta.route("/afiliado/<int:id_jugador>/categoria", methods=["POST"])
+@login_requerido
+def cambiarCategoria(id_jugador):
+    from extensiones import notificar
+    nueva = request.json.get('categoria', '').strip().upper()
+    if not nueva:
+        return jsonify({'ok': False, 'mensaje': 'Categoría requerida'}), 400
+    cur = mysql.connection.cursor()
+    try:
+        # Intentar con columna categoria (post-migración)
+        cur.execute("UPDATE jugador SET categoria = %s WHERE id_jugador = %s",
+                    (nueva, id_jugador))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'],
+                  f"Categoría del jugador #{id_jugador} actualizada a '{nueva}'.")
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'ok': True, 'mensaje': f'Categoría actualizada a {nueva}.'})
+    except Exception as e:
+        mysql.connection.rollback()
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': str(e)}), 500
+
+
+# ── Cambiar estatus del expediente (activo/inactivo) ──
+@consulta.route("/afiliado/<int:id_jugador>/estatus", methods=["POST"])
+@login_requerido
+def cambiarEstatusAfiliado(id_jugador):
+    from extensiones import notificar
+    nuevo = request.json.get('estatus', '').strip().lower()
+    if nuevo not in ('activo', 'inactivo', 'cerrado'):
+        return jsonify({'ok': False, 'mensaje': 'Estatus inválido'}), 400
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute("""
+            UPDATE expediente SET estatus = %s
+            WHERE id_jugador = %s
+        """, (nuevo, id_jugador))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'],
+                  f"Expediente del jugador #{id_jugador} marcado como '{nuevo}'.")
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'ok': True, 'mensaje': f'Estatus actualizado a {nuevo}.'})
+    except Exception as e:
+        mysql.connection.rollback()
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': str(e)}), 500
+
+
+# ── Agregar sanción ───────────────────────────────
+@consulta.route("/afiliado/<int:id_jugador>/sancion", methods=["POST"])
+@login_requerido
+def agregarSancion(id_jugador):
+    from extensiones import notificar
+    d = request.json or {}
+    tipo_sancion    = d.get('tipo_sancion', '').strip()
+    id_liga         = d.get('id_liga')
+    motivo          = d.get('motivo', '').strip()
+    fecha_fin       = d.get('fecha_fin_sancion') or None
+
+    if not tipo_sancion or not motivo or not id_liga:
+        return jsonify({'ok': False, 'mensaje': 'Tipo, liga y motivo son obligatorios'}), 400
+
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO sanciones
+                (id_jugador, id_liga, tipo_sancion, fecha_sancion,
+                 fecha_fin_sancion, motivo, estatus)
+            VALUES (%s, %s, %s, CURDATE(), %s, %s, 'Activa')
+        """, (id_jugador, id_liga, tipo_sancion, fecha_fin, motivo))
+        mysql.connection.commit()
+        nuevo_id = cur.lastrowid
+        notificar(cur, session['id_usuario'],
+                  f"Sanción '{tipo_sancion}' registrada para jugador #{id_jugador}.")
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'ok': True, 'mensaje': 'Sanción registrada.', 'id': nuevo_id})
+    except Exception as e:
+        mysql.connection.rollback()
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': str(e)}), 500
 
 
 # ══════════════════════════════════════════════════
@@ -166,6 +348,7 @@ def consultarAfiliado():
 @login_requerido
 def consultarLigas():
     nombre = request.args.get('nombre', '').strip()
+    filtro_estado = request.args.get('estado', '').strip()
 
     cur = mysql.connection.cursor()
     condiciones = []
@@ -174,14 +357,30 @@ def consultarLigas():
         condiciones.append("l.nombre_liga LIKE %s")
         valores.append(f'%{nombre}%')
 
+    # Filtrar por estado si la columna existe
+    tiene_estado = False
+    try:
+        cur.execute("SELECT estado FROM liga LIMIT 1")
+        cur.fetchone()
+        tiene_estado = True
+    except Exception:
+        pass
+
+    if filtro_estado and tiene_estado:
+        condiciones.append("l.estado = %s")
+        valores.append(filtro_estado)
+
     where = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
+
+    col_estado = "COALESCE(l.estado, 'activo') AS estado" if tiene_estado else "'activo' AS estado"
 
     cur.execute(f"""
         SELECT l.id_liga, l.nombre_liga, l.categoria,
-               COUNT(DISTINCT e.id_equipo) AS total_equipos,
+               {col_estado},
+               COUNT(DISTINCT e.id_equipo)   AS total_equipos,
                COUNT(DISTINCT jl.id_jugador) AS total_jugadores
         FROM liga l
-        LEFT JOIN equipo e  ON e.id_liga  = l.id_liga
+        LEFT JOIN equipo e        ON e.id_liga  = l.id_liga
         LEFT JOIN jugador_liga jl ON jl.id_liga = l.id_liga
         {where}
         GROUP BY l.id_liga
@@ -189,8 +388,16 @@ def consultarLigas():
     """, valores)
     ligas = cur.fetchall()
 
-    cur.execute("SELECT COUNT(*) AS t FROM liga")
-    total_ligas = cur.fetchone()['t']
+    if tiene_estado:
+        cur.execute("SELECT COUNT(*) AS t FROM liga WHERE estado = 'activo'")
+        activas = cur.fetchone()['t']
+        cur.execute("SELECT COUNT(*) AS t FROM liga WHERE estado = 'inactivo'")
+        inactivas = cur.fetchone()['t']
+    else:
+        cur.execute("SELECT COUNT(*) AS t FROM liga")
+        activas = cur.fetchone()['t']
+        inactivas = 0
+
     cur.execute("SELECT COUNT(*) AS t FROM equipo")
     total_equipos = cur.fetchone()['t']
     cur.execute("SELECT COUNT(*) AS t FROM jugador")
@@ -200,28 +407,210 @@ def consultarLigas():
     return render_template(
         "consulta/consultarLigas.html",
         ligas=ligas,
-        total_ligas=total_ligas,
+        activas=activas,
+        inactivas=inactivas,
         total_equipos=total_equipos,
         total_jugadores=total_jugadores,
-        filtro_nombre=nombre
+        filtro_nombre=nombre,
+        filtro_estado=filtro_estado,
     )
 
 
 @consulta.route("/ligas/toggle/<int:id_liga>", methods=["POST"])
 @login_requerido
 def toggleEstadoLiga(id_liga):
-    # Liga no tiene columna estado en la BD actual — solo confirmar que existe
+    from extensiones import notificar
     cur = mysql.connection.cursor()
     try:
-        cur.execute("SELECT id_liga FROM liga WHERE id_liga = %s", (id_liga,))
-        if not cur.fetchone():
+        # Leer estado actual
+        cur.execute("SELECT estado FROM liga WHERE id_liga = %s", (id_liga,))
+        fila = cur.fetchone()
+        if not fila:
             cur.close()
             return jsonify({'ok': False, 'mensaje': 'Liga no encontrada'}), 404
+
+        nuevo = 'inactivo' if fila['estado'] == 'activo' else 'activo'
+        cur.execute("UPDATE liga SET estado = %s WHERE id_liga = %s", (nuevo, id_liga))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'],
+                  f"Liga #{id_liga} marcada como '{nuevo}'.")
+        mysql.connection.commit()
         cur.close()
-        return jsonify({'ok': True, 'mensaje': 'Operación no disponible en esta versión'})
+        return jsonify({'ok': True, 'nuevo_estado': nuevo,
+                        'mensaje': f'Liga marcada como {nuevo}.'})
     except Exception as e:
+        # Columna estado no existe aún — devolver error descriptivo
+        mysql.connection.rollback()
+        cur.close()
+        return jsonify({'ok': False,
+                        'mensaje': 'Ejecuta agregar_estado_liga.sql en Workbench primero.'}), 500
+
+
+# ══════════════════════════════════════════════════
+# EQUIPOS
+# ══════════════════════════════════════════════════
+
+@consulta.route("/equipo")
+@login_requerido
+def consultarEquipo():
+    nombre    = request.args.get('nombre',    '').strip()
+    id_liga   = request.args.get('id_liga',   '').strip()
+    categoria = request.args.get('categoria', '').strip()
+
+    cur = mysql.connection.cursor()
+    condiciones = []
+    valores     = []
+
+    if nombre:
+        condiciones.append("e.nombre_equipo LIKE %s")
+        valores.append(f'%{nombre}%')
+    if id_liga:
+        condiciones.append("e.id_liga = %s")
+        valores.append(id_liga)
+    if categoria:
+        condiciones.append("e.categoria = %s")
+        valores.append(categoria)
+
+    where = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
+
+    try:
+        cur.execute(f"""
+            SELECT e.id_equipo, e.nombre_equipo, e.categoria, e.estado,
+                   l.id_liga, l.nombre_liga
+            FROM equipo e
+            JOIN liga l ON l.id_liga = e.id_liga
+            {where}
+            ORDER BY l.nombre_liga, e.nombre_equipo
+        """, valores)
+    except Exception:
+        # estado no existe aún — fallback
+        cur.execute(f"""
+            SELECT e.id_equipo, e.nombre_equipo, e.categoria, 'activo' AS estado,
+                   l.id_liga, l.nombre_liga
+            FROM equipo e
+            JOIN liga l ON l.id_liga = e.id_liga
+            {where}
+            ORDER BY l.nombre_liga, e.nombre_equipo
+        """, valores)
+    equipos = cur.fetchall()
+
+    cur.execute("SELECT COUNT(*) AS t FROM equipo")
+    total_equipos = cur.fetchone()['t']
+    cur.execute("SELECT id_liga, nombre_liga FROM liga ORDER BY nombre_liga")
+    ligas = cur.fetchall()
+    cur.close()
+
+    return render_template(
+        "consulta/consultarEquipo.html",
+        equipos=equipos,
+        total_equipos=total_equipos,
+        ligas=ligas,
+        filtro_nombre=nombre,
+        filtro_liga=id_liga,
+        filtro_categoria=categoria,
+    )
+
+
+@consulta.route("/equipo/<int:id_equipo>")
+@login_requerido
+def detalleEquipo(id_equipo):
+    cur = mysql.connection.cursor()
+
+    # Leer estado si la columna existe
+    try:
+        cur.execute("""
+            SELECT e.id_equipo, e.nombre_equipo, e.categoria, e.estado,
+                   l.id_liga, l.nombre_liga
+            FROM equipo e
+            JOIN liga l ON l.id_liga = e.id_liga
+            WHERE e.id_equipo = %s
+        """, (id_equipo,))
+    except Exception:
+        cur.execute("""
+            SELECT e.id_equipo, e.nombre_equipo, e.categoria, 'activo' AS estado,
+                   l.id_liga, l.nombre_liga
+            FROM equipo e
+            JOIN liga l ON l.id_liga = e.id_liga
+            WHERE e.id_equipo = %s
+        """, (id_equipo,))
+    equipo = cur.fetchone()
+
+    if not equipo:
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': 'Equipo no encontrado'}), 404
+
+    # Jugadores del equipo (si la columna id_equipo existe en jugador)
+    jugadores = []
+    try:
+        cur.execute("""
+            SELECT id_jugador,
+                   CONCAT(apellido_paterno,' ',apellido_materno,' ',nombres) AS nombre,
+                   curp, categoria
+            FROM jugador
+            WHERE id_equipo = %s
+            ORDER BY apellido_paterno
+        """, (id_equipo,))
+        jugadores = cur.fetchall()
+    except Exception:
+        pass
+
+    cur.close()
+    return jsonify({
+        'ok':       True,
+        'equipo':   equipo,
+        'jugadores': jugadores,
+    })
+
+
+@consulta.route("/equipo/<int:id_equipo>/categoria", methods=["POST"])
+@login_requerido
+def cambiarCategoriaEquipo(id_equipo):
+    from extensiones import notificar
+    nueva = request.json.get('categoria', '').strip().upper()
+    if not nueva:
+        return jsonify({'ok': False, 'mensaje': 'Categoría requerida'}), 400
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute("UPDATE equipo SET categoria = %s WHERE id_equipo = %s",
+                    (nueva, id_equipo))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'],
+                  f"Categoría del equipo #{id_equipo} actualizada a '{nueva}'.")
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'ok': True, 'mensaje': f'Categoría actualizada a {nueva}.'})
+    except Exception as e:
+        mysql.connection.rollback()
         cur.close()
         return jsonify({'ok': False, 'mensaje': str(e)}), 500
+
+
+@consulta.route("/equipo/<int:id_equipo>/estado", methods=["POST"])
+@login_requerido
+def toggleEstadoEquipo(id_equipo):
+    from extensiones import notificar
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute("SELECT estado FROM equipo WHERE id_equipo = %s", (id_equipo,))
+        fila = cur.fetchone()
+        if not fila:
+            cur.close()
+            return jsonify({'ok': False, 'mensaje': 'Equipo no encontrado'}), 404
+
+        nuevo = 'inactivo' if fila['estado'] == 'activo' else 'activo'
+        cur.execute("UPDATE equipo SET estado = %s WHERE id_equipo = %s", (nuevo, id_equipo))
+        mysql.connection.commit()
+        notificar(cur, session['id_usuario'],
+                  f"Equipo #{id_equipo} marcado como '{nuevo}'.")
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'ok': True, 'nuevo_estado': nuevo,
+                        'mensaje': f'Equipo marcado como {nuevo}.'})
+    except Exception as e:
+        mysql.connection.rollback()
+        cur.close()
+        return jsonify({'ok': False,
+                        'mensaje': 'Ejecuta agregar_estado_equipo.sql en Workbench primero.'}), 500
 
 
 # ══════════════════════════════════════════════════

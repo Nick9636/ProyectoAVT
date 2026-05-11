@@ -1,0 +1,406 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{# Descripción: Consulta de equipos registrados. Permite filtrar por nombre, liga y
+   categoría. Desde cada fila se puede ver el detalle, cambiar la categoría y
+   activar o desactivar el equipo. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Equipos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Formulario de búsqueda -->
+        <form method="GET" action="{{ url_for('consulta.consultarEquipo') }}">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Equipos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Equipo</label>
+                    <input type="text" name="nombre" value="{{ filtro_nombre }}"
+                           placeholder="Nombre del equipo"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Liga</label>
+                    <select name="id_liga"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                        <option value="">Todas las ligas</option>
+                        {% for liga in ligas %}
+                        <option value="{{ liga['id_liga'] }}"
+                                {% if filtro_liga == liga['id_liga']|string %}selected{% endif %}>
+                            {{ liga['nombre_liga'] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                    <select name="categoria"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                        <option value="">Todas</option>
+                        <option value="INFANTIL"       {% if filtro_categoria=='INFANTIL'       %}selected{% endif %}>INFANTIL</option>
+                        <option value="MENOR INFANTIL" {% if filtro_categoria=='MENOR INFANTIL' %}selected{% endif %}>MENOR INFANTIL</option>
+                        <option value="CADETE"         {% if filtro_categoria=='CADETE'         %}selected{% endif %}>CADETE</option>
+                        <option value="JUVENIL"        {% if filtro_categoria=='JUVENIL'        %}selected{% endif %}>JUVENIL</option>
+                        <option value="MAYOR"          {% if filtro_categoria=='MAYOR'          %}selected{% endif %}>MAYOR</option>
+                        <option value="MASTER"         {% if filtro_categoria=='MASTER'         %}selected{% endif %}>MASTER</option>
+                        <option value="Primera Fuerza" {% if filtro_categoria=='Primera Fuerza' %}selected{% endif %}>Primera Fuerza</option>
+                        <option value="Veteranos"      {% if filtro_categoria=='Veteranos'      %}selected{% endif %}>Veteranos</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit"
+                    class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800
+                           transition-colors flex items-center gap-2">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                Buscar
+            </button>
+        </div>
+        </form>
+
+        <!-- Contador -->
+        <div class="grid grid-cols-1 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ total_equipos }}</div>
+                <div class="text-sm text-gray-600">Total Equipos Registrados</div>
+            </div>
+        </div>
+
+        <!-- Zona de alertas -->
+        <div id="alertas" class="mb-4"></div>
+
+        <!-- Tabla de equipos -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-gray-900">Equipos Registrados</h3>
+                <span class="text-sm text-gray-500">{{ equipos|length }} equipo(s)</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Equipo</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Liga</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Categoría</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Estado</th>
+                            <th class="px-6 py-3 text-center text-sm font-semibold">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% if equipos %}
+                            {% for eq in equipos %}
+                            <tr class="hover:bg-gray-50" id="fila-eq-{{ eq['id_equipo'] }}">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{ eq['nombre_equipo'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ eq['nombre_liga'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600" id="cat-eq-{{ eq['id_equipo'] }}">
+                                    {{ eq['categoria'] or '—' }}
+                                </td>
+                                <!-- Badge de estado con color según activo/inactivo -->
+                                <td class="px-6 py-4">
+                                    <span id="badge-eq-{{ eq['id_equipo'] }}"
+                                          class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if eq['estado'] == 'activo' %}
+                                                     bg-green-100 text-green-700
+                                                 {% else %}
+                                                     bg-yellow-100 text-yellow-700
+                                                 {% endif %}">
+                                        {{ eq['estado']|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="abrirDetalle({{ eq['id_equipo'] }}, '{{ eq['estado'] }}')"
+                                            class="inline-flex items-center gap-1 px-3 py-1 rounded-lg
+                                                   bg-red-700 text-white text-xs hover:bg-red-800 transition-colors">
+                                        <i data-lucide="eye" class="w-3 h-3"></i>
+                                        Ver detalle
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                                    <i data-lucide="shield" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                    <p>No se encontraron equipos.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ══════════════════════════════════════════
+         MODAL DETALLE DEL EQUIPO
+    ══════════════════════════════════════════ -->
+    <div id="modalDetalle"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+
+            <!-- Encabezado -->
+            <div class="flex items-center justify-between p-6 border-b bg-red-700 rounded-t-xl">
+                <h3 id="modalNombre" class="text-lg font-semibold text-white">Detalle del Equipo</h3>
+                <button onclick="cerrarModal()"
+                        class="text-white/80 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6">
+
+                <!-- Datos básicos -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Información del Equipo</h4>
+                    <div class="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                        <div><span class="font-medium">Liga:</span> <span id="dLiga"></span></div>
+                        <div><span class="font-medium">Categoría:</span> <span id="dCategoria"></span></div>
+                        <div class="col-span-2">
+                            <span class="font-medium">Estado actual:</span>
+                            <span id="dEstadoBadge" class="ml-2 text-xs px-2 py-0.5 rounded-full font-medium"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cambiar categoría -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="tag" class="w-4 h-4 text-red-700"></i>
+                        Cambiar Categoría
+                    </h4>
+                    <div class="flex gap-2">
+                        <select id="nuevaCategoria"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg
+                                       focus:ring-2 focus:ring-red-500 focus:outline-none text-sm">
+                            <option value="">Seleccionar</option>
+                            <option>INFANTIL</option>
+                            <option>MENOR INFANTIL</option>
+                            <option>CADETE</option>
+                            <option>JUVENIL</option>
+                            <option>MAYOR</option>
+                            <option>MASTER</option>
+                            <option>Primera Fuerza</option>
+                            <option>Veteranos</option>
+                        </select>
+                        <button onclick="guardarCategoria()"
+                                class="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800
+                                       transition-colors text-sm flex items-center gap-1">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cambiar estado activo / inactivo -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="toggle-left" class="w-4 h-4 text-red-700"></i>
+                        Estado del Equipo
+                    </h4>
+                    <div class="flex gap-2 flex-wrap">
+                        <!-- Los botones se actualizan dinámicamente según el estado actual -->
+                        <button id="btnActivar"
+                                onclick="cambiarEstado('activo')"
+                                class="hidden px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700
+                                       transition-colors text-sm flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            Marcar Activo
+                        </button>
+                        <button id="btnDesactivar"
+                                onclick="cambiarEstado('inactivo')"
+                                class="hidden px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600
+                                       transition-colors text-sm flex items-center gap-1">
+                            <i data-lucide="pause-circle" class="w-4 h-4"></i>
+                            Marcar Inactivo
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">
+                        Un equipo inactivo sigue visible en el sistema pero indica que no está en actividad.
+                    </p>
+                </div>
+
+                <!-- Jugadores del equipo -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-red-700"></i>
+                        Jugadores del Equipo
+                    </h4>
+                    <div id="listaJugadores" class="space-y-2 text-sm text-gray-600">
+                        <p class="text-gray-400 italic">Cargando...</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let idEquipoActual  = null;
+        let estadoActual    = 'activo';
+
+        // Abre el modal y carga los datos del equipo
+        function abrirDetalle(id, estado) {
+            idEquipoActual = id;
+            estadoActual   = estado || 'activo';
+
+            fetch(`{{ url_for('consulta.consultarEquipo') }}/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) { mostrarAlerta('error', 'Error', data.mensaje); return; }
+
+                    const eq = data.equipo;
+                    estadoActual = eq.estado || 'activo';
+
+                    document.getElementById('modalNombre').textContent = eq.nombre_equipo;
+                    document.getElementById('dLiga').textContent       = eq.nombre_liga || '—';
+                    document.getElementById('dCategoria').textContent  = eq.categoria || '—';
+
+                    // Actualizar badge de estado en el modal
+                    actualizarBadgeModal(estadoActual);
+
+                    // Pre-seleccionar categoría actual
+                    document.getElementById('nuevaCategoria').value = eq.categoria || '';
+
+                    // Mostrar jugadores
+                    const lista = document.getElementById('listaJugadores');
+                    if (data.jugadores && data.jugadores.length > 0) {
+                        lista.innerHTML = data.jugadores.map(j => `
+                            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                                <span>${j.nombre}</span>
+                                <span class="text-xs text-gray-400">${j.categoria || '—'}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        lista.innerHTML = '<p class="text-gray-400 italic text-sm">Sin jugadores asignados.</p>';
+                    }
+
+                    document.getElementById('modalDetalle').classList.remove('hidden');
+                    lucide.createIcons();
+                })
+                .catch(() => mostrarAlerta('error', 'Error', 'No se pudo cargar el detalle.'));
+        }
+
+        // Actualiza el badge y los botones de estado dentro del modal
+        function actualizarBadgeModal(estado) {
+            const badge      = document.getElementById('dEstadoBadge');
+            const btnActivar = document.getElementById('btnActivar');
+            const btnDesact  = document.getElementById('btnDesactivar');
+
+            if (estado === 'activo') {
+                badge.textContent = 'Activo';
+                badge.className   = 'ml-2 text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700';
+                btnActivar.classList.add('hidden');
+                btnDesact.classList.remove('hidden');
+            } else {
+                badge.textContent = 'Inactivo';
+                badge.className   = 'ml-2 text-xs px-2 py-0.5 rounded-full font-medium bg-yellow-100 text-yellow-700';
+                btnDesact.classList.add('hidden');
+                btnActivar.classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Cierra el modal
+        function cerrarModal() {
+            document.getElementById('modalDetalle').classList.add('hidden');
+            idEquipoActual = null;
+        }
+
+        // Guarda la nueva categoría del equipo
+        function guardarCategoria() {
+            const nueva = document.getElementById('nuevaCategoria').value;
+            if (!nueva) { mostrarAlerta('error', 'Error', 'Selecciona una categoría.'); return; }
+
+            fetch(`{{ url_for('consulta.consultarEquipo') }}/${idEquipoActual}/categoria`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoria: nueva })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    // Actualizar celda en la tabla y el dato del modal
+                    const celda = document.getElementById(`cat-eq-${idEquipoActual}`);
+                    if (celda) celda.textContent = nueva;
+                    document.getElementById('dCategoria').textContent = nueva;
+                    mostrarAlerta('success', 'Categoría actualizada', data.mensaje);
+                } else {
+                    mostrarAlerta('error', 'Error', data.mensaje);
+                }
+            });
+        }
+
+        // Cambia el estado del equipo (activo ↔ inactivo)
+        function cambiarEstado(nuevoEstado) {
+            const accion = nuevoEstado === 'activo' ? 'activar' : 'desactivar';
+            if (!confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} este equipo?`)) return;
+
+            fetch(`{{ url_for('consulta.consultarEquipo') }}/${idEquipoActual}/estado`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    estadoActual = data.nuevo_estado;
+
+                    // Actualizar badge en la tabla principal
+                    const badgeTabla = document.getElementById(`badge-eq-${idEquipoActual}`);
+                    if (badgeTabla) {
+                        if (estadoActual === 'activo') {
+                            badgeTabla.className  = 'text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700';
+                            badgeTabla.textContent = 'Activo';
+                        } else {
+                            badgeTabla.className  = 'text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700';
+                            badgeTabla.textContent = 'Inactivo';
+                        }
+                    }
+
+                    // Actualizar badge y botones en el modal
+                    actualizarBadgeModal(estadoActual);
+                    mostrarAlerta('success', 'Estado actualizado', data.mensaje);
+                } else {
+                    mostrarAlerta('error', 'Error', data.mensaje);
+                }
+            });
+        }
+
+        // Muestra una alerta temporal
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
+            document.getElementById('alertas').innerHTML = `
+                <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
+                </div>`;
+            lucide.createIcons();
+            setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modalDetalle').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+    </script>
+</body>
+</html>

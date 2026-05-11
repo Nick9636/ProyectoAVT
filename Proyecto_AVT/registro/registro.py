@@ -1,5 +1,4 @@
 # Adriana Nicole Guzman Ahuatzi
-#01/04/2026
 # Rutas para el módulo de registro: ligas, equipos, personas (jugadores, entrenadores, árbitros) y pagos
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
 from extensiones import mysql, notificar
@@ -19,17 +18,20 @@ def login_requerido(f):
     return decorador
 
 
-# ── Vistas ────────────────────────────────────────
+# ── Menú general ──────────────────────────────────
 @registro.route("/")
 @login_requerido
 def registroGeneral():
     return render_template("registro/registroGeneral.html")
 
-##Liga
+
+# ══════════════════════════════════════════════════
+# LIGA
+# ══════════════════════════════════════════════════
+
 @registro.route("/liga")
 @login_requerido
 def registroLiga():
-    # Traer todas las ligas existentes para mostrarlas
     cur = mysql.connection.cursor()
     cur.execute("SELECT id_liga, nombre_liga, categoria FROM liga ORDER BY nombre_liga")
     ligas = cur.fetchall()
@@ -40,38 +42,24 @@ def registroLiga():
 @registro.route("/liga/guardar", methods=["POST"])
 @login_requerido
 def guardarLiga():
-    nombre   = request.form.get('nombre_liga', '').strip().upper()
+    nombre    = request.form.get('nombre_liga', '').strip().upper()
     categoria = request.form.get('categoria', '').strip().upper()
-
     if not nombre:
         return jsonify({'ok': False, 'mensaje': 'El nombre de la liga es obligatorio'}), 400
-
     cur = mysql.connection.cursor()
     try:
-        # Verificar que no exista ya
         cur.execute("SELECT id_liga FROM liga WHERE nombre_liga = %s", (nombre,))
         if cur.fetchone():
             cur.close()
             return jsonify({'ok': False, 'mensaje': 'Ya existe una liga con ese nombre'}), 400
-
-        cur.execute("""
-            INSERT INTO liga (nombre_liga, categoria)
-            VALUES (%s, %s)
-        """, (nombre, categoria))
+        cur.execute("INSERT INTO liga (nombre_liga, categoria) VALUES (%s, %s)", (nombre, categoria))
         mysql.connection.commit()
         nuevo_id = cur.lastrowid
         notificar(cur, session['id_usuario'], f"Liga '{nombre}' registrada.")
         mysql.connection.commit()
         cur.close()
-
-        return jsonify({
-            'ok':      True,
-            'mensaje': f'Liga "{nombre}" registrada correctamente.',
-            'id':      nuevo_id,
-            'nombre':  nombre,
-            'categoria': categoria
-        })
-
+        return jsonify({'ok': True, 'mensaje': f'Liga "{nombre}" registrada correctamente.',
+                        'id': nuevo_id, 'nombre': nombre, 'categoria': categoria})
     except Exception as e:
         mysql.connection.rollback()
         cur.close()
@@ -95,31 +83,24 @@ def eliminarLiga(id_liga):
         return jsonify({'ok': False, 'mensaje': str(e)}), 500
 
 
-
+# ══════════════════════════════════════════════════
 # EQUIPO
+# ══════════════════════════════════════════════════
 
 @registro.route("/equipo")
 @login_requerido
 def registroEquipo():
     cur = mysql.connection.cursor()
-
-    # Ligas para el select
     cur.execute("SELECT id_liga, nombre_liga, categoria FROM liga ORDER BY nombre_liga")
     ligas = cur.fetchall()
-
-    # Equipos existentes con su liga
     cur.execute("""
-        SELECT e.id_equipo, e.nombre_equipo, e.categoria,
-               l.nombre_liga, l.id_liga
-        FROM equipo e
-        JOIN liga l ON l.id_liga = e.id_liga
+        SELECT e.id_equipo, e.nombre_equipo, e.categoria, l.nombre_liga, l.id_liga
+        FROM equipo e JOIN liga l ON l.id_liga = e.id_liga
         ORDER BY e.nombre_equipo
     """)
     equipos = cur.fetchall()
     cur.close()
-
-    return render_template("registro/registroEquipo.html",
-                           ligas=ligas, equipos=equipos)
+    return render_template("registro/registroEquipo.html", ligas=ligas, equipos=equipos)
 
 
 @registro.route("/equipo/guardar", methods=["POST"])
@@ -128,44 +109,28 @@ def guardarEquipo():
     nombre    = request.form.get('nombre_equipo', '').strip().upper()
     id_liga   = request.form.get('id_liga')
     categoria = request.form.get('categoria', '').strip().upper()
-
     if not nombre or not id_liga:
         return jsonify({'ok': False, 'mensaje': 'Nombre y liga son obligatorios'}), 400
-
     cur = mysql.connection.cursor()
     try:
-        # Verificar duplicado en la misma liga
-        cur.execute("""
-            SELECT id_equipo FROM equipo
-            WHERE nombre_equipo = %s AND id_liga = %s
-        """, (nombre, id_liga))
+        cur.execute("SELECT id_equipo FROM equipo WHERE nombre_equipo = %s AND id_liga = %s",
+                    (nombre, id_liga))
         if cur.fetchone():
             cur.close()
             return jsonify({'ok': False, 'mensaje': 'Ya existe ese equipo en esta liga'}), 400
-
-        cur.execute("""
-            INSERT INTO equipo (id_liga, nombre_equipo, categoria)
-            VALUES (%s, %s, %s)
-        """, (id_liga, nombre, categoria))
+        cur.execute("INSERT INTO equipo (id_liga, nombre_equipo, categoria) VALUES (%s, %s, %s)",
+                    (id_liga, nombre, categoria))
         mysql.connection.commit()
         nuevo_id = cur.lastrowid
-
         cur.execute("SELECT nombre_liga FROM liga WHERE id_liga = %s", (id_liga,))
         liga = cur.fetchone()
         notificar(cur, session['id_usuario'],
                   f"Equipo '{nombre}' registrado en liga '{liga['nombre_liga'] if liga else id_liga}'.")
         mysql.connection.commit()
         cur.close()
-
-        return jsonify({
-            'ok':           True,
-            'mensaje':      f'Equipo "{nombre}" registrado correctamente.',
-            'id':           nuevo_id,
-            'nombre':       nombre,
-            'categoria':    categoria,
-            'nombre_liga':  liga['nombre_liga'] if liga else ''
-        })
-
+        return jsonify({'ok': True, 'mensaje': f'Equipo "{nombre}" registrado correctamente.',
+                        'id': nuevo_id, 'nombre': nombre, 'categoria': categoria,
+                        'nombre_liga': liga['nombre_liga'] if liga else ''})
     except Exception as e:
         mysql.connection.rollback()
         cur.close()
@@ -189,63 +154,46 @@ def eliminarEquipo(id_equipo):
         return jsonify({'ok': False, 'mensaje': str(e)}), 500
 
 
-
+# ══════════════════════════════════════════════════
 # PAGO
+# ══════════════════════════════════════════════════
+
 @registro.route("/pago")
 @login_requerido
 def registroPago():
     cur = mysql.connection.cursor()
-
     cur.execute("""
-        SELECT p.id_pago, p.fecha_pago, p.estatus,
-               p.metodo_pago, p.referencia,
-               CASE
-                   WHEN j.id_jugador    IS NOT NULL THEN 'jugador'
-                   WHEN e.id_entrenador IS NOT NULL THEN 'entrenador'
-                   WHEN a.id_arbitro    IS NOT NULL THEN 'arbitro'
-                   ELSE '—'
-               END AS tipo_persona,
-               COALESCE(
-                   CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres),
-                   CONCAT(e.apellido_paterno,' ',e.apellido_materno,' ',e.nombres),
-                   CONCAT(a.apellido_paterno,' ',a.apellido_materno,' ',a.nombres)
-               ) AS nombre_persona
+        SELECT p.id_pago, p.fecha_pago, p.estatus, p.metodo_pago, p.referencia,
+               'jugador' AS tipo_persona,
+               CONCAT(j.apellido_paterno,' ',j.apellido_materno,' ',j.nombres) AS nombre_persona
         FROM pago p
-        LEFT JOIN jugador    j ON j.id_jugador    = p.id_jugador
-        LEFT JOIN entrenador e ON e.id_entrenador = p.id_entrenador
-        LEFT JOIN arbitro    a ON a.id_arbitro    = p.id_arbitro
+        JOIN afiliacion a ON a.id_afiliacion = p.id_afiliacion
+        JOIN jugador    j ON j.id_jugador    = a.id_jugador
         ORDER BY p.fecha_pago DESC
     """)
     pagos = cur.fetchall()
     cur.close()
-
     return render_template("registro/registroPago.html", pagos=pagos)
 
 
 @registro.route("/pago/guardar", methods=["POST"])
 @login_requerido
 def guardarPago():
-    id_jugador   = request.form.get('id_jugador')
-    fecha_pago   = request.form.get('fecha_pago')
-    estatus      = request.form.get('estatus', 'Pendiente')
-    metodo_pago  = request.form.get('metodo_pago', '').strip()
-    referencia   = request.form.get('referencia', '').strip()
-
+    id_jugador  = request.form.get('id_persona') or request.form.get('id_jugador')
+    fecha_pago  = request.form.get('fecha_pago')
+    estatus     = request.form.get('estatus', 'Pendiente')
+    metodo_pago = request.form.get('metodo_pago', '').strip()
+    referencia  = request.form.get('referencia', '').strip()
     if not id_jugador or not fecha_pago:
         return jsonify({'ok': False, 'mensaje': 'Jugador y fecha son obligatorios'}), 400
-
     cur = mysql.connection.cursor()
     try:
-        # Buscar o crear afiliación para este jugador
         cur.execute("""
             SELECT id_afiliacion FROM afiliacion
-            WHERE id_jugador = %s
-            ORDER BY fecha_afiliacion DESC LIMIT 1
+            WHERE id_jugador = %s ORDER BY fecha_afiliacion DESC LIMIT 1
         """, (id_jugador,))
         afil = cur.fetchone()
-
         if not afil:
-            # Crear afiliación básica si no existe
             cur.execute("""
                 INSERT INTO afiliacion
                     (id_jugador, id_club, id_vigencia, numero_registro,
@@ -255,21 +203,17 @@ def guardarPago():
             id_afiliacion = cur.lastrowid
         else:
             id_afiliacion = afil['id_afiliacion']
-
         cur.execute("""
             INSERT INTO pago (id_afiliacion, fecha_pago, estatus, metodo_pago, referencia)
             VALUES (%s, %s, %s, %s, %s)
         """, (id_afiliacion, fecha_pago, estatus, metodo_pago or None, referencia or None))
-
         mysql.connection.commit()
         nuevo_id = cur.lastrowid
         notificar(cur, session['id_usuario'],
                   f"Pago registrado para jugador #{id_jugador} — estatus: {estatus}.")
         mysql.connection.commit()
         cur.close()
-
         return jsonify({'ok': True, 'mensaje': 'Pago registrado correctamente.', 'id': nuevo_id})
-
     except Exception as e:
         mysql.connection.rollback()
         cur.close()
@@ -282,7 +226,6 @@ def actualizarPago(id_pago):
     estatus = request.form.get('estatus')
     if estatus not in ('Pendiente', 'Completado', 'Cancelado'):
         return jsonify({'ok': False, 'mensaje': 'Estatus inválido'}), 400
-
     cur = mysql.connection.cursor()
     try:
         cur.execute("UPDATE pago SET estatus = %s WHERE id_pago = %s", (estatus, id_pago))
@@ -295,38 +238,90 @@ def actualizarPago(id_pago):
         mysql.connection.rollback()
         cur.close()
         return jsonify({'ok': False, 'mensaje': str(e)}), 500
-    
 
-#registro persona (jugador, entrenador, arbitro)
+
+# ══════════════════════════════════════════════════
+# PERSONA (jugador / entrenador / árbitro)
+# ══════════════════════════════════════════════════
+
 @registro.route("/persona")
 @login_requerido
 def registroPersona():
     cur = mysql.connection.cursor()
     cur.execute("""
         SELECT e.id_equipo, e.nombre_equipo, e.categoria, l.nombre_liga
-        FROM equipo e
-        JOIN liga l ON l.id_liga = e.id_liga
+        FROM equipo e JOIN liga l ON l.id_liga = e.id_liga
         ORDER BY e.nombre_equipo
     """)
     equipos = cur.fetchall()
+    cur.execute("SELECT id_municipio, nombre FROM cat_municipio ORDER BY nombre")
+    municipios = cur.fetchall()
+
+    # Calcular el siguiente número de registro para cada tipo
+    cur.execute("SELECT COUNT(*) AS total FROM jugador")
+    sig_jugador = cur.fetchone()['total'] + 1
+
+    try:
+        cur.execute("SELECT COUNT(*) AS total FROM entrenador")
+        sig_entrenador = cur.fetchone()['total'] + 1
+    except Exception:
+        sig_entrenador = 1
+
+    try:
+        cur.execute("SELECT COUNT(*) AS total FROM arbitro")
+        sig_arbitro = cur.fetchone()['total'] + 1
+    except Exception:
+        sig_arbitro = 1
+
     cur.close()
-    return render_template("registro/registroPersona.html", equipos=equipos)
+    return render_template(
+        "registro/registroPersona.html",
+        equipos=equipos,
+        municipios=municipios,
+        sig_jugador=f"JUG-{sig_jugador:03d}",
+        sig_entrenador=f"ENT-{sig_entrenador:03d}",
+        sig_arbitro=f"ARB-{sig_arbitro:03d}",
+    )
 
 
+# ── Ruta AJAX para obtener el siguiente número de registro ────
+@registro.route("/persona/siguiente_registro")
+@login_requerido
+def siguienteRegistro():
+    tipo = request.args.get('tipo', '').strip()
+    cur = mysql.connection.cursor()
+    try:
+        if tipo == 'jugador':
+            cur.execute("SELECT COUNT(*) AS total FROM jugador")
+            prefijo = 'JUG'
+        elif tipo == 'entrenador':
+            cur.execute("SELECT COUNT(*) AS total FROM entrenador")
+            prefijo = 'ENT'
+        elif tipo == 'arbitro':
+            cur.execute("SELECT COUNT(*) AS total FROM arbitro")
+            prefijo = 'ARB'
+        else:
+            cur.close()
+            return jsonify({'ok': False}), 400
+        total = cur.fetchone()['total']
+        cur.close()
+        return jsonify({'ok': True, 'numero': f"{prefijo}-{total + 1:03d}"})
+    except Exception as e:
+        cur.close()
+        return jsonify({'ok': False, 'mensaje': str(e)}), 500
 
-# ── Guardar persona ───────────────────────────────
+
 @registro.route("/persona/guardar", methods=["POST"])
 @login_requerido
 def guardarPersona():
     data = request.form
-    tipo = data.get('tipo_persona')
+    tipo = data.get('tipo_persona', '').strip()
     foto = request.files.get('fotoPersona')
 
     if tipo not in ('jugador', 'arbitro', 'entrenador'):
         return jsonify({'ok': False, 'mensaje': 'Tipo de persona inválido'}), 400
 
-    vigencias = request.form.getlist('vigencia')
-    vigencia  = ','.join(vigencias) if vigencias else ''
+    vigencia = ','.join(request.form.getlist('vigencia'))
 
     ruta_foto = None
     if foto and foto.filename:
@@ -337,90 +332,237 @@ def guardarPersona():
         foto.save(ruta_foto)
 
     cur = mysql.connection.cursor()
-
     try:
-        # 1. Insertar jugador primero (única tabla que existe en la BD actual)
-        cur.execute("""
-            INSERT INTO jugador (
-                apellido_paterno, apellido_materno, nombres,
-                curp, fecha_nacimiento, lugar_nacimiento, nacionalidad,
-                peso, estatura, telefono, celular, correo_electronico,
-                enfermedades_cronicas, medicamentos, fotografia
-            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """, (
-            data.get('apellido_paterno', '').upper(),
-            data.get('apellido_materno', '').upper(),
-            data.get('nombres', '').upper(),
-            data.get('curp', '').upper(),
-            data.get('fecha_nacimiento'),
-            data.get('lugar_nacimiento', '').upper(),
-            data.get('nacionalidad', 'MEXICANA').upper(),
-            data.get('peso') or None,
-            data.get('estatura') or None,
-            data.get('telefono') or None,
-            data.get('celular') or None,
-            data.get('correo_electronico') or data.get('email') or None,
-            data.get('enfermedades_cronicas', 'NINGUNA').upper(),
-            data.get('medicamentos', 'NINGUNA').upper(),
-            ruta_foto,
-        ))
+        # ── Generar número de registro automático ─────────────
+        if tipo == 'jugador':
+            cur.execute("SELECT COUNT(*) AS total FROM jugador")
+            prefijo = 'JUG'
+        elif tipo == 'entrenador':
+            cur.execute("SELECT COUNT(*) AS total FROM entrenador")
+            prefijo = 'ENT'
+        else:
+            cur.execute("SELECT COUNT(*) AS total FROM arbitro")
+            prefijo = 'ARB'
+        total = cur.fetchone()['total']
+        numero_registro = f"{prefijo}-{total + 1:03d}"
 
-        id_persona = cur.lastrowid
+        # ── Resolver municipio por nombre ─────────────────────
+        nombre_municipio = data.get('municipio', '').strip().upper()
+        id_municipio = 1
+        if nombre_municipio:
+            cur.execute("SELECT id_municipio FROM cat_municipio WHERE UPPER(nombre) = %s",
+                        (nombre_municipio,))
+            mun = cur.fetchone()
+            if mun:
+                id_municipio = mun['id_municipio']
+            else:
+                cur.execute("INSERT INTO cat_municipio (id_estado, nombre) VALUES (1, %s)",
+                            (nombre_municipio,))
+                id_municipio = cur.lastrowid
 
-        # 2. Insertar dirección con id_jugador ya disponible
-        cur.execute("""
-            INSERT INTO direccion
-                (id_jugador, id_municipio, calle, numero_exterior, colonia, codigo_postal)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (
-            id_persona,
-            1,  # municipio genérico hasta migración
-            data.get('calle', '').upper(),
-            data.get('numero_exterior', ''),
-            data.get('colonia', '').upper(),
-            data.get('codigo_postal', '')
-        ))
+        # ── Equipo (opcional) ─────────────────────────────────
+        id_equipo = data.get('id_equipo') or None
 
-        # 3. Expediente
-        cur.execute("""
-            INSERT INTO expediente (id_jugador, estatus, fecha_creacion)
-            VALUES (%s, 'activo', NOW())
-        """, (id_persona,))
+        # ── Campos comunes a las tres tablas ──────────────────
+        apellido_paterno    = data.get('apellido_paterno', '').upper()
+        apellido_materno    = data.get('apellido_materno', '').upper()
+        nombres             = data.get('nombres', '').upper()
+        curp                = data.get('curp', '').upper()
+        fecha_nacimiento    = data.get('fecha_nacimiento')
+        lugar_nacimiento    = data.get('lugar_nacimiento', '').upper() or None
+        nacionalidad        = data.get('nacionalidad', 'MEXICANA').upper()
+        peso                = data.get('peso') or None
+        estatura            = data.get('estatura') or None
+        tipo_sangre         = data.get('tipo_sangre') or None
+        ocupacion           = data.get('ocupacion', '').upper() or None
+        escolaridad         = data.get('escolaridad', '').upper() or None
+        escuela             = data.get('escuela', '').upper() or None
+        telefono            = data.get('telefono') or None
+        celular             = data.get('celular') or None
+        correo              = data.get('email') or data.get('correo_electronico') or None
+        enfermedades        = data.get('enfermedades_cronicas', 'NINGUNA').upper() or 'NINGUNA'
+        medicamentos        = data.get('medicamentos', 'NINGUNA').upper() or 'NINGUNA'
+        club                = data.get('club', '').upper() or None
+        categoria           = data.get('categoria') or None
+        rama                = data.get('rama') or None
+        ligas_participa     = data.get('ligas_participa', '').upper() or None
 
-        # 4. Tutor si aplica
-        nombre_padre = data.get('nombre_padre', '').strip()
-        if nombre_padre and tipo == 'jugador':
+        if tipo == 'jugador':
+            # jugador en la BD actual tiene: id_tipo_sangre (int FK) y
+            # enfermedades_cronicas tinyint(1). Si la migración ya se ejecutó
+            # tendrá tipo_sangre varchar y enfermedades_cronicas varchar.
+            # Intentamos con las columnas nuevas primero; si falla, usamos las originales.
+            try:
+                cur.execute("""
+                    INSERT INTO jugador (
+                        apellido_paterno, apellido_materno, nombres,
+                        numero_registro, curp, vigencia,
+                        fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                        peso, estatura, tipo_sangre,
+                        ocupacion, escolaridad, escuela,
+                        telefono, celular, correo_electronico,
+                        enfermedades_cronicas, medicamentos,
+                        club, categoria, rama, ligas_participa, fotografia
+                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                """, (
+                    apellido_paterno, apellido_materno, nombres,
+                    numero_registro, curp, vigencia or None,
+                    fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                    peso, estatura, tipo_sangre,
+                    ocupacion, escolaridad, escuela,
+                    telefono, celular, correo,
+                    enfermedades, medicamentos,
+                    club, categoria, rama, ligas_participa, ruta_foto,
+                ))
+            except Exception:
+                # BD original sin migración: columnas mínimas disponibles
+                mysql.connection.rollback()
+                cur.execute("""
+                    INSERT INTO jugador (
+                        apellido_paterno, apellido_materno, nombres,
+                        curp, fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                        peso, estatura,
+                        ocupacion, escolaridad, escuela,
+                        telefono, celular, correo_electronico,
+                        medicamentos, fotografia
+                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                """, (
+                    apellido_paterno, apellido_materno, nombres,
+                    curp, fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                    peso, estatura,
+                    ocupacion, escolaridad, escuela,
+                    telefono, celular, correo,
+                    medicamentos, ruta_foto,
+                ))
+
+            id_persona = cur.lastrowid
+
+            # Dirección — intentar con nombre_municipio, fallback sin él
+            try:
+                cur.execute("""
+                    INSERT INTO direccion
+                        (id_jugador, id_municipio, nombre_municipio,
+                         calle, numero_exterior, colonia, codigo_postal)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    id_persona, id_municipio, nombre_municipio,
+                    data.get('calle', '').upper(),
+                    data.get('numero_exterior', '') or None,
+                    data.get('colonia', '').upper(),
+                    data.get('codigo_postal', '')
+                ))
+            except Exception:
+                cur.execute("""
+                    INSERT INTO direccion
+                        (id_jugador, id_municipio,
+                         calle, numero_exterior, colonia, codigo_postal)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    id_persona, id_municipio,
+                    data.get('calle', '').upper(),
+                    data.get('numero_exterior', '') or None,
+                    data.get('colonia', '').upper(),
+                    data.get('codigo_postal', '')
+                ))
+
+            # Expediente
             cur.execute("""
-                INSERT INTO tutor_padre
-                    (id_jugador, nombre_completo, celular,
-                     correo_electronico, curp_tutor)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_persona,
-                nombre_padre.upper(),
-                data.get('celular_padre'),
-                data.get('email_padre'),
-                data.get('curp_tutor', '').upper()
-            ))
+                INSERT INTO expediente (id_jugador, estatus, fecha_creacion)
+                VALUES (%s, 'activo', NOW())
+            """, (id_persona,))
 
-        # 5. Autorización pendiente
+            # Tutor si aplica
+            nombre_padre = data.get('nombre_padre', '').strip()
+            if nombre_padre:
+                cur.execute("""
+                    INSERT INTO tutor_padre
+                        (id_jugador, nombre_completo, celular, correo_electronico, curp_tutor)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    id_persona,
+                    nombre_padre.upper(),
+                    data.get('celular_padre') or None,
+                    data.get('email_padre') or None,
+                    data.get('curp_tutor', '').upper() or None
+                ))
+
+        elif tipo == 'entrenador':
+            cur.execute("""
+                INSERT INTO entrenador (
+                    id_equipo,
+                    apellido_paterno, apellido_materno, nombres,
+                    numero_registro, curp, vigencia,
+                    fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                    peso, estatura, tipo_sangre,
+                    ocupacion, escolaridad, escuela,
+                    telefono, celular, correo_electronico,
+                    enfermedades_cronicas, medicamentos,
+                    club, categoria, rama, ligas_participa, fotografia,
+                    cedula, especialidad
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                id_equipo,
+                apellido_paterno, apellido_materno, nombres,
+                numero_registro, curp, vigencia or None,
+                fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                peso, estatura, tipo_sangre,
+                ocupacion, escolaridad, escuela,
+                telefono, celular, correo,
+                enfermedades, medicamentos,
+                club, categoria, rama, ligas_participa, ruta_foto,
+                data.get('cedula') or None,
+                data.get('especialidad') or None,
+            ))
+            id_persona = cur.lastrowid
+
+        elif tipo == 'arbitro':
+            cur.execute("""
+                INSERT INTO arbitro (
+                    id_equipo,
+                    apellido_paterno, apellido_materno, nombres,
+                    numero_registro, curp, vigencia,
+                    fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                    peso, estatura, tipo_sangre,
+                    ocupacion, escolaridad, escuela,
+                    telefono, celular, correo_electronico,
+                    enfermedades_cronicas, medicamentos,
+                    club, categoria, rama, ligas_participa, fotografia,
+                    zona, licencia
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                id_equipo,
+                apellido_paterno, apellido_materno, nombres,
+                numero_registro, curp, vigencia or None,
+                fecha_nacimiento, lugar_nacimiento, nacionalidad,
+                peso, estatura, tipo_sangre,
+                ocupacion, escolaridad, escuela,
+                telefono, celular, correo,
+                enfermedades, medicamentos,
+                club, categoria, rama, ligas_participa, ruta_foto,
+                data.get('zona') or None,
+                data.get('licencia') or None,
+            ))
+            id_persona = cur.lastrowid
+
+        # Autorización pendiente para todos los tipos
         cur.execute("""
             INSERT INTO autorizacion_pendiente
                 (tipo_solicitud, id_referencia, fecha_solicitud, estatus)
             VALUES (%s, %s, NOW(), 'Pendiente')
         """, (tipo, id_persona))
 
-        nombre_completo = f"{data.get('apellido_paterno','')} {data.get('nombres','')}".upper().strip()
+        nombre_completo = f"{apellido_paterno} {nombres}".strip()
         notificar(cur, session['id_usuario'],
-                  f"Nuevo registro de {tipo}: {nombre_completo}. Solicitud de autorización creada.")
+                  f"Nuevo registro de {tipo}: {nombre_completo} ({numero_registro}). "
+                  f"Solicitud de autorización creada.")
 
         mysql.connection.commit()
         cur.close()
-
         return jsonify({
-            'ok':      True,
-            'mensaje': f'{tipo.capitalize()} registrado correctamente.',
-            'id':      id_persona
+            'ok':              True,
+            'mensaje':         f'{tipo.capitalize()} registrado correctamente.',
+            'id':              id_persona,
+            'numero_registro': numero_registro,
         })
 
     except Exception as e:
