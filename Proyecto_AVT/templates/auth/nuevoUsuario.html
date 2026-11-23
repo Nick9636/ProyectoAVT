@@ -1,0 +1,145 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#15/04/2026#}
+{# Descripción: Formulario para crear un nuevo usuario administrador del sistema.
+   Incluye validación de contraseñas y selección de rol. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Usuario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen">
+
+    {% include 'header.html' %}
+
+    <main class="page-container">
+        <div class="card-ui form-card">
+
+            <!-- Ícono y título del formulario -->
+            <div class="form-header">
+                <div class="icon-circle">
+                    <i data-lucide="user-plus" class="icon"></i>
+                </div>
+                <h2>Nuevo Administrador</h2>
+            </div>
+
+            <!-- Mensajes flash de éxito o error -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="{{ 'flash-ok' if category == 'success' else 'flash-err' }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Formulario de registro de usuario administrador -->
+            <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
+
+                <div class="form-group">
+                    <label>Nombre de usuario *</label>
+                    <input type="text" name="nombre_usuario" required placeholder="usuario123"
+                        oninvalid="this.setCustomValidity('Por favor, ingresa un nombre de usuario')"
+                        oninput="this.setCustomValidity('')">
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre completo *</label>
+                    <input type="text" name="nombre_completo" required
+                        placeholder="Apellido Paterno Apellido Materno Nombre(s)"
+                        oninvalid="this.setCustomValidity('Por favor, ingresa tu nombre completo')"
+                        oninput="this.setCustomValidity('')">
+                </div>
+
+                <div class="form-group">
+                    <label>Correo electrónico *</label>
+                    <input type="email" name="email" required placeholder="correo@ejemplo.com"
+                        oninvalid="this.setCustomValidity('Por favor, ingresa un correo electrónico válido')"
+                        oninput="this.setCustomValidity('')">
+                </div>
+
+                <!-- Selector de rol del nuevo usuario -->
+                <div class="form-group">
+                    <label>Rol *</label>
+                    <select name="rol" required
+                        oninvalid="this.setCustomValidity('Por favor, selecciona un rol')"
+                        oninput="this.setCustomValidity('')">
+                        <option value="">Seleccione un rol</option>
+                        <option value="Presidente">Presidente</option>
+                        <option value="Secretaria">Secretaria</option>
+                        <option value="Administrador">Administrador</option>
+                    </select>
+                </div>
+
+                <!-- Campo contraseña con toggle de visibilidad -->
+                <div class="form-group password-group">
+                    <label>Contraseña *</label>
+                    <input id="password" type="password" name="password" required
+                        minlength="8" maxlength="20"
+                        placeholder="Entre 8 y 20 caracteres"
+                        oninvalid="this.setCustomValidity(this.validity.valueMissing ? 'Por favor, ingresa una contraseña' : 'La contraseña debe tener entre 8 y 20 caracteres')"
+                        oninput="this.setCustomValidity('')">
+                    <button type="button" onclick="togglePass('password')" class="eye-btn">
+                        <i data-lucide="eye" id="ico-password"></i>
+                    </button>
+                </div>
+
+                <!-- Confirmación de contraseña -->
+                <div class="form-group password-group">
+                    <label>Confirmar contraseña *</label>
+                    <input id="password2" type="password" required placeholder="Repite la contraseña"
+                        oninvalid="this.setCustomValidity('Por favor, confirma tu contraseña')"
+                        oninput="this.setCustomValidity('')">
+                    <button type="button" onclick="togglePass('password2')" class="eye-btn">
+                        <i data-lucide="eye" id="ico-password2"></i>
+                    </button>
+                    <p id="error-pass" class="err-msg">Las contraseñas no coinciden.</p>
+                </div>
+
+                <button type="submit" class="btn-submit">Registrar Usuario</button>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // Alterna visibilidad del campo de contraseña
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const ico   = document.getElementById('ico-' + id);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                ico.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                ico.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        // Valida que ambas contraseñas coincidan antes de enviar
+        function validarForm() {
+            const p1  = document.getElementById('password').value;
+            const p2  = document.getElementById('password2').value;
+            const err = document.getElementById('error-pass');
+
+            if (p1 !== p2) {
+                err.style.display = 'block';
+                return false;
+            }
+
+            err.style.display = 'none';
+            return true;
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+{# Descripción: Pantalla para asignar un jugador a un equipo y ver/quitar las asignaciones actuales. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Jugador a Equipo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen">
+    {% include 'header.html' %}
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
+
+        <!-- Formulario de asignación -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-xl font-semibold text-white mb-6">Asignar Jugador a Equipo</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">Jugador *</label>
+                    <select id="idJugador"
+                            class="w-full px-4 py-2 rounded-lg border border-red-400
+                                   focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="">Seleccionar jugador</option>
+                        {% for j in jugadores %}
+                        <option value="{{ j['id_jugador'] }}">{{ j['nombre'] }} — {{ j['curp'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">Equipo *</label>
+                    <select id="idEquipo"
+                            class="w-full px-4 py-2 rounded-lg border border-red-400
+                                   focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="">Seleccionar equipo</option>
+                        {% for e in equipos %}
+                        <option value="{{ e['id_equipo'] }}">
+                            {{ e['nombre_equipo'] }} ({{ e['nombre_liga'] }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button onclick="asignarJugador()" class="btn-vino flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-5 h-5"></i>
+                Asignar
+            </button>
+        </div>
+
+        <!-- Alertas -->
+        <div id="alertas" class="mb-6"></div>
+
+        <!-- Asignaciones actuales -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                Jugadores Asignados
+                <span class="text-red-200 text-sm font-normal ml-2">{{ asignados|length }} jugador(es)</span>
+            </h2>
+            <div class="space-y-3">
+                {% if asignados %}
+                    {% for a in asignados %}
+                    <div class="flex items-center justify-between p-4 bg-white rounded-lg hover:shadow-sm transition"
+                         id="asignado-{{ a['id_jugador'] }}">
+                        <div>
+                            <p class="font-semibold text-gray-900">{{ a['nombre'] }}</p>
+                            <p class="text-sm text-gray-400">{{ a['nombre_equipo'] }} — {{ a['nombre_liga'] }}</p>
+                        </div>
+                        <button onclick="quitarAsignacion({{ a['id_jugador'] }})"
+                                class="text-gray-400 hover:text-red-600 transition-colors" title="Quitar del equipo">
+                            <i data-lucide="user-minus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-10 text-red-200">
+                        <p class="text-sm">Todavía no hay jugadores asignados a un equipo.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // Asigna el jugador seleccionado al equipo seleccionado
+        function asignarJugador() {
+            const idJugador = document.getElementById('idJugador').value;
+            const idEquipo  = document.getElementById('idEquipo').value;
+
+            if (!idJugador || !idEquipo) {
+                mostrarAlerta('error', 'Campos requeridos', 'Selecciona un jugador y un equipo.');
+                return;
+            }
+
+            const form = new FormData();
+            form.append('id_jugador', idJugador);
+            form.append('id_equipo',  idEquipo);
+
+            fetch("{{ url_for('registro.guardarAsignacion') }}", { method: 'POST', body: form })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        mostrarAlerta('success', 'Jugador asignado', data.mensaje);
+                        setTimeout(() => location.reload(), 1200);
+                    } else {
+                        mostrarAlerta('error', 'Error', data.mensaje);
+                    }
+                });
+        }
+
+        // Quita al jugador de su equipo tras confirmación
+        function quitarAsignacion(idJugador) {
+            if (!confirm('¿Quitar a este jugador de su equipo?')) return;
+            fetch(`/registro/asignar/quitar/${idJugador}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) location.reload();
+                    else mostrarAlerta('error', 'Error', data.mensaje);
+                });
+        }
+
+        // Muestra una alerta temporal de éxito o error
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
+            document.getElementById('alertas').innerHTML = `
+                <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
+                </div>`;
+            lucide.createIcons();
+            setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
+        }
+    </script>
+</body>
+</html>

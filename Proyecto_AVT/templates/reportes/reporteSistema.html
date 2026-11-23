@@ -1,0 +1,180 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#18/04/2026#}
+{# Descripción: Reporte general del sistema. Muestra estadísticas de usuarios, ligas,
+   equipos, pagos, solicitudes pendientes, documentos y distribución por rol. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte del Sistema — AVT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Tarjetas con métricas globales del sistema -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-blue-600">{{ total_usuarios }}</div>
+                <div class="text-xs text-gray-500 mt-1">Administradores</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="trophy" class="w-5 h-5 text-green-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-green-600">{{ total_ligas }}</div>
+                <div class="text-xs text-gray-500 mt-1">Ligas</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="shield" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-purple-600">{{ total_equipos }}</div>
+                <div class="text-xs text-gray-500 mt-1">Equipos</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="user-check" class="w-5 h-5 text-orange-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-orange-600">{{ total_jugadores }}</div>
+                <div class="text-xs text-gray-500 mt-1">Jugadores</div>
+            </div>
+        </div>
+
+        <!-- Gráficas de estado de pagos y actividad reciente -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+            <!-- Estado de pagos -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de Pagos</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-700">Completados</span>
+                            <span class="font-semibold text-green-600">{{ pagos_ok }} ({{ pct_ok }}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ pct_ok }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-700">Pendientes</span>
+                            <span class="font-semibold text-yellow-600">{{ pagos_pend }} ({{ pct_pend }}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ pct_pend }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-700">Cancelados</span>
+                            <span class="font-semibold text-red-600">{{ pagos_cancel }} ({{ pct_cancel }}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ pct_cancel }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actividad -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Actividad del Sistema</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="clock" class="w-4 h-4 text-yellow-600"></i>
+                            <span class="text-sm text-gray-700">Solicitudes pendientes</span>
+                        </div>
+                        <span class="font-bold text-yellow-600">{{ solicitudes_pend }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                            <span class="text-sm text-gray-700">Autorizados hoy</span>
+                        </div>
+                        <span class="font-bold text-green-600">{{ autorizados_hoy }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="file" class="w-4 h-4 text-purple-600"></i>
+                            <span class="text-sm text-gray-700">Documentos digitalizados</span>
+                        </div>
+                        <span class="font-bold text-purple-600">{{ total_docs }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="link" class="w-4 h-4 text-blue-600"></i>
+                            <span class="text-sm text-gray-700">Total afiliaciones</span>
+                        </div>
+                        <span class="font-bold text-blue-600">{{ total_afiliaciones }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribución de administradores por rol -->
+        {% if usuarios_rol %}
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Administradores por Rol</h3>
+            <div class="flex flex-wrap gap-4">
+                {% for u in usuarios_rol %}
+                <div class="bg-gray-50 rounded-lg px-6 py-4 text-center min-w-[120px]">
+                    <div class="text-2xl font-bold text-gray-800">{{ u['total'] }}</div>
+                    <div class="text-sm text-gray-500 mt-1">{{ u['rol'] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tabla de ligas más activas -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Ligas Más Activas</h3>
+                <p class="text-sm text-gray-500 mt-1">
+                    Top 10 ligas ordenadas por cantidad de jugadores afiliados.
+                </p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm">Liga</th>
+                            <th class="px-4 py-3 text-left text-sm">Categoría</th>
+                            <th class="px-4 py-3 text-center text-sm">Equipos</th>
+                            <th class="px-4 py-3 text-center text-sm">Jugadores</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for l in ligas %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ l['nombre_liga'] }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ l['categoria'] or '—' }}</td>
+                            <td class="px-4 py-3 text-sm text-center text-gray-900">{{ l['equipos'] }}</td>
+                            <td class="px-4 py-3 text-sm text-center text-gray-900">{{ l['jugadores'] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="px-4 py-8 text-center text-gray-400 text-sm">
+                                No hay ligas registradas.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

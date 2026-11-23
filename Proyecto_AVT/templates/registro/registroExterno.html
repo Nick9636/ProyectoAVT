@@ -1,0 +1,714 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#06/04/2026#}
+{# Descripción: Formulario de registro externo SIRED para usuarios sin cuenta. Permite
+   capturar datos completos de jugadores, árbitros o entrenadores para su autorización. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registroExterno.css') }}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+    <!-- Header externo -->
+    <header class="ext-header">
+        <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="AVT">
+        <span class="ext-header-title">Formulario de Registro</span>
+        <span class="ext-header-user">{{ ext_nombre }}</span>
+    </header>
+
+    <main class="ext-main">
+
+        <!-- Alerta de resultado (éxito o error al enviar el formulario) -->
+        <div id="alertaResultado" style="display:none;"></div>
+
+        <div class="ext-card">
+
+            <h2 class="ext-title">Formulario de Registro</h2>
+            <div style="display:flex; justify-content:center; margin-bottom:28px;">
+                <span class="ext-user-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                    {{ ext_nombre }} — {{ ext_telefono }}
+                </span>
+            </div>
+
+            <form id="formExterno" onsubmit="enviarFormulario(event)">
+
+                <!-- Selector de tipo de persona a registrar -->
+                <div style="margin-bottom: 8px;">
+                    <label class="ext-label" style="margin-bottom:12px; display:block;">Tipo de Registro *</label>
+                    <div class="tipo-grid">
+                        <label class="tipo-label">
+                            <input type="radio" name="tipo_persona" value="jugador" required
+                                onchange="cambiarTipo(this.value)">
+                            Jugador
+                        </label>
+                        <label class="tipo-label">
+                            <input type="radio" name="tipo_persona" value="arbitro"
+                                onchange="cambiarTipo(this.value)">
+                            Árbitro
+                        </label>
+                        <label class="tipo-label">
+                            <input type="radio" name="tipo_persona" value="entrenador"
+                                onchange="cambiarTipo(this.value)">
+                            Entrenador
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sección de datos personales -->
+                <div class="form-section form-section-red">
+                    <h3 class="form-section-title red">Datos Personales</h3>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Apellido Paterno *</label>
+                            <input type="text" id="apellidoPaterno" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Apellido Materno *</label>
+                            <input type="text" id="apellidoMaterno" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Nombre(s) *</label>
+                            <input type="text" id="nombres" required class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Número de Registro</label>
+                            <input type="text" id="numeroRegistro" readonly
+                                placeholder="Selecciona el tipo primero" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">CURP *</label>
+                            <input type="text" id="curpPersona" required maxlength="18" class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label class="ext-label">Año de Vigencia</label>
+                        <div class="vigencia-group" style="margin-top: 8px;">
+                            {% for anio in anios_vigencia %}
+                            <label class="vigencia-label"><input type="checkbox" name="vigencia" value="{{ anio }}"> {{ anio }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Fecha de Nacimiento *</label>
+                            <!-- CORRECCIÓN: ID corregido a "fechaNacimiento" (consistente con el resto del formulario) -->
+                            <input type="date" id="fechaNacimiento" required class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Lugar de Nacimiento *</label>
+                            <input type="text" id="lugarNacimiento" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Nacionalidad *</label>
+                            <input type="text" id="nacionalidad" required value="MEXICANA" class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Peso (kg) *</label>
+                            <input type="number" id="peso" required step="0.1" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Estatura (m) *</label>
+                            <input type="number" id="estatura" required step="0.01" min="0.50" max="2.50" inputmode="decimal" placeholder="1.70" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Tipo de Sangre *</label>
+                            <select id="tipoSangre" required class="ext-select">
+                                <option value="">Seleccionar</option>
+                                <option>O+</option><option>O-</option>
+                                <option>A+</option><option>A-</option>
+                                <option>B+</option><option>B-</option>
+                                <option>AB+</option><option>AB-</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Ocupación</label>
+                            <input type="text" id="ocupacion" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Escolaridad</label>
+                            <input type="text" id="escolaridad" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Escuela</label>
+                            <input type="text" id="escuela" class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Enfermedades Crónicas</label>
+                            <input type="text" id="enfermedadesCronicas" value="NINGUNA" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Medicamentos</label>
+                            <input type="text" id="medicamentos" value="NINGUNA" class="ext-input uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de domicilio -->
+                <div class="form-section form-section-blue">
+                    <h3 class="form-section-title blue">Domicilio</h3>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Estado de Residencia *</label>
+                            <input type="text" id="estadoResidencia" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Municipio *</label>
+                            <input type="text" id="municipio" required class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Calle *</label>
+                            <input type="text" id="calle" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Colonia *</label>
+                            <input type="text" id="colonia" required class="ext-input uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div>
+                            <label class="ext-label">Código Postal *</label>
+                            <input type="text" id="codigoPostal" required maxlength="5" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Teléfono</label>
+                            <input type="tel" id="telefono" class="ext-input">
+                        </div>
+                        <div>
+                            <label class="ext-label">Celular para avisos por WhatsApp *</label>
+                            <input type="tel" id="celular" required readonly
+                                value="{{ ext_telefono }}" class="ext-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="ext-label">Correo Electrónico (opcional)</label>
+                        <input type="email" id="email" class="ext-input">
+                    </div>
+                </div>
+
+                <!-- Sección de información deportiva -->
+                <div class="form-section form-section-green">
+                    <h3 class="form-section-title green">Información Deportiva</h3>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Club y/o Escuela *</label>
+                            <input type="text" id="club" required class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Equipo</label>
+                            <select id="equipoPersona" class="ext-select">
+                                <option value="">Seleccionar equipo</option>
+                                {% for eq in equipos %}
+                                <option value="{{ eq['id_equipo'] }}">
+                                    {{ eq['nombre_equipo'] }} — {{ eq['categoria'] }} ({{ eq['nombre_liga'] }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Categoría *</label>
+                            <select id="categoria" required class="ext-select">
+                                <option value="">Seleccionar</option>
+                                <option>INFANTIL</option>
+                                <option>MENOR INFANTIL</option>
+                                <option>CADETE</option>
+                                <option>JUVENIL</option>
+                                <option>MAYOR</option>
+                                <option>MASTER</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="ext-label">Rama *</label>
+                            <select id="rama" required class="ext-select">
+                                <option value="">Seleccionar</option>
+                                <option>VARONIL</option>
+                                <option>FEMENIL</option>
+                                <option>MIXTO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="ext-label">Ligas en las que Participa *</label>
+                        <input type="text" id="ligasParticipa" required class="ext-input uppercase"
+                            placeholder="Ej: LIGA OFICIAL MUNICIPAL DE PANOTLA">
+                    </div>
+                </div>
+
+                <!-- Campos adicionales visibles solo si el tipo es árbitro -->
+                <div id="camposArbitro" class="form-section form-section-purple hidden-section" style="display:none;">
+                    <h3 class="form-section-title purple">Datos de Árbitro</h3>
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Licencia</label>
+                            <input type="text" id="licencia" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Zona</label>
+                            <input type="text" id="zona" class="ext-input uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos adicionales visibles solo si el tipo es entrenador -->
+                <div id="camposEntrenador" class="form-section form-section-teal hidden-section" style="display:none;">
+                    <h3 class="form-section-title teal">Datos de Entrenador</h3>
+                    <div class="grid-2">
+                        <div>
+                            <label class="ext-label">Cédula</label>
+                            <input type="text" id="cedula" class="ext-input uppercase">
+                        </div>
+                        <div>
+                            <label class="ext-label">Especialidad</label>
+                            <input type="text" id="especialidad" class="ext-input uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos del tutor (requerido si el registrado es menor de edad) -->
+                <div id="seccionTutor" class="bg-yellow-50 p-6 rounded-lg mb-6" style="display:none;">
+                    <h3 class="text-lg font-bold text-yellow-800 mb-1">Padre o Tutor</h3>
+                    <p class="text-sm text-yellow-700 mb-4">
+                        <i data-lucide="info" class="w-4 h-4 inline-block mr-1 align-text-bottom"></i>
+                        La persona registrada es menor de edad — estos datos son requeridos.
+                    </p>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo del Padre/Tutor</label>
+                        <input type="text" id="nombrePadre"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Celular del Padre/Tutor</label>
+                            <input type="tel" id="celularPadre"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Correo del Padre/Tutor</label>
+                            <input type="email" id="emailPadre"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carga de fotografía tipo credencial -->
+                <div class="form-section form-section-gray">
+                    <h3 class="form-section-title gray">Fotografía</h3>
+                    <input type="file" id="fotoPersona" accept=".png,.jpg,.jpeg" class="ext-input" style="padding: 8px;">
+                    <p style="font-size:12px; color:#6b7280; margin-top:6px;">Formato: PNG o JPG. Tamaño recomendado: foto tipo credencial.</p>
+                </div>
+
+                <!-- Sección de reglamento y firma: visible al seleccionar tipo -->
+                <div id="seccionReglamento" class="hidden p-6 rounded-lg mb-6">
+
+                    <!-- Encabezado dinámico -->
+                    <div class="flex items-center gap-3 mb-3">
+                        <div id="iconoReglamentoWrap" class="w-9 h-9 rounded-full flex items-center justify-center">
+                            <i data-lucide="scroll-text" id="iconoReglamento" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 id="tituloReglamento" class="text-lg font-bold"></h3>
+                            <p id="subtituloReglamento" class="text-xs"></p>
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo del reglamento (scrollable) -->
+                    <div id="cuerpoReglamento"
+                        class="bg-white border border-gray-200 rounded-lg p-5 mb-5 h-56 overflow-y-auto text-sm text-gray-700 leading-relaxed space-y-3">
+                    </div>
+
+                    <!-- Checkbox de aceptación -->
+                    <label class="flex items-start gap-3 mb-5 cursor-pointer">
+                        <input type="checkbox" id="aceptaReglamento"
+                            class="mt-1 w-4 h-4 text-red-600 rounded focus:ring-red-500">
+                        <span class="text-sm text-gray-700">
+                            He leído y acepto el reglamento en su totalidad.
+                            Al firmar confirmo mi compromiso de cumplirlo.
+                        </span>
+                    </label>
+
+                    <!-- Área de firma -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-sm font-medium text-gray-700">Firma</label>
+                            <button type="button" onclick="limpiarFirma()"
+                                class="text-xs text-gray-400 hover:text-red-600 flex items-center gap-1 transition-colors">
+                                <i data-lucide="eraser" class="w-3 h-3"></i> Borrar firma
+                            </button>
+                        </div>
+                        <canvas id="canvasFirma"
+                            class="w-full border-2 border-gray-300 rounded-lg bg-white cursor-crosshair"
+                            style="height: 160px; touch-action: none;">
+                        </canvas>
+                        <p class="text-xs text-gray-400 mt-1">Firma con el mouse o con el dedo en dispositivos táctiles.</p>
+                        <!-- Campo oculto que guarda la firma como base64 para enviarla al servidor -->
+                        <input type="hidden" id="firmaBase64" name="firma_base64">
+                    </div>
+                </div>
+
+                <!-- Botones de cancelar y enviar -->
+                <div class="btn-row">
+                    <a href="{{ url_for('auth.accesoExterno') }}" class="btn-gray-ext">Cancelar</a>
+                    <button type="submit" id="btnEnviar" class="btn-vino-ext">Enviar Registro</button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // ── Números de registro precalculados desde el servidor ───────────────
+        // CORRECCIÓN: sigRegistro no estaba definido en este archivo
+        const sigRegistro = {
+            jugador:    "{{ sig_jugador }}",
+            entrenador: "{{ sig_entrenador }}",
+            arbitro:    "{{ sig_arbitro }}"
+        };
+
+        // ── Configuración de reglamento por tipo ──────────────────────────────
+        const configReglamento = {
+            jugador: {
+                bg:        'bg-red-50',
+                iconoBg:   'bg-red-100',
+                iconoCol:  'text-red-700',
+                titulo:    'text-red-800',
+                subtitulo: 'text-red-500',
+                tituloTxt: 'Reglamento del Jugador',
+                subTxt:    'Lee con atención antes de firmar tu registro',
+                articulos: [
+                    { n: '1', txt: 'El jugador deberá presentarse puntualmente a todos los entrenamientos y partidos programados por el club o liga.' },
+                    { n: '2', txt: 'Queda estrictamente prohibido el uso de lenguaje ofensivo, gestos obscenos o conducta antideportiva hacia rivales, árbitros o compañeros.' },
+                    { n: '3', txt: 'El jugador debe mantener en buen estado el uniforme y equipo proporcionado por el club, respondiendo económicamente por daños intencionales.' },
+                    { n: '4', txt: 'Toda lesión o malestar físico deberá reportarse al cuerpo técnico antes de participar en cualquier actividad deportiva.' },
+                    { n: '5', txt: 'El jugador se compromete a no participar simultáneamente en equipos de la competencia sin autorización expresa de la liga.' },
+                    { n: '6', txt: 'El incumplimiento reiterado de las normas podrá derivar en suspensión temporal o baja definitiva del registro.' },
+                    { n: '7', txt: 'Los menores de edad deberán contar con la autorización firmada de su padre o tutor para participar en competencias oficiales.' },
+                ]
+            },
+            arbitro: {
+                bg:        'bg-purple-50',
+                iconoBg:   'bg-purple-100',
+                iconoCol:  'text-purple-700',
+                titulo:    'text-purple-800',
+                subtitulo: 'text-purple-500',
+                tituloTxt: 'Reglamento del Árbitro',
+                subTxt:    'Normativa de conducta y ejercicio arbitral',
+                articulos: [
+                    { n: '1', txt: 'El árbitro deberá presentarse al campo de juego con un mínimo de 30 minutos de anticipación para revisar las condiciones del terreno y documentación de los equipos.' },
+                    { n: '2', txt: 'La imparcialidad es obligación fundamental. Queda prohibido cualquier vínculo económico, familiar o social con los equipos participantes en el partido a arbitrar.' },
+                    { n: '3', txt: 'El árbitro debe portar en todo momento su licencia vigente y el uniforme oficial asignado por la asociación.' },
+                    { n: '4', txt: 'Las decisiones tomadas durante el partido son inapelables en campo. El árbitro es la máxima autoridad durante el tiempo reglamentario.' },
+                    { n: '5', txt: 'Cualquier incidente grave (agresión física, abandono del partido, irregularidad documental) debe reportarse por escrito dentro de las 24 horas siguientes al encuentro.' },
+                    { n: '6', txt: 'El árbitro se compromete a mantenerse en constante capacitación y a respetar las actualizaciones de reglamento emitidas por la federación.' },
+                    { n: '7', txt: 'El incumplimiento de estas normas podrá acarrear suspensión de licencia o inhabilitación definitiva para ejercer funciones arbitrales.' },
+                ]
+            },
+            entrenador: {
+                bg:        'bg-teal-50',
+                iconoBg:   'bg-teal-100',
+                iconoCol:  'text-teal-700',
+                titulo:    'text-teal-800',
+                subtitulo: 'text-teal-500',
+                tituloTxt: 'Reglamento del Entrenador',
+                subTxt:    'Código de conducta y responsabilidades técnicas',
+                articulos: [
+                    { n: '1', txt: 'El entrenador es responsable del bienestar físico, técnico y disciplinario de todos los jugadores a su cargo durante las actividades del club.' },
+                    { n: '2', txt: 'Debe planificar y conducir los entrenamientos con metodología adecuada a la categoría y rama del equipo, priorizando la integridad física de los deportistas.' },
+                    { n: '3', txt: 'Queda prohibido alentar, permitir o encubrir el uso de sustancias prohibidas, suplementos no autorizados o prácticas que atenten contra la salud de los jugadores.' },
+                    { n: '4', txt: 'El entrenador deberá mantener una comunicación respetuosa y profesional con árbitros, directivos y padres de familia en todo momento.' },
+                    { n: '5', txt: 'Es obligatorio notificar a la dirección técnica cualquier lesión, conflicto interno o situación que comprometa el desempeño del equipo.' },
+                    { n: '6', txt: 'El entrenador se compromete a respetar las convocatorias, calendarios y reglamentos emitidos por la liga y la asociación correspondiente.' },
+                    { n: '7', txt: 'La conducta antideportiva, agresión verbal o física podrá ser sancionada con la suspensión temporal o definitiva de sus funciones como entrenador.' },
+                ]
+            }
+        };
+
+        // ── Canvas de firma ────────────────────────────────────────────────────
+        let firmaActiva = false;
+        let firmaCtx    = null;
+        let firmaCanvas = null;
+        let ultimoX     = 0;
+        let ultimoY     = 0;
+
+        function iniciarFirma() {
+            firmaCanvas = document.getElementById('canvasFirma');
+            // Ajustar resolución del canvas al tamaño real del elemento
+            firmaCanvas.width  = firmaCanvas.offsetWidth;
+            firmaCanvas.height = firmaCanvas.offsetHeight;
+            firmaCtx = firmaCanvas.getContext('2d');
+            firmaCtx.strokeStyle = '#1e293b';
+            firmaCtx.lineWidth   = 2;
+            firmaCtx.lineCap     = 'round';
+            firmaCtx.lineJoin    = 'round';
+
+            // Mouse
+            firmaCanvas.addEventListener('mousedown',  e => { firmaActiva = true;  [ultimoX, ultimoY] = posicion(e); });
+            firmaCanvas.addEventListener('mousemove',  e => { if (firmaActiva) dibujar(e); });
+            firmaCanvas.addEventListener('mouseup',    () => { firmaActiva = false; guardarFirmaBase64(); });
+            firmaCanvas.addEventListener('mouseleave', () => { firmaActiva = false; });
+
+            // Touch
+            firmaCanvas.addEventListener('touchstart', e => {
+                e.preventDefault();
+                firmaActiva = true;
+                [ultimoX, ultimoY] = posicion(e.touches[0]);
+            });
+            firmaCanvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+                if (firmaActiva) dibujar(e.touches[0]);
+            });
+            firmaCanvas.addEventListener('touchend', () => { firmaActiva = false; guardarFirmaBase64(); });
+        }
+
+        function posicion(e) {
+            const rect = firmaCanvas.getBoundingClientRect();
+            return [e.clientX - rect.left, e.clientY - rect.top];
+        }
+
+        function dibujar(e) {
+            const [x, y] = posicion(e);
+            firmaCtx.beginPath();
+            firmaCtx.moveTo(ultimoX, ultimoY);
+            firmaCtx.lineTo(x, y);
+            firmaCtx.stroke();
+            [ultimoX, ultimoY] = [x, y];
+        }
+
+        function guardarFirmaBase64() {
+            if (firmaCanvas) {
+                document.getElementById('firmaBase64').value = firmaCanvas.toDataURL('image/png');
+            }
+        }
+
+        function limpiarFirma() {
+            if (firmaCtx && firmaCanvas) {
+                firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+                document.getElementById('firmaBase64').value = '';
+            }
+        }
+
+        // ── Muestra/oculta secciones y actualiza reglamento ───────────────────
+        function cambiarTipo(valor) {
+            document.getElementById('camposArbitro').style.display    = valor === 'arbitro'    ? 'block' : 'none';
+            document.getElementById('camposEntrenador').style.display = valor === 'entrenador' ? 'block' : 'none';
+
+            //apunta a la ruta pública, sin @login_requerido
+            const campo = document.getElementById('numeroRegistro');
+            fetch(`{{ url_for('auth.siguienteRegistroExterno') }}?tipo=${valor}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) campo.value = data.numero;
+                })
+                .catch(() => {
+                    campo.value = 'Error al obtener número';
+                });
+
+            // Actualizar reglamento
+            const cfg = configReglamento[valor];
+            const sec = document.getElementById('seccionReglamento');
+            sec.className = `p-6 rounded-lg mb-6 ${cfg.bg}`;
+
+            document.getElementById('iconoReglamentoWrap').className =
+                `w-9 h-9 rounded-full flex items-center justify-center ${cfg.iconoBg}`;
+            document.getElementById('iconoReglamento').className =
+                `w-5 h-5 ${cfg.iconoCol}`;
+            document.getElementById('tituloReglamento').className =
+                `text-lg font-bold ${cfg.titulo}`;
+            document.getElementById('tituloReglamento').textContent = cfg.tituloTxt;
+            document.getElementById('subtituloReglamento').className =
+                `text-xs ${cfg.subtitulo}`;
+            document.getElementById('subtituloReglamento').textContent = cfg.subTxt;
+
+            // Renderizar artículos
+            const cuerpo = document.getElementById('cuerpoReglamento');
+            cuerpo.innerHTML = cfg.articulos.map(a =>
+                `<p><span class="font-semibold text-gray-800">Art. ${a.n}.</span> ${a.txt}</p>`
+            ).join('');
+
+            // Limpiar firma y checkbox al cambiar tipo
+            document.getElementById('aceptaReglamento').checked = false;
+            limpiarFirma();
+
+            sec.classList.remove('hidden');
+
+            // Reiniciar canvas con nuevo tamaño (por si recién se hizo visible)
+            setTimeout(() => {
+                iniciarFirma();
+                lucide.createIcons();
+            }, 50);
+        }
+
+        // ── Detectar menor de edad ─────────────────────────────────────────────
+        document.getElementById('fechaNacimiento').addEventListener('change', function () {
+            const secTutor = document.getElementById('seccionTutor');
+
+            if (!this.value) {
+                secTutor.style.display = 'none';
+                return;
+            }
+
+            const fechaNac = new Date(this.value);
+            const hoy      = new Date();
+
+            // Calcular edad exacta considerando mes y día
+            let edad = hoy.getFullYear() - fechaNac.getFullYear();
+            const diffMes = hoy.getMonth() - fechaNac.getMonth();
+            if (diffMes < 0 || (diffMes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                edad--;
+            }
+
+            if (edad < 18) {
+                secTutor.style.display = 'block';
+                lucide.createIcons();
+            } else {
+                secTutor.style.display = 'none';
+            }
+        });
+
+        // ── Enviar formulario ──────────────────────────────────────────────────
+        function enviarFormulario(event) {
+            event.preventDefault();
+
+            const tipoRadio = document.querySelector('input[name="tipo_persona"]:checked');
+            if (!tipoRadio) { alert('Selecciona el tipo de registro'); return; }
+
+            // Validar que aceptó el reglamento
+            if (!document.getElementById('aceptaReglamento').checked) {
+                alert('Debes leer y aceptar el reglamento antes de enviar.');
+                return;
+            }
+
+            // Validar que firmó (la firma es obligatoria)
+            if (!document.getElementById('firmaBase64').value) {
+                alert('La firma es obligatoria. Firma en el recuadro antes de enviar.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('tipo_persona', tipoRadio.value);
+
+            // Agregar años de vigencia seleccionados
+            document.querySelectorAll('input[name="vigencia"]:checked').forEach(cb => {
+                formData.append('vigencia', cb.value);
+            });
+
+            // Mapa de IDs de campos HTML a nombres de columnas en la BD
+            const campos = {
+                'apellidoPaterno':      'apellido_paterno',
+                'apellidoMaterno':      'apellido_materno',
+                'nombres':              'nombres',
+                'numeroRegistro':       'numero_registro',
+                'curpPersona':          'curp',
+                'fechaNacimiento':      'fecha_nacimiento',
+                'lugarNacimiento':      'lugar_nacimiento',
+                'nacionalidad':         'nacionalidad',
+                'peso':                 'peso',
+                'estatura':             'estatura',
+                'tipoSangre':           'tipo_sangre',
+                'ocupacion':            'ocupacion',
+                'escolaridad':          'escolaridad',
+                'escuela':              'escuela',
+                'enfermedadesCronicas': 'enfermedades_cronicas',
+                'medicamentos':         'medicamentos',
+                'estadoResidencia':     'estado_residencia',
+                'municipio':            'municipio',
+                'calle':                'calle',
+                'colonia':              'colonia',
+                'codigoPostal':         'codigo_postal',
+                'telefono':             'telefono',
+                'celular':              'celular',
+                'email':                'email',           
+                'club':                 'club',
+                'equipoPersona':        'id_equipo',
+                'categoria':            'categoria',
+                'rama':                 'rama',
+                'ligasParticipa':       'ligas_participa',
+                'licencia':             'licencia',
+                'zona':                 'zona',
+                'cedula':               'cedula',
+                'especialidad':         'especialidad',
+                'nombrePadre':          'nombre_padre',
+                'celularPadre':         'celular_padre',
+                'emailPadre':           'email_padre',
+            };
+
+            // Agregar cada campo al FormData
+            Object.entries(campos).forEach(([htmlId, bdName]) => {
+                const el = document.getElementById(htmlId);
+                if (el) formData.append(bdName, el.value);
+            });
+
+            // Agregar fotografía si fue seleccionada
+            const foto = document.getElementById('fotoPersona');
+            if (foto && foto.files[0]) formData.append('fotoPersona', foto.files[0]);
+
+            // CORRECCIÓN: firma agregada ANTES del fetch para que se incluya en el envío
+            const firma = document.getElementById('firmaBase64').value;
+            if (firma) formData.append('firma_base64', firma);
+
+            // Deshabilitar botón mientras se procesa
+            const btn = document.getElementById('btnEnviar');
+            btn.disabled    = true;
+            btn.textContent = 'Enviando...';
+
+            fetch("{{ url_for('auth.guardarRegistroExterno') }}", { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        // Redirigir a la página de registro exitoso
+                        window.location.href = "{{ url_for('auth.registroExitoso') }}";
+                    } else {
+                        // Mostrar mensaje de error
+                        const alerta = document.getElementById('alertaResultado');
+                        alerta.className     = 'alerta-err';
+                        alerta.innerHTML     = '<strong>Error:</strong> ' + data.mensaje;
+                        alerta.style.display = 'block';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        btn.disabled    = false;
+                        btn.textContent = 'Enviar Registro';
+                    }
+                })
+                .catch(() => {
+                    alert('Error de conexión. Intenta de nuevo.');
+                    btn.disabled    = false;
+                    btn.textContent = 'Enviar Registro';
+                });
+        }
+
+    </script>
+
+</body>
+</html>

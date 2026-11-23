@@ -1,0 +1,151 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#11/03/2026#}
+{# Descripción: Consulta del historial de pagos. Permite filtrar por nombre, estatus
+   y rango de fechas, mostrando método, referencia y estado de cada pago. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Pagos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Filtros de búsqueda: nombre, estatus y rango de fechas -->
+        <form method="GET" action="{{ url_for('consulta.consultarPagos') }}">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Filtros de Búsqueda</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                    <input type="text" name="nombre" value="{{ filtro_nombre }}"
+                           placeholder="Nombre del afiliado"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estatus</label>
+                    <select name="estatus"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                   focus:ring-2 focus:ring-red-700">
+                        <option value="">Todos</option>
+                        <option value="Pendiente"  {% if filtro_estatus=='Pendiente'  %}selected{% endif %}>Pendiente</option>
+                        <option value="Completado" {% if filtro_estatus=='Completado' %}selected{% endif %}>Completado</option>
+                        <option value="Cancelado"  {% if filtro_estatus=='Cancelado'  %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Desde</label>
+                    <input type="date" name="fecha_desde" value="{{ filtro_desde }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700 [color-scheme:light]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hasta</label>
+                    <input type="date" name="fecha_hasta" value="{{ filtro_hasta }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg
+                                  focus:ring-2 focus:ring-red-700 [color-scheme:light]">
+                </div>
+            </div>
+            <button type="submit"
+                    class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800
+                           transition-colors flex items-center gap-2">
+                <i data-lucide="filter" class="w-4 h-4"></i>
+                Aplicar Filtros
+            </button>
+        </div>
+        </form>
+
+        <!-- Contadores de pagos por estatus -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">{{ completados }}</div>
+                <div class="text-sm text-gray-600">Completados</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ pendientes }}</div>
+                <div class="text-sm text-gray-600">Pendientes</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-red-600">{{ cancelados }}</div>
+                <div class="text-sm text-gray-600">Cancelados</div>
+            </div>
+        </div>
+
+        <!-- Tabla de historial de pagos -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-gray-900">Historial de Pagos</h3>
+                <span class="text-sm text-gray-500">{{ pagos|length }} pago(s)</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">No. Registro</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Tipo</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Fecha</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Método</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Referencia</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% if pagos %}
+                            {% for p in pagos %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{ p['nombre_persona'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['numero_registro'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if p['tipo_persona']=='jugador' %}bg-blue-100 text-blue-700
+                                                 {% elif p['tipo_persona']=='entrenador' %}bg-green-100 text-green-700
+                                                 {% else %}bg-purple-100 text-purple-700{% endif %}">
+                                        {{ p['tipo_persona']|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['fecha_pago'].strftime('%d/%m/%Y') if p['fecha_pago'] else '—' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['metodo_pago'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{ p['referencia'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if p['estatus']=='Completado' %}bg-green-100 text-green-700
+                                                 {% elif p['estatus']=='Pendiente' %}bg-yellow-100 text-yellow-700
+                                                 {% else %}bg-red-100 text-red-700{% endif %}">
+                                        {{ p['estatus'] }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+                                    <i data-lucide="credit-card" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                    <p>No se encontraron pagos.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
