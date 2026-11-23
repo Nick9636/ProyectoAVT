@@ -1,5 +1,5 @@
-from Proyecto_AVT.servicios import whatsapp_servicio
-from Proyecto_AVT.blueprints.autorizar.autorizar import _enviar_aviso_whatsapp
+from servicios import whatsapp_servicio
+from autorizar.autorizar import _enviar_aviso_whatsapp
 
 
 def test_notifica_aprobacion_a_numero_mexicano(monkeypatch, mocker):
@@ -73,7 +73,7 @@ def test_notifica_rechazo_con_motivo(monkeypatch, mocker):
 
 def test_aviso_de_decision_usa_telefono_de_solicitud(mocker):
     enviar = mocker.patch(
-        'Proyecto_AVT.blueprints.autorizar.autorizar.notificar_estado_registro',
+        'autorizar.autorizar.notificar_estado_registro',
         return_value={'exito': True}
     )
 

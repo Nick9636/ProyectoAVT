@@ -54,12 +54,12 @@ def app_flask():
     app.secret_key = 'test'
     
     # Importar y registrar todos los blueprints
-    from Proyecto_AVT.blueprints.auth.auth import auth
-    from Proyecto_AVT.blueprints.autorizar.autorizar import autorizar
-    from Proyecto_AVT.blueprints.consulta.consulta import consulta
-    from Proyecto_AVT.blueprints.registro.registro import registro
-    from Proyecto_AVT.blueprints.reportes.reportes import reportes
-    from Proyecto_AVT.blueprints.paginaInicio.paginaInicio import principal
+    from auth.auth import auth
+    from autorizar.autorizar import autorizar
+    from consulta.consulta import consulta
+    from registro.registro import registro
+    from reportes.reportes import reportes
+    from paginaInicio.paginaInicio import principal
     
     app.register_blueprint(auth)
     app.register_blueprint(autorizar)

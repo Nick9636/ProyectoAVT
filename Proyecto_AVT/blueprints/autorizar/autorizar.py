@@ -6,7 +6,7 @@ import os
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
 from extensiones import mysql, notificar
-from Proyecto_AVT.servicios.whatsapp_servicio import notificar_estado_registro
+from servicios.whatsapp_servicio import notificar_estado_registro
 
 autorizar = Blueprint('autorizar', __name__, url_prefix="/autorizar")
 logger = logging.getLogger(__name__)

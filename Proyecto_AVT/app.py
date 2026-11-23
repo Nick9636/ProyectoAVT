@@ -4,12 +4,13 @@
 #              registra los blueprints de cada módulo y define el decorador de protección de rutas.
 from flask import Flask, render_template, session, redirect, url_for
 from dotenv import load_dotenv
+import os
+from functools import wraps
 
 load_dotenv()
 
 from config import Config
 from extensiones import mysql, bcrypt, mail
-from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -20,12 +21,12 @@ bcrypt.init_app(app)
 mail.init_app(app)
 
 # IMPORTAR TODOS LOS BLUEPRINTS
-from Proyecto_AVT.blueprints.auth.auth import auth
-from Proyecto_AVT.blueprints.autorizar.autorizar import autorizar
-from Proyecto_AVT.blueprints.consulta.consulta import consulta
-from Proyecto_AVT.blueprints.registro.registro import registro
-from Proyecto_AVT.blueprints.reportes.reportes import reportes
-from Proyecto_AVT.blueprints.paginaInicio.paginaInicio import principal
+from auth.auth import auth
+from autorizar.autorizar import autorizar
+from consulta.consulta import consulta
+from registro.registro import registro
+from reportes.reportes import reportes
+from paginaInicio.paginaInicio import principal
 
 # REGISTRAR BLUEPRINTS
 app.register_blueprint(auth)
@@ -45,4 +46,8 @@ def solo_internos(f):
     return decorador
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=os.environ.get("FLASK_DEBUG", "").lower() == "true"
+    )

@@ -186,6 +186,18 @@ Administrador o Presidente aprueba o rechaza la solicitud. Si falta la configura
 de WhatsApp o falla el envío, la decisión del sistema se conserva y el panel informa
 que no se pudo enviar el aviso.
 
+### Despliegue en Railway
+
+Deja **Root Directory** en la raíz del repositorio. El `Procfile` inicia Gunicorn
+desde `Proyecto_AVT/`, escucha en el puerto `$PORT` de Railway y el
+`requirements.txt` de la raíz instala las dependencias del proyecto.
+
+Agrega un servicio MySQL a Railway y referencia sus variables en el servicio web:
+`MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD` y `MYSQLDATABASE`. La
+aplicación admite esos nombres directamente. Configura también `SECRET_KEY` como
+variable secreta. Después importa `Proyecto_AVT/databases/base_datos_amivd_actual.sql`
+en la base de datos de Railway; el despliegue no crea el esquema automáticamente.
+
 ---
 
 ## ▶️ Uso
