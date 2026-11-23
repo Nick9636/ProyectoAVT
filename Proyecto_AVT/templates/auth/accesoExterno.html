@@ -1,0 +1,88 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#15/04/2026#}
+{# Descripción: Página de acceso externo. Solicita nombre y teléfono para continuar
+   con el formulario de registro SIRED y recibir avisos de estado por WhatsApp. #}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Externo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registroExterno.css') }}">
+</head>
+<body>
+
+    <!-- Tarjeta central de acceso externo -->
+    <div class="ext-main-sm">
+        <div class="ext-card">
+
+            <!-- Logos institucionales -->
+            <div class="ext-logos">
+                <img src="{{ url_for('static', filename='img/logoAVT_vector.png') }}" alt="Logo AVT">
+                <img src="{{ url_for('static', filename='img/fmvb_logo.jpg') }}" alt="Logo FMVB">
+            </div>
+
+            <h2 class="ext-title">Registro Externo</h2>
+            <p class="ext-subtitle">Ingresa tu nombre y teléfono para continuar con el formulario y recibir por WhatsApp la respuesta a tu solicitud.</p>
+
+            <!-- Mensajes flash de error o éxito -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="{{ 'flash-success' if category == 'success' else 'flash-error' }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Formulario: nombre y teléfono para pre-llenar el registro -->
+            <form method="POST" action="{{ url_for('auth.accesoExterno') }}">
+
+                <div style="margin-bottom: 16px;">
+                    <label class="ext-label">Nombre Completo *</label>
+                    <input type="text" name="nombre_completo" required
+                        placeholder="Nombre Completo"
+                        class="ext-input">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="ext-label">Teléfono celular *</label>
+                    <input type="tel" name="telefono" required minlength="10" maxlength="20"
+                        autocomplete="tel" inputmode="tel"
+                        placeholder="10 dígitos o número internacional"
+                        class="ext-input">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="ext-label" style="display:flex; gap:10px; align-items:flex-start;">
+                        <input type="checkbox" name="acepta_whatsapp" required
+                            style="margin-top:4px;">
+                        <span>Acepto recibir por WhatsApp únicamente avisos sobre el estado de esta solicitud.</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-vino-ext" style="width:100%;">
+                    Continuar al Formulario →
+                </button>
+
+            </form>
+
+            <!-- Enlace para administradores -->
+            <p class="ext-footer-text" style="margin-top: 20px;">
+                ¿Eres administrador?
+                <a href="{{ url_for('auth.iniciarSesion') }}" class="ext-link">Iniciar sesión</a>
+            </p>
+
+            <!-- Logo Byteers al pie -->
+            <div class="byteers-footer">
+                <img src="{{ url_for('static', filename='img/byteers_logo.png') }}" alt="Byteers">
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

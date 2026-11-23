@@ -1,252 +1,145 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#15/04/2026#}
+{# Descripción: Formulario para crear un nuevo usuario administrador del sistema.
+   Incluye validación de contraseñas y selección de rol. #}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Usuario</title>
-
-    <style>
-        :root {
-            --red1: #A8181B;
-            --red2: #df1d1d;
-            --navy: #860404;
-        }
-
-        html,
-        body {
-            min-height: 100%;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow-x: hidden;
-            padding: 20px 0;
-        }
-
-        /* Logo superior */
-        .logo-left-large {
-            position: absolute;
-            left: 22px;
-            top: 20px;
-            z-index: 5;
-            width: 120px;
-            height: auto;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
-        }
-
-        /* Círculos decorativos */
-        .bg-circles,
-        .bg-circles2 {
-            position: absolute;
-            width: 420px;
-            height: 420px;
-            pointer-events: none;
-        }
-
-        .bg-circles {
-            left: -40px;
-            bottom: -40px;
-            background: repeating-radial-gradient(circle at bottom left,
-                    rgba(255, 255, 255, 0.15) 0px,
-                    rgba(255, 255, 255, 0.15) 6px,
-                    transparent 6px,
-                    transparent 20px);
-            mask-image: radial-gradient(circle, black 60%, transparent 100%);
-            -webkit-mask-image: radial-gradient(circle, black 60%, transparent 100%);
-        }
-
-        .bg-circles2 {
-            top: -40px;
-            right: -40px;
-            background: repeating-radial-gradient(circle at top right,
-                    rgba(255, 255, 255, 0.15) 0px,
-                    rgba(255, 255, 255, 0.15) 6px,
-                    transparent 6px,
-                    transparent 20px);
-            mask-image: radial-gradient(circle, black 60%, transparent 100%);
-            -webkit-mask-image: radial-gradient(circle, black 60%, transparent 100%);
-        }
-
-        /* Tarjeta */
-        .card {
-            width: 420px;
-            max-width: 95%;
-            background: #faf7f7;
-            border-radius: 10px;
-            padding: 28px 34px;
-            box-shadow: 0 16px 22px rgba(0, 0, 0, 0.22);
-            position: relative;
-            z-index: 10;
-        }
-
-        .card-logos {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .card-logos img {
-            height: 70px;
-            width: auto;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 26px;
-            margin: 6px 0 22px 0;
-            font-weight: 700;
-            color: #222;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #222;
-        }
-
-        .input-box {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 12px 44px 12px 14px;
-            border-radius: 8px;
-            border: 2px solid var(--navy);
-            font-size: 14px;
-            outline: none;
-            background: transparent;
-            transition: 0.2s;
-        }
-
-        input:focus {
-            border-color: var(--red2);
-        }
-
-        input::placeholder {
-            color: #9a9a9a;
-            font-style: italic;
-        }
-
-        .eye {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 18px;
-            user-select: none;
-        }
-
-        .btn-wrap {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        button {
-            width: 60%;
-            min-width: 160px;
-            padding: 12px 18px;
-            border-radius: 28px;
-            border: 2px solid var(--navy);
-            background: var(--red1);
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            background: var(--red2);
-        }
-
-        /* Responsive */
-        @media (max-width:480px) {
-
-            body {
-                align-items: flex-start;
-                padding-top: 100px;
-            }
-
-            .logo-left-large {
-                width: 100px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            .card-logos img {
-                height: 50px;
-            }
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+<body class="min-h-screen">
 
-<body>
+    {% include 'header.html' %}
 
-    <img class="logo-left-large" src="../static/img/byteers_logo.png" alt="Logo compañia">
+    <main class="page-container">
+        <div class="card-ui form-card">
 
-    <div class="bg-circles" aria-hidden="true"></div>
-    <div class="bg-circles2" aria-hidden="true"></div>
-
-    <div class="card-wrap">
-        <div class="card" role="main">
-
-            <div class="card-logos">
-                <img src="../static/img/avt_logo.png" alt="Logo AVT">
-                <img src="../static/img/fmvb_logo.jpg" alt="Logo FMVB">
+            <!-- Ícono y título del formulario -->
+            <div class="form-header">
+                <div class="icon-circle">
+                    <i data-lucide="user-plus" class="icon"></i>
+                </div>
+                <h2>Nuevo Administrador</h2>
             </div>
 
-            <h2>Nuevo Usuario</h2>
+            <!-- Mensajes flash de éxito o error -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="{{ 'flash-ok' if category == 'success' else 'flash-err' }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-            <label>Nombre completo</label>
-            <div class="input-box">
-                <input type="text" placeholder="Nombre completo">
-            </div>
+            <!-- Formulario de registro de usuario administrador -->
+            <form method="POST" action="{{ url_for('auth.nuevoUsuario') }}" onsubmit="return validarForm()">
 
-            <label>Correo electrónico</label>
-            <div class="input-box">
-                <input type="email" placeholder="Correo electrónico">
-            </div>
+                <div class="form-group">
+                    <label>Nombre de usuario *</label>
+                    <input type="text" name="nombre_usuario" required placeholder="usuario123"
+                        oninvalid="this.setCustomValidity('Por favor, ingresa un nombre de usuario')"
+                        oninput="this.setCustomValidity('')">
+                </div>
 
-            <label>Contraseña</label>
-            <div class="input-box">
-                <input id="password" type="password" placeholder="Contraseña">
-                <div class="eye" onclick="togglePass()">👁</div>
-            </div>
+                <div class="form-group">
+                    <label>Nombre completo *</label>
+                    <input type="text" name="nombre_completo" required
+                        placeholder="Apellido Paterno Apellido Materno Nombre(s)"
+                        oninvalid="this.setCustomValidity('Por favor, ingresa tu nombre completo')"
+                        oninput="this.setCustomValidity('')">
+                </div>
 
-            <label>Confirmar contraseña</label>
-            <div class="input-box">
-                <input id="password2" type="password" placeholder="Confirmar contraseña">
-            </div>
+                <div class="form-group">
+                    <label>Correo electrónico *</label>
+                    <input type="email" name="email" required placeholder="correo@ejemplo.com"
+                        oninvalid="this.setCustomValidity('Por favor, ingresa un correo electrónico válido')"
+                        oninput="this.setCustomValidity('')">
+                </div>
 
-            <div class="btn-wrap">
-                <button type="button" onclick="window.location.href='iniciarSesion.html'">Registrarse</button>
-            </div>
+                <!-- Selector de rol del nuevo usuario -->
+                <div class="form-group">
+                    <label>Rol *</label>
+                    <select name="rol" required
+                        oninvalid="this.setCustomValidity('Por favor, selecciona un rol')"
+                        oninput="this.setCustomValidity('')">
+                        <option value="">Seleccione un rol</option>
+                        <option value="Presidente">Presidente</option>
+                        <option value="Secretaria">Secretaria</option>
+                        <option value="Administrador">Administrador</option>
+                    </select>
+                </div>
 
+                <!-- Campo contraseña con toggle de visibilidad -->
+                <div class="form-group password-group">
+                    <label>Contraseña *</label>
+                    <input id="password" type="password" name="password" required
+                        minlength="8" maxlength="20"
+                        placeholder="Entre 8 y 20 caracteres"
+                        oninvalid="this.setCustomValidity(this.validity.valueMissing ? 'Por favor, ingresa una contraseña' : 'La contraseña debe tener entre 8 y 20 caracteres')"
+                        oninput="this.setCustomValidity('')">
+                    <button type="button" onclick="togglePass('password')" class="eye-btn">
+                        <i data-lucide="eye" id="ico-password"></i>
+                    </button>
+                </div>
+
+                <!-- Confirmación de contraseña -->
+                <div class="form-group password-group">
+                    <label>Confirmar contraseña *</label>
+                    <input id="password2" type="password" required placeholder="Repite la contraseña"
+                        oninvalid="this.setCustomValidity('Por favor, confirma tu contraseña')"
+                        oninput="this.setCustomValidity('')">
+                    <button type="button" onclick="togglePass('password2')" class="eye-btn">
+                        <i data-lucide="eye" id="ico-password2"></i>
+                    </button>
+                    <p id="error-pass" class="err-msg">Las contraseñas no coinciden.</p>
+                </div>
+
+                <button type="submit" class="btn-submit">Registrar Usuario</button>
+
+            </form>
         </div>
-    </div>
+    </main>
 
     <script>
-        function togglePass() {
-            const p = document.getElementById('password');
-            p.type = (p.type === 'password') ? 'text' : 'password';
+        lucide.createIcons();
+
+        // Alterna visibilidad del campo de contraseña
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            const ico   = document.getElementById('ico-' + id);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                ico.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                ico.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        // Valida que ambas contraseñas coincidan antes de enviar
+        function validarForm() {
+            const p1  = document.getElementById('password').value;
+            const p2  = document.getElementById('password2').value;
+            const err = document.getElementById('error-pass');
+
+            if (p1 !== p2) {
+                err.style.display = 'block';
+                return false;
+            }
+
+            err.style.display = 'none';
+            return true;
         }
     </script>
 
 </body>
-
 </html>

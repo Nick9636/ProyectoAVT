@@ -1,317 +1,519 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{# Descripción: Consulta de afiliados con filtro de estatus. Permite filtrar, ver detalle,
+   cambiar categoría, cambiar estatus y agregar sanciones a cada afiliado. #}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema AVT - Consultar</title>
+    <title>Consultar Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-         :root {
-            --red1: #A8181B;
-            --red2: #df1d1d;
-            --navy: #860404;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(90deg, var(--red1) 0%, var(--red2) 100%);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Barra superior -->
-    <header class="bg-white shadow-md fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
+<body class="min-h-screen">
+    {% include 'header.html' %}
+    <main class="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center">
-                        <img class="w-8 h-8 object-contain" src="../static/img/avt_logo2.png" alt="Logo AVT">
-                    </div>
-                </div>
-
-                <!-- Menú escritorio -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="home.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Home
-                    </a>
-
-                    <a href="registro.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Registro
-                    </a>
-
-                    <a href="consultar.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Consultar
-                    </a>
-
-                    <a href="reportes.html" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Reportes
-                    </a>
-
-                    <a href="#" class="text-gray-600 hover:text-red-700 transition-colors">
-                        Configuración
-                    </a>
-                </nav>
-
-                <!-- Usuario + botón móvil -->
-                <div class="flex items-center space-x-3 relative">
-
-                    <span class="text-gray-700 hidden sm:block">
-                        Hola, <span class="font-semibold">Usuario</span>
-                    </span>
-
-                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-5 h-5 text-red-700"></i>
-                    </div>
-
-                    <!-- Botón hamburguesa -->
-                    <button onclick="toggleMenu()" class="md:hidden">
-                        <i data-lucide="menu" class="w-6 h-6 text-red-700"></i>
-                    </button>
-
-                    <!-- Menú móvil -->
-                    <div id="mobileMenu"
-                        class="hidden absolute right-0 top-14 w-56 bg-white shadow-lg rounded-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
-
-                        <a href="home.html" class="block px-4 py-2 hover:bg-red-50">
-                            Home
-                        </a>
-
-                        <a href="registro.html" class="block px-4 py-2 hover:bg-red-50">
-                            Registro
-                        </a>
-
-                        <a href="consultar.html" class="block px-4 py-2 hover:bg-red-50">
-                            Consultar
-                        </a>
-
-                        <a href="reportes.html" class="block px-4 py-2 hover:bg-red-50">
-                            Reportes
-                        </a>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </header>
-
-
-    <!-- Contenido principal -->
-    <main class="pt-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <!-- Formulario de búsqueda -->
-        <div class="bg-white rounded-xl shadow-md p-8 mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Afiliado</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <form method="GET" action="{{ url_for('consulta.consultarAfiliado') }}">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Buscar Afiliados</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                    <input type="text" name="nombre" value="{{ filtro_nombre }}"
+                           placeholder="Ingrese nombre"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">CURP</label>
-                    <input type="text" id="curpBusqueda" placeholder="Ingrese CURP" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <input type="text" name="curp" value="{{ filtro_curp }}"
+                           placeholder="Ingrese CURP"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
-                    <input type="text" id="nombreBusqueda" placeholder="Ingrese nombre" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estatus</label>
+                    <select name="estatus"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                        <option value="activo"   {% if filtro_estatus=='activo'   %}selected{% endif %}>Activos</option>
+                        <option value="inactivo" {% if filtro_estatus=='inactivo' %}selected{% endif %}>Inactivos</option>
+                        <option value="cerrado"  {% if filtro_estatus=='cerrado'  %}selected{% endif %}>Cerrados</option>
+                        <option value="todos"    {% if filtro_estatus=='todos'    %}selected{% endif %}>Todos</option>
+                    </select>
                 </div>
-            </div>
-            
-            <button onclick="buscarAfiliado()" class="bg-red-700 text-white px-8 py-3 rounded-xl hover:bg-red-800 transition-all font-semibold">
-                <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
-                Buscar Afiliado
-            </button>
-        </div>
-
-        <!-- Ficha del afiliado -->
-        <div id="fichaAfiliado" class="bg-white rounded-xl shadow-md p-8 hidden">
-            <div class="flex justify-between items-start mb-8">
-                <h2 class="text-2xl font-semibold text-gray-900">Ficha del Afiliado</h2>
-                <div class="flex space-x-3">
-                    <button onclick="window.location.href='expedientes.html'" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
-                        Ver Expediente
-                    </button>
-                    <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                        <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>
-                        Editar
+                <div class="flex items-end">
+                    <button type="submit"
+                            class="w-full bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800
+                                   transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Buscar
                     </button>
                 </div>
             </div>
+        </div>
+        </form>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Información personal -->
-                <div class="lg:col-span-2">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Datos Personales</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-600">Nombre Completo:</p>
-                            <p class="font-medium" id="nombreCompleto">Juan Pérez García</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">CURP:</p>
-                            <p class="font-medium" id="curpCompleto">PEGJ850315HDFRRN09</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Fecha de Nacimiento:</p>
-                            <p class="font-medium" id="fechaNacimiento">15/03/1985</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Edad:</p>
-                            <p class="font-medium" id="edadAfiliado">38 años</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Rol:</p>
-                            <p class="font-medium" id="rolAfiliado">Jugador</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Número de Registro:</p>
-                            <p class="font-medium" id="numeroRegistro">AVT-2024-001</p>
-                        </div>
-                    </div>
-
-                    <!-- Liga y equipo -->
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4 mt-8">Liga y Equipo</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-600">Liga Actual:</p>
-                            <p class="font-medium" id="ligaActual">Liga Municipal de Fútbol</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Equipo:</p>
-                            <p class="font-medium" id="equipoActual">Tigres FC</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Categoría:</p>
-                            <p class="font-medium" id="categoriaActual">Primera División</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Posición:</p>
-                            <p class="font-medium" id="posicionActual">Delantero</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Estado y foto -->
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado de Afiliación</h3>
-                    <div class="text-center mb-6">
-                        <div class="w-32 h-32 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                            <i data-lucide="user" class="w-16 h-16 text-gray-400"></i>
-                        </div>
-                        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
-                            Activo
-                        </span>
-                    </div>
-
-                    <!-- Documentos -->
-                    <h4 class="font-medium text-gray-900 mb-3">Documentos</h4>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            <span>INE</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            <span>Comprobante de Domicilio</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            <span>Acta de Nacimiento</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
-                            <span>Certificado Médico</span>
-                        </div>
-                    </div>
-
-                    <!-- Pagos -->
-                    <h4 class="font-medium text-gray-900 mb-3 mt-6">Estado de Pagos</h4>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span>Inscripción 2024:</span>
-                            <span class="text-green-600 font-medium">Pagado</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Mensualidad Dic:</span>
-                            <span class="text-yellow-600 font-medium">Pendiente</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- Contadores de afiliados -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div id="contadorActivos" class="text-2xl font-bold text-green-600">{{ activos_jugadores }}</div>
+                <div class="text-sm text-gray-600">Jugadores Activos</div>
             </div>
-
-            <!-- Historial -->
-            <div class="mt-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Historial de Actividad</h3>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span>Registro inicial</span>
-                            <span class="text-gray-600">15/01/2024</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Asignación a equipo Tigres FC</span>
-                            <span class="text-gray-600">20/01/2024</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Pago de inscripción</span>
-                            <span class="text-gray-600">25/01/2024</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Última actualización de datos</span>
-                            <span class="text-gray-600">10/12/2024</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div id="contadorInactivos" class="text-2xl font-bold text-yellow-600">{{ inactivos_jugadores }}</div>
+                <div class="text-sm text-gray-600">Jugadores Inactivos</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ activos_entrenadores }}</div>
+                <div class="text-sm text-gray-600">Entrenadores Activos</div>
             </div>
         </div>
 
-        <!-- Mensaje sin resultados -->
-        <div id="sinResultados" class="bg-white rounded-xl shadow-md p-8 text-center hidden">
-            <i data-lucide="search-x" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">No se encontraron resultados</h3>
-            <p class="text-gray-600">No se encontró ningún afiliado con los criterios de búsqueda especificados.</p>
+        <!-- Zona de alertas (fuera del modal) -->
+        <div id="alertas" class="mb-4"></div>
+
+        <!-- Tabla de afiliados -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-gray-900">Afiliados</h3>
+                <span class="text-sm text-gray-500">{{ resultados|length }} afiliado(s)</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-red-700 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">CURP</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Categoría</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Expediente</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold">Estatus</th>
+                            <th class="px-6 py-3 text-center text-sm font-semibold">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% if resultados %}
+                            {% for r in resultados %}
+                            <tr class="hover:bg-gray-50" id="fila-{{ r['id'] }}">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{ r['apellido_paterno'] }} {{ r['apellido_materno'] }} {{ r['nombres'] }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">{{ r['curp'] }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-600" id="cat-{{ r['id'] }}">
+                                    {{ r['categoria'] or '—' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">{{ r['id_expediente'] }}</td>
+                                <td class="px-6 py-4">
+                                    <span id="badge-{{ r['id'] }}"
+                                          class="text-xs px-2 py-1 rounded-full font-medium
+                                                 {% if r['estatus'] == 'activo' %}
+                                                     bg-green-100 text-green-700
+                                                 {% elif r['estatus'] == 'inactivo' %}
+                                                     bg-yellow-100 text-yellow-700
+                                                 {% else %}
+                                                     bg-gray-100 text-gray-700
+                                                 {% endif %}">
+                                        {{ r['estatus']|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="abrirDetalle({{ r['id'] }})"
+                                            class="inline-flex items-center gap-1 px-3 py-1 rounded-lg
+                                                   bg-red-700 text-white text-xs hover:bg-red-800 transition-colors">
+                                        <i data-lucide="eye" class="w-3 h-3"></i>
+                                        Ver detalle
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                                    <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                    <p>No se encontraron afiliados con los filtros seleccionados.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
+    <!-- ══════════════════════════════════════════
+         MODAL DETALLE DEL AFILIADO
+    ══════════════════════════════════════════ -->
+    <div id="modalDetalle"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
+            <!-- Encabezado del modal -->
+            <div class="flex items-center justify-between p-6 border-b bg-red-700 rounded-t-xl">
+                <h3 id="modalNombre" class="text-lg font-semibold text-white">Detalle del Afiliado</h3>
+                <button onclick="cerrarModal()"
+                        class="text-white/80 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- ── Alerta dentro del modal ── -->
+            <div id="alertasModal" class="p-4 hidden"></div>
+
+            <div class="p-6 space-y-6">
+
+                <!-- Datos básicos -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Datos del Registro</h4>
+                    <div class="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                        <div><span class="font-medium">CURP:</span> <span id="dCurp"></span></div>
+                        <div><span class="font-medium">Expediente:</span> <span id="dExpediente"></span></div>
+                        <div><span class="font-medium">Fecha Nac.:</span> <span id="dFechaNac"></span></div>
+                        <div><span class="font-medium">Celular:</span> <span id="dCelular"></span></div>
+                    </div>
+                </div>
+
+                <!-- Cambiar categoría -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="tag" class="w-4 h-4 text-red-700"></i>
+                        Cambiar Categoría
+                    </h4>
+                    <div class="flex gap-2">
+                        <select id="nuevaCategoria"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg
+                                       focus:ring-2 focus:ring-red-500 focus:outline-none text-sm">
+                            <option value="">Seleccionar</option>
+                            <option>INFANTIL</option>
+                            <option>MENOR INFANTIL</option>
+                            <option>CADETE</option>
+                            <option>JUVENIL</option>
+                            <option>MAYOR</option>
+                            <option>MASTER</option>
+                        </select>
+                        <button onclick="guardarCategoria()"
+                                class="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800
+                                       transition-colors text-sm flex items-center gap-1">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cambiar estatus del expediente -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="toggle-left" class="w-4 h-4 text-red-700"></i>
+                        Estatus del Expediente
+                    </h4>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="cambiarEstatus('activo')"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700
+                                       transition-colors text-sm flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            Marcar Activo
+                        </button>
+                        <button onclick="cambiarEstatus('inactivo')"
+                                class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600
+                                       transition-colors text-sm flex items-center gap-1">
+                            <i data-lucide="pause-circle" class="w-4 h-4"></i>
+                            Marcar Inactivo
+                        </button>
+                        <p class="text-xs text-gray-400 w-full mt-1">
+                            Al marcar como inactivo, el afiliado desaparece de la lista de activos.
+                            Puedes verlo seleccionando "Inactivos" en el filtro.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Agregar sanción -->
+                <div class="border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-red-700"></i>
+                        Agregar Sanción
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Tipo de Sanción *</label>
+                            <select id="tipoSancion"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg
+                                           focus:ring-2 focus:ring-red-500 focus:outline-none text-sm">
+                                <option value="">Seleccionar</option>
+                                <option value="Suspensión">Suspensión</option>
+                                <option value="Multa">Multa</option>
+                                <option value="Amonestación">Amonestación</option>
+                                <option value="Inhabilitación">Inhabilitación</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Liga *</label>
+                            <select id="ligaSancion"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg
+                                           focus:ring-2 focus:ring-red-500 focus:outline-none text-sm">
+                                <option value="">Seleccionar liga</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Fecha Fin (opcional)</label>
+                            <input type="date" id="fechaFinSancion"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg
+                                          focus:ring-2 focus:ring-red-500 focus:outline-none text-sm
+                                          [color-scheme:light]">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Motivo / Razón *</label>
+                        <textarea id="motivoSancion" rows="3"
+                                  placeholder="Describe el motivo de la sanción..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg
+                                         focus:ring-2 focus:ring-red-500 focus:outline-none text-sm resize-none"></textarea>
+                    </div>
+                    <button onclick="guardarSancion()"
+                            class="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800
+                                   transition-colors text-sm flex items-center gap-1">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        Registrar Sanción
+                    </button>
+                </div>
+
+                <!-- Historial de sanciones -->
+                <div id="historialSanciones" class="hidden border rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="list" class="w-4 h-4 text-red-700"></i>
+                        Historial de Sanciones
+                    </h4>
+                    <div id="listaSanciones" class="space-y-2"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
+        let idAfiliadoActual = null;
 
-        function buscarAfiliado() {
-            const curp = document.getElementById('curpBusqueda').value.trim();
-            const nombre = document.getElementById('nombreBusqueda').value.trim();
+        function abrirDetalle(id) {
+            idAfiliadoActual = id;
+            fetch(`{{ url_for('consulta.consultarAfiliado') }}/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) { mostrarAlerta('error', 'Error', data.mensaje); return; }
 
-            if (!curp && !nombre) {
-                alert('Por favor ingrese al menos un criterio de búsqueda');
+                    const j = data.jugador;
+                    document.getElementById('modalNombre').textContent =
+                        `${j.apellido_paterno} ${j.apellido_materno} ${j.nombres}`;
+                    document.getElementById('dCurp').textContent        = j.curp || '—';
+                    document.getElementById('dExpediente').textContent  = j.id_expediente || '—';
+                    document.getElementById('dFechaNac').textContent    = j.fecha_nacimiento || '—';
+                    document.getElementById('dCelular').textContent     = j.celular || '—';
+
+                    const sel = document.getElementById('nuevaCategoria');
+                    sel.value = j.categoria || '';
+
+                    const ligaSel = document.getElementById('ligaSancion');
+                    ligaSel.innerHTML = '<option value="">Seleccionar liga</option>';
+                    data.ligas.forEach(l => {
+                        const opt = document.createElement('option');
+                        opt.value = l.id_liga;
+                        opt.textContent = l.nombre_liga;
+                        ligaSel.appendChild(opt);
+                    });
+
+                    renderSanciones(data.sanciones);
+
+                    document.getElementById('modalDetalle').classList.remove('hidden');
+                    lucide.createIcons();
+                })
+                .catch(() => mostrarAlerta('error', 'Error', 'No se pudo cargar el detalle.'));
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalDetalle').classList.add('hidden');
+            document.getElementById('motivoSancion').value = '';
+            document.getElementById('fechaFinSancion').value = '';
+            idAfiliadoActual = null;
+        }
+
+        function renderSanciones(sanciones) {
+            const contenedor = document.getElementById('historialSanciones');
+            const lista      = document.getElementById('listaSanciones');
+            if (!sanciones || sanciones.length === 0) {
+                contenedor.classList.add('hidden');
+                return;
+            }
+            contenedor.classList.remove('hidden');
+            lista.innerHTML = sanciones.map(s => `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-semibold text-red-800">${s.tipo_sancion}</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                                     ${s.estatus === 'Activa'
+                                        ? 'bg-red-100 text-red-700'
+                                        : 'bg-gray-100 text-gray-600'}">
+                            ${s.estatus}
+                        </span>
+                    </div>
+                    <div class="text-gray-600 text-xs mb-1">
+                        Liga: ${s.nombre_liga || '—'} &nbsp;|&nbsp;
+                        Fecha: ${s.fecha_sancion}
+                        ${s.fecha_fin_sancion ? ' → ' + s.fecha_fin_sancion : ''}
+                    </div>
+                    <p class="text-gray-700">${s.motivo}</p>
+                </div>
+            `).join('');
+        }
+
+        function guardarCategoria() {
+            const nueva = document.getElementById('nuevaCategoria').value;
+            if (!nueva) { mostrarAlertaModal('error', 'Error', 'Selecciona una categoría.'); return; }
+            fetch(`{{ url_for('consulta.consultarAfiliado') }}/${idAfiliadoActual}/categoria`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoria: nueva })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    const celda = document.getElementById(`cat-${idAfiliadoActual}`);
+                    if (celda) celda.textContent = nueva;
+                    mostrarAlertaModal('success', 'Categoría actualizada', data.mensaje);
+                } else {
+                    mostrarAlertaModal('error', 'Error', data.mensaje);
+                }
+            });
+        }
+
+        function cambiarEstatus(nuevoEstatus) {
+            const msg = nuevoEstatus === 'inactivo'
+                ? '¿Marcar como inactivo? El afiliado dejará de aparecer en la lista de activos.'
+                : '¿Marcar como activo?';
+            if (!confirm(msg)) return;
+
+            fetch(`{{ url_for('consulta.consultarAfiliado') }}/${idAfiliadoActual}/estatus`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estatus: nuevoEstatus })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    const badge = document.getElementById(`badge-${idAfiliadoActual}`);
+                    if (badge) {
+                        if (nuevoEstatus === 'activo') {
+                            badge.textContent = 'Activo';
+                            badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700';
+                        } else if (nuevoEstatus === 'inactivo') {
+                            badge.textContent = 'Inactivo';
+                            badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700';
+                        } else {
+                            badge.textContent = 'Cerrado';
+                            badge.className = 'text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-700';
+                        }
+                    }
+                    mostrarAlertaModal('success', 'Estatus actualizado', data.mensaje);
+                    actualizarContadoresAfiliados();
+                    cerrarModal();
+                } else {
+                    mostrarAlertaModal('error', 'Error', data.mensaje);
+                }
+            });
+        }
+
+        function guardarSancion() {
+            const tipo   = document.getElementById('tipoSancion').value;
+            const liga   = document.getElementById('ligaSancion').value;
+            const motivo = document.getElementById('motivoSancion').value.trim();
+            const fin    = document.getElementById('fechaFinSancion').value || null;
+
+            if (!tipo || !liga || !motivo) {
+                mostrarAlertaModal('error', 'Campos requeridos', 'Tipo, liga y motivo son obligatorios.');
                 return;
             }
 
-            // Simular búsqueda
-            setTimeout(() => {
-                // Simular que se encontró un afiliado
-                if (curp === 'PEGJ850315HDFRRN09' || nombre.toLowerCase().includes('juan')) {
-                    document.getElementById('fichaAfiliado').classList.remove('hidden');
-                    document.getElementById('sinResultados').classList.add('hidden');
+            fetch(`{{ url_for('consulta.consultarAfiliado') }}/${idAfiliadoActual}/sancion`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tipo_sancion:      tipo,
+                    id_liga:           liga,
+                    motivo:            motivo,
+                    fecha_fin_sancion: fin
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarAlertaModal('success', 'Sanción registrada', data.mensaje);
+                    document.getElementById('tipoSancion').value    = '';
+                    document.getElementById('motivoSancion').value  = '';
+                    document.getElementById('fechaFinSancion').value = '';
+                    abrirDetalle(idAfiliadoActual);
+                    actualizarContadoresAfiliados();
                 } else {
-                    document.getElementById('fichaAfiliado').classList.add('hidden');
-                    document.getElementById('sinResultados').classList.remove('hidden');
+                    mostrarAlertaModal('error', 'Error', data.mensaje);
                 }
-            }, 1000);
+            });
         }
 
-        // Permitir búsqueda con Enter
-        document.getElementById('curpBusqueda').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') buscarAfiliado();
-        });
+        // Muestra una alerta dentro del modal
+        function mostrarAlertaModal(tipo, titulo, mensaje) {
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
+            const contenedor = document.getElementById('alertasModal');
+            contenedor.className = `p-4 ${estilos[tipo]}`;
+            contenedor.innerHTML = `
+                <div class="border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
+                </div>`;
+            contenedor.classList.remove('hidden');
+            lucide.createIcons();
+            setTimeout(() => {
+                contenedor.classList.add('hidden');
+                contenedor.innerHTML = '';
+            }, 5000);
+        }
 
-        document.getElementById('nombreBusqueda').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') buscarAfiliado();
+        // Actualiza los contadores de afiliados en tiempo real
+        function actualizarContadoresAfiliados() {
+            fetch('/consulta/contadores-afiliados')
+                .then(r => r.json())
+                .then(data => {
+                    const activos = document.getElementById('contadorActivos');
+                    const inactivos = document.getElementById('contadorInactivos');
+                    if (activos) activos.textContent = data.activos || 0;
+                    if (inactivos) inactivos.textContent = data.inactivos || 0;
+                })
+                .catch(() => {});
+        }
+
+        // Muestra una alerta fuera del modal
+        function mostrarAlerta(tipo, titulo, mensaje) {
+            const estilos = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error:   'bg-red-50 border-red-200 text-red-800'
+            };
+            const iconos = { success: 'check-circle', error: 'x-circle' };
+            document.getElementById('alertas').innerHTML = `
+                <div class="${estilos[tipo]} border rounded-lg p-4 flex items-start gap-3">
+                    <i data-lucide="${iconos[tipo]}" class="w-5 h-5 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium">${titulo}</p>
+                        <p class="text-sm">${mensaje}</p>
+                    </div>
+                </div>`;
+            lucide.createIcons();
+            setTimeout(() => document.getElementById('alertas').innerHTML = '', 5000);
+        }
+
+        document.getElementById('modalDetalle').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
         });
     </script>
 </body>

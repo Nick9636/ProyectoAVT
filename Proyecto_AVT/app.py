@@ -1,117 +1,53 @@
-from flask import Flask, render_template, request, redirect, url_for
+# Autor: Adriana Nicole Guzman Ahuatzi
+#23/03/2026
+# Descripción: Punto de entrada principal de la aplicación Flask. Inicializa extensiones,
+#              registra los blueprints de cada módulo y define el decorador de protección de rutas.
+from flask import Flask, render_template, session, redirect, url_for
+from dotenv import load_dotenv
+import os
+from functools import wraps
+
+load_dotenv()
+
+from config import Config
+from extensiones import mysql, bcrypt, mail
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
-@app.route("/")
-def index():
-    return render_template("iniciarSesion.html")
+# Inicializar extensiones
+mysql.init_app(app)
+bcrypt.init_app(app)
+mail.init_app(app)
 
+# IMPORTAR TODOS LOS BLUEPRINTS
+from auth.auth import auth
+from autorizar.autorizar import autorizar
+from consulta.consulta import consulta
+from registro.registro import registro
+from reportes.reportes import reportes
+from paginaInicio.paginaInicio import principal
 
-#ESTA ES LA RUTA QUE TE FALTA
-@app.route("/iniciarSesion", methods=["POST"])
-def iniciarSesion():
-    email = request.form["email"]
-    password = request.form["password"]
+# REGISTRAR BLUEPRINTS
+app.register_blueprint(auth)
+app.register_blueprint(autorizar)
+app.register_blueprint(consulta)
+app.register_blueprint(registro)
+app.register_blueprint(reportes)
+app.register_blueprint(principal)
 
-    # Validación temporal
-    if email == "admin@avt.com" and password == "1234":
-        return redirect(url_for("paginaInicio"))
-
-    return "Credenciales incorrectas"
-
-
-@app.route("/paginaInicio")
-def paginaInicio():
-    return render_template("paginaInicio.html")
-
-
-@app.route("/recordarContrasena", methods=["GET", "POST"])
-def recordarContrasena():
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
-
-        # Aquí después conectarás base de datos
-        print("Correo:", email)
-        print("Nueva contraseña:", password)
-
-        return redirect(url_for("iniciarSesion"))
-
-    return render_template("recordarContrasena.html")
-
-@app.route("/nuevoUsuario")
-def nuevoUsuario():
-    return render_template("nuevoUsuario.html")
-
-
-@app.route("/registro")
-def registro():
-    return render_template("registro.html")
-
-
-@app.route("/consultar")
-def consultar():
-    return render_template("consultar.html")
-
-@app.route("/reportes")
-def reportes():
-    return render_template("reportes.html")
-
-@app.route("/reporteSistema")
-def reporteSistema():
-    return render_template("reporteSistema.html")
-
-@app.route("/autorizarRegistro")
-def autorizarRegistro():
-    return render_template("autorizarRegistro.html")
-
-@app.route("/consultarAfiliado")
-def consultarAfiliado():
-    return render_template("consultarAfiliado.html")
-
-@app.route("/consultarLigas")
-def consultarLigas():
-    return render_template("consultarLigas.html")
-
-@app.route("/consultarPagos")
-def consultarPagos():
-    return render_template("consultarPagos.html")
-
-@app.route("/consultarRegistro")
-def consultarRegistro():
-    return render_template("consultarRegistro.html")
-
-@app.route("/consultarTutor")
-def consultarTutor():
-    return render_template("consultarTutor.html")
-
-@app.route("/digitalizar")
-def digitalizar():
-    return render_template("digitalizar.html")
-
-@app.route("/expedientes")
-def expedientes():
-    return render_template("expedientes.html")
-
-@app.route("/notificaciones")
-def notificaciones():
-    return render_template("notificaciones.html")
-
-@app.route("/registroEquipo")
-def registroEquipo():
-    return render_template("registroEquipo.html")
-
-@app.route("/registroLiga")
-def registroLiga():
-    return render_template("registroLiga.html")
-
-@app.route("/registroPago")
-def registroPago():
-    return render_template("registroPago.html")
-
-@app.route("/registroPersona")
-def registroPersona():
-    return render_template("registroPersona.html")
+# ── DECORADOR PROTECCIÓN ──────────────────────────
+def solo_internos(f):
+    @wraps(f)
+    def decorador(*args, **kwargs):
+        if 'id_usuario' not in session:
+            return redirect(url_for("auth.iniciarSesion"))
+        return f(*args, **kwargs)
+    return decorador
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=os.environ.get("FLASK_DEBUG", "").lower() == "true"
+    )

@@ -1,0 +1,318 @@
+{# Autor: Adriana Nicole Guzman Ahuatzi #}
+{#22/03/2026#}
+{# Descripción: Módulo de generación de expedientes SIRED. Permite buscar jugadores,
+   entrenadores o árbitros y descargar su expediente en formato Excel. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Expediente SIRED</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen">
+    {% include 'header.html' %}
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
+
+        <!-- Opción 1: reporte masivo de expedientes activos sin fotografías -->
+        <section class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                1. Reporte de expedientes activos sin fotografías
+            </h2>
+            <p class="text-sm text-gray-600 mb-5">
+                Descarga en Excel los expedientes de jugadores activos creados en el rango indicado.
+            </p>
+            <form method="get" action="{{ url_for('principal.generar_reporte_expedientes') }}"
+                  class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label for="fechaInicioReporte" class="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha inicial
+                    </label>
+                    <input type="date" id="fechaInicioReporte" name="fecha_inicio" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="fechaFinReporte" class="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha final
+                    </label>
+                    <input type="date" id="fechaFinReporte" name="fecha_fin" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                <button type="submit"
+                        class="btn-vino flex items-center justify-center gap-2 whitespace-nowrap">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Descargar Excel sin fotos
+                </button>
+            </form>
+        </section>
+
+        <!-- Buscador de expedientes por nombre o número -->
+        <div class="bg-red-800 rounded-xl shadow-md p-8 mb-6">
+            <h2 class="text-xl font-semibold text-white mb-2">
+                2. Expediente individual SIRED con fotografía
+            </h2>
+            <p class="text-sm text-red-100 mb-6">
+                Busca una persona y descarga su expediente en el formato SIRED.
+            </p>
+            <div class="flex gap-3">
+                <div class="relative flex-1">
+                    <i data-lucide="search"
+                       class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                    <input type="text" id="termino"
+                           placeholder="Nombre o número de jugador, entrenador o árbitro..."
+                           class="w-full pl-10 pr-4 py-2 rounded-lg border border-red-400
+                                  bg-white focus:outline-none focus:ring-2 focus:ring-white">
+                </div>
+                <button onclick="buscarExpediente()"
+                        class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-500
+                               transition-colors flex items-center gap-2 whitespace-nowrap">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Alerta sin resultados -->
+        <div id="alertaSinResultados"
+             class="hidden flex items-center gap-3 bg-yellow-50 border border-yellow-200
+                    text-yellow-800 rounded-xl px-5 py-4 mb-6">
+            <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+            <p class="text-sm font-medium">No se encontraron coincidencias para tu búsqueda.</p>
+            <button onclick="document.getElementById('alertaSinResultados').classList.add('hidden')"
+                    class="ml-auto text-yellow-500 hover:text-yellow-700">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Resultados -->
+        <div id="listaResultados" class="space-y-4 mb-6"></div>
+
+        <!-- Barra de progreso durante la generación del Excel -->
+        <div id="progreso" class="bg-white rounded-xl shadow-md p-8 hidden">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Generando Expediente</h2>
+            <div class="mb-4">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progreso</span>
+                    <span id="porcentaje">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="barraProgreso"
+                         class="bg-red-600 h-3 rounded-full transition-all"
+                         style="width: 0%"></div>
+                </div>
+            </div>
+            <p id="estadoProgreso" class="text-gray-500 text-center text-sm">
+                Iniciando generación...
+            </p>
+        </div>
+
+        <!-- Mensaje éxito/error -->
+        <div id="mensaje" class="bg-white rounded-xl shadow-md p-8 hidden">
+            <div class="text-center">
+                <div id="iconoMensaje"
+                     class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center">
+                </div>
+                <h2 id="tituloMensaje" class="text-xl font-semibold text-gray-900 mb-2"></h2>
+                <p  id="textoMensaje"  class="text-gray-600 mb-6"></p>
+                <button onclick="reiniciar()" class="btn-vino">
+                    Generar otro expediente
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // Mapas de etiquetas y colores por tipo de persona
+        const labelTipo = { jugador: 'Jugador', entrenador: 'Entrenador', arbitro: 'Árbitro' };
+        const colorTipo = {
+            jugador:    'bg-blue-100 text-blue-700',
+            entrenador: 'bg-green-100 text-green-700',
+            arbitro:    'bg-purple-100 text-purple-700'
+        };
+
+        // Busca expedientes por nombre o número de registro
+        function buscarExpediente() {
+            const termino = document.getElementById('termino').value.trim();
+            if (!termino) return;
+
+            // Mostrar indicador de carga
+            document.getElementById('listaResultados').innerHTML = `
+                <div class="text-center py-8 text-gray-400">
+                    <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+                    <p class="text-sm">Buscando...</p>
+                </div>`;
+            lucide.createIcons();
+            document.getElementById('alertaSinResultados').classList.add('hidden');
+
+            fetch(`{{ url_for('principal.buscar_expediente') }}?termino=${encodeURIComponent(termino)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) {
+                        document.getElementById('listaResultados').innerHTML = '';
+                        document.getElementById('alertaSinResultados').classList.remove('hidden');
+                        lucide.createIcons();
+                        return;
+                    }
+                    renderResultados(data.resultados);
+                })
+                .catch(() => {
+                    document.getElementById('listaResultados').innerHTML = '';
+                    document.getElementById('alertaSinResultados').classList.remove('hidden');
+                    lucide.createIcons();
+                });
+        }
+
+        // Permite buscar presionando Enter en el campo de búsqueda
+        document.getElementById('termino').addEventListener('keydown', e => {
+            if (e.key === 'Enter') buscarExpediente();
+        });
+
+        // Renderiza la lista de resultados encontrados
+        function renderResultados(resultados) {
+            const lista = document.getElementById('listaResultados');
+            lista.innerHTML = resultados.map(r => `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5
+                            flex items-center justify-between gap-4 hover:shadow-md transition">
+                    <div class="flex items-center gap-4">
+                        <!-- Ícono del tipo de persona -->
+                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center
+                                    justify-center flex-shrink-0">
+                            <i data-lucide="user" class="w-6 h-6 text-red-700 mx-auto"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap mb-1">
+                                <h3 class="font-semibold text-gray-900">${r.nombre}</h3>
+                                <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                                             ${colorTipo[r.tipo] || 'bg-gray-100 text-gray-600'}">
+                                    ${labelTipo[r.tipo] || r.tipo}
+                                </span>
+                                <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                                             ${r.estatus === 'activo'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-500'}">
+                                    ${r.estatus}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
+                                <span><i data-lucide="hash" class="w-3 h-3 inline"></i> ID ${r.tipo}: ${r.id_persona}</span>
+                                <span><i data-lucide="folder" class="w-3 h-3 inline"></i> Expediente: ${r.id_expediente}</span>
+                                <span><i data-lucide="tag" class="w-3 h-3 inline"></i> ${r.categoria}</span>
+                                <span><i data-lucide="calendar" class="w-3 h-3 inline"></i> ${r.fecha_creacion}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Botón para descargar el expediente en Excel -->
+                    <button onclick="generarExpediente(${r.id_persona}, '${r.tipo}')"
+                            class="btn-vino flex items-center gap-2 whitespace-nowrap flex-shrink-0">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Descargar Excel
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Genera y descarga el expediente en formato Excel con barra de progreso simulada
+        function generarExpediente(id_persona, tipo) {
+            document.getElementById('listaResultados').classList.add('hidden');
+            document.getElementById('progreso').classList.remove('hidden');
+
+            let p = 0;
+            const iv = setInterval(() => {
+                p += Math.random() * 25;
+                if (p > 90) p = 90;
+                document.getElementById('barraProgreso').style.width = p + '%';
+                document.getElementById('porcentaje').textContent    = Math.round(p) + '%';
+                if (p < 40)      document.getElementById('estadoProgreso').textContent = 'Recopilando datos...';
+                else if (p < 80) document.getElementById('estadoProgreso').textContent = 'Generando Excel...';
+                else             document.getElementById('estadoProgreso').textContent = 'Finalizando...';
+            }, 200);
+
+            fetch("{{ url_for('principal.generar_expediente') }}", {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ id_persona, tipo })
+            })
+            .then(async respuesta => {
+                if (!respuesta.ok) {
+                    let detalle = 'No fue posible generar el expediente.';
+                    try {
+                        const error = await respuesta.json();
+                        detalle = error.mensaje || detalle;
+                    } catch (_) {
+                        detalle = 'No fue posible generar el expediente.';
+                    }
+                    throw new Error(detalle);
+                }
+
+                const tipoContenido = respuesta.headers.get('Content-Type') || '';
+                if (!tipoContenido.includes('spreadsheet')) {
+                    throw new Error('El servidor no devolvió un archivo Excel válido.');
+                }
+                return respuesta.blob();
+            })
+            .then(blob => {
+                clearInterval(iv);
+                document.getElementById('barraProgreso').style.width = '100%';
+                document.getElementById('porcentaje').textContent    = '100%';
+
+                // Crear enlace temporal para descargar el archivo
+                const url  = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href  = url;
+                link.download = `expediente_${id_persona}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                setTimeout(() => mostrarMensaje(true), 500);
+            })
+            .catch(error => {
+                clearInterval(iv);
+                mostrarMensaje(false, error.message);
+            });
+        }
+
+        // Muestra el mensaje de éxito o error tras generar el expediente
+        function mostrarMensaje(exito, detalle) {
+            document.getElementById('progreso').classList.add('hidden');
+            document.getElementById('mensaje').classList.remove('hidden');
+            if (exito) {
+                document.getElementById('iconoMensaje').className =
+                    'w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center';
+                document.getElementById('iconoMensaje').innerHTML =
+                    '<i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>';
+                document.getElementById('tituloMensaje').textContent = 'Expediente generado';
+                document.getElementById('textoMensaje').textContent  = 'El archivo se descargó exitosamente.';
+            } else {
+                document.getElementById('iconoMensaje').className =
+                    'w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center';
+                document.getElementById('iconoMensaje').innerHTML =
+                    '<i data-lucide="x-circle" class="w-8 h-8 text-red-600"></i>';
+                document.getElementById('tituloMensaje').textContent = 'Error al generar';
+                document.getElementById('textoMensaje').textContent  =
+                    detalle || 'Intente nuevamente.';
+            }
+            lucide.createIcons();
+        }
+
+        // Reinicia la vista para generar otro expediente
+        function reiniciar() {
+            document.getElementById('mensaje').classList.add('hidden');
+            document.getElementById('listaResultados').classList.remove('hidden');
+            document.getElementById('listaResultados').innerHTML = '';
+            document.getElementById('termino').value = '';
+            document.getElementById('barraProgreso').style.width = '0%';
+            document.getElementById('porcentaje').textContent = '0%';
+        }
+    </script>
+</body>
+</html>
