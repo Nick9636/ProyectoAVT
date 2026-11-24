@@ -1,5 +1,5 @@
 from servicios import whatsapp_servicio
-from autorizar.autorizar import _enviar_aviso_whatsapp
+from Proyecto_AVT.blueprints.autorizar.autorizar import _enviar_aviso_whatsapp
 
 
 def test_notifica_aprobacion_a_numero_mexicano(monkeypatch, mocker):

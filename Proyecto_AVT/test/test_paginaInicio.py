@@ -384,6 +384,6 @@ def test_generar_expediente_descarga_cedula_sired_con_foto(
 
 def test_formatear_tamano_cero():
     """_formatear_tamano(0) debe devolver '0 Bytes'."""
-    from paginaInicio.paginaInicio import _formatear_tamano
+    from Proyecto_AVT.blueprints.paginaInicio.paginaInicio import _formatear_tamano
     resultado = _formatear_tamano(0)
     assert resultado == '0 Bytes'

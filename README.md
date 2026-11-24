@@ -188,9 +188,10 @@ que no se pudo enviar el aviso.
 
 ### Despliegue en Railway
 
-Deja **Root Directory** en la raíz del repositorio. El `Procfile` inicia Gunicorn
-desde `Proyecto_AVT/`, escucha en el puerto `$PORT` de Railway y el
-`requirements.txt` de la raíz instala las dependencias del proyecto.
+Deja **Root Directory** en la raíz del repositorio. El `Procfile` agrega
+`Proyecto_AVT/` al `PYTHONPATH` para que Gunicorn encuentre tanto `app.py` y sus
+módulos internos como el paquete `Proyecto_AVT`; escucha en el puerto `$PORT` de
+Railway. El `requirements.txt` de la raíz instala las dependencias del proyecto.
 
 Agrega un servicio MySQL a Railway y referencia sus variables en el servicio web:
 `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD` y `MYSQLDATABASE`. La

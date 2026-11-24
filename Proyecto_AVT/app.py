@@ -21,12 +21,12 @@ bcrypt.init_app(app)
 mail.init_app(app)
 
 # IMPORTAR TODOS LOS BLUEPRINTS
-from auth.auth import auth
-from autorizar.autorizar import autorizar
-from consulta.consulta import consulta
-from registro.registro import registro
-from reportes.reportes import reportes
-from paginaInicio.paginaInicio import principal
+from Proyecto_AVT.blueprints.auth.auth import auth
+from Proyecto_AVT.blueprints.autorizar.autorizar import autorizar
+from Proyecto_AVT.blueprints.consulta.consulta import consulta
+from Proyecto_AVT.blueprints.registro.registro import registro
+from Proyecto_AVT.blueprints.reportes.reportes import reportes
+from Proyecto_AVT.blueprints.paginaInicio.paginaInicio import principal
 
 # REGISTRAR BLUEPRINTS
 app.register_blueprint(auth)
