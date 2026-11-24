@@ -9,7 +9,6 @@ class Config:
     MYSQL_HOST = (
         os.environ.get('MYSQL_HOST')
         or os.environ.get('MYSQLHOST')
-        or 'localhost'
     )
     MYSQL_PORT = int(
         os.environ.get('MYSQL_PORT')
@@ -24,12 +23,11 @@ class Config:
     MYSQL_PASSWORD = (
         os.environ.get('MYSQL_PASSWORD')
         or os.environ.get('MYSQLPASSWORD')
-        or 'root'
     )
     MYSQL_DB = (
         os.environ.get('MYSQL_DB')
         or os.environ.get('MYSQLDATABASE')
-        or 'base_datos_amivd'
+        or 'base_datos_amivd_actual'
     )
     MYSQL_CURSORCLASS = 'DictCursor'
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'voleibol_avt_tlaxcala_2026'
