@@ -28,6 +28,8 @@ from Proyecto_AVT.blueprints.registro.registro import registro
 from Proyecto_AVT.blueprints.reportes.reportes import reportes
 from Proyecto_AVT.blueprints.paginaInicio.paginaInicio import principal
 
+from Proyecto_AVT.servicios.whatsapp import whatsapp_bp
+
 # REGISTRAR BLUEPRINTS
 app.register_blueprint(auth)
 app.register_blueprint(autorizar)
@@ -35,6 +37,15 @@ app.register_blueprint(consulta)
 app.register_blueprint(registro)
 app.register_blueprint(reportes)
 app.register_blueprint(principal)
+app.register_blueprint(whatsapp_bp)
+
+# COMPROBAR RUTAS REGISTRADAS
+print("\n========== RUTAS DE AVT ==========")
+
+for regla in app.url_map.iter_rules():
+    print(regla, regla.methods)
+
+print("==================================\n")
 
 # ── DECORADOR PROTECCIÓN ──────────────────────────
 def solo_internos(f):
